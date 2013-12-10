@@ -1,4 +1,4 @@
-//      Cog.js  1.1.0
+//      Cog.js  1.2.0
 //      http://www.github.com/archcomet/cogjs
 //      (c) 2013 Michael Good
 //      Cog may be freely distributed under the MIT license.
@@ -25,6 +25,8 @@
     var cog = function() {
         return !(this instanceof cog) ? new cog() : this;
     };
+
+    cog.VERSION = '1.2.0';
 
     // ------------------------------------------
     // Utility functions
@@ -673,10 +675,8 @@
             };
 
             this.step = function(timestamp) {
-                if (lastFrame !== 0) {
-                    var dt = timestamp - lastFrame;
-                    this.update(dt);
-                }
+                var dt = (lastFrame !== 0) ? timestamp - lastFrame : 16;
+                this.update(dt);
                 if (animationFrame) {
                     lastFrame = timestamp;
                     animationFrame = requestAnimationFrame(this.step.bind(this));
@@ -687,7 +687,7 @@
                 if (preUpdateCallback) {
                     preUpdateCallback();
                 }
-                systemManager.update(entityManager, eventManager, dt);
+                systemManager.update(dt);
                 if (postUpdateCallback) {
                     postUpdateCallback();
                 }
@@ -744,7 +744,7 @@
                 return director;
             };
 
-            this.create = function(tag) {
+            this.add = function(tag) {
                 var entity = new Entity(this, entityId++, tag);
                 entities.push(entity);
                 events.emit('entityCreated', entity);
@@ -836,11 +836,15 @@
      * @constructor
      */
 
+    var eventRegEx = /.* event$/;
+
     var SystemManager = Construct.extend('cog.SystemManager', {
 
         init: function(director) {
 
-            var systems = {};
+            var systems = {},
+                entities = director.entities(),
+                events = director.events();
 
             this.director = function() {
                 return director;
@@ -850,10 +854,21 @@
                 if (!System || !System.type || !System.type() === cog.System) {
                     return undefined;
                 }
-                var category = System.category(),
+                var key, prop,
+                    category = System.category(),
                     system = systems[category];
                 if (!system) {
                     system = systems[category] = new System(this);
+
+                    for (key in system) {
+                        //noinspection JSUnfilteredForInLoop
+                        if ((prop = system[key]) && isFunction(prop) && eventRegEx.test(key)) {
+                            //noinspection JSUnfilteredForInLoop
+                            events.register(key.substring(0, key.length-6), system, prop);
+                        }
+                    }
+
+                    system.configure(entities, events)
                 }
                 return system;
             };
@@ -871,6 +886,7 @@
                     return this;
                 }
                 var category = System.category();
+                events.unregisterContext(systems[category]);
                 systems[category].destroy(true);
                 systems[category] = undefined;
                 return this;
@@ -879,6 +895,7 @@
             this.removeAll = function() {
                 for (var key in systems) {
                     if (systems.hasOwnProperty(key)) {
+                        events.unregisterContext(systems[key]);
                         systems[key].destroy(true);
                         systems[key] = undefined;
                     }
@@ -886,10 +903,10 @@
                 return this;
             };
 
-            this.update = function(entityManager, eventManager, dt) {
+            this.update = function(dt) {
                 for (var key in systems) {
                     if (systems.hasOwnProperty(key)) {
-                        systems[key].update(entityManager, eventManager, dt);
+                        systems[key].update(entities, events, dt);
                     }
                 }
                 return this;
@@ -1108,7 +1125,7 @@
             };
 
             this.clone = function() {
-                var key, component, clone = manager.create(tag);
+                var key, component, clone = manager.add(tag);
                 for (key in components) {
                     if (components.hasOwnProperty(key)) {
                         component = components[key];
@@ -1269,6 +1286,8 @@
             };
         },
 
+        configure: function(entityManager, eventManager) {},
+
         update: function(entityManager, eventManager, dt) {}
 
     });
@@ -1279,15 +1298,24 @@
      * @constructor
      */
 
-    var Factory = Construct.extend('cog.Factory', {
+    var Factory = System.extend('cog.Factory', {
 
-        defaults: {},
+        entityTag: null,
 
-        init: function() {},
+        components: {},
 
-        destroy: function() {},
+        spawn: function() {
 
-        spawn: function() {}
+        },
+
+        despawn: function(entity) {
+
+        },
+
+        despawnAll: function(entity) {
+
+        }
+
     });
 
     // ------------------------------------------

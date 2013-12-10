@@ -26,7 +26,7 @@ test('Create/Destroy Component', function() {
 test('Destroy Component removes from Entity', function() {
     var dir = cog.createDirector(),
        entities = dir.entities(),
-       entity = entities.create();
+       entity = entities.add();
 
     var TestComponent = Component.extend({}),
         comp = entity.add(TestComponent);
@@ -101,23 +101,6 @@ test('Serialize Component', function() {
     var copy = comp.serialize();
 
     ok(cog.isPlainObject(copy), 'Is an object');
-    ok(cog.isPlainObject(copy.object), 'Copied object');
-
-    strictEqual(copy.foo, undefined, 'Did not copy function');
-    strictEqual(copy.defaults, undefined, 'Did not copy defaults');
     strictEqual(copy.number, 42, 'Copied number');
     strictEqual(copy.string, 'hello', 'Copied string');
-
-    notStrictEqual(copy.object, TestComponent.prototype.defaults.object, 'Object is not a reference');
-    notStrictEqual(copy.arr, TestComponent.prototype.defaults.arr, 'Array is not a reference');
-
-    strictEqual(copy.object.x, 1, 'Object x copied');
-    strictEqual(copy.object.y, '2', 'Object y copied');
-    strictEqual(copy.object.z[0], 3, 'Object z copied');
-    strictEqual(copy.arr[0], 10, 'Object arr[0] copied');
-    strictEqual(copy.arr[1], 'stuff', 'Object arr[1] copied');
-    strictEqual(copy.arr[2].foo, 'bar', 'Object arr[2] copied');
-
-    notStrictEqual(copy.object.z, TestComponent.prototype.defaults.object.z, 'Nested array is not a reference');
-    notStrictEqual(copy.arr[2], TestComponent.prototype.defaults.arr[2], 'Nested object is not a reference');
 });

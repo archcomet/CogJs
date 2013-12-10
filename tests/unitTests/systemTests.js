@@ -109,3 +109,50 @@ test('Update Systems', function() {
     strictEqual(testArgs2[2], 16, 'dt passed to system 2');
     strictEqual(testArgs3[2], 16, 'dt passed to system 3');
 });
+
+test('Configure Systems', function() {
+
+    var dir = cog.createDirector(),
+        systems = dir.systems();
+
+    var testArgs1 = [];
+
+    var TestSystem1 = System.extend({
+        configure: function(entities, events) {
+            testArgs1 = arguments;
+        }
+    });
+
+    systems.add(TestSystem1);
+
+    strictEqual(testArgs1[0], dir.entities(), 'Entities passed to system 1');
+    strictEqual(testArgs1[1], dir.events(), 'Events passed to system 1');
+});
+
+test('Auto Events Systems', function() {
+
+    var dir = cog.createDirector(),
+        systems = dir.systems(),
+        events = dir.events();
+
+    var testArgs1 = [];
+    var TestSystem1 = System.extend({
+        'test event':function() {
+            testArgs1 = arguments;
+        }
+    });
+
+    systems.add(TestSystem1);
+    events.emit('test', 1, 2, 3);
+
+    strictEqual(testArgs1[0], 1, 'Arg 0 passed');
+    strictEqual(testArgs1[1], 2, 'Arg 1 passed');
+    strictEqual(testArgs1[2], 3, 'Arg 2 passed');
+
+    systems.remove(TestSystem1);
+    events.emit('test', 2, 3, 4);
+
+    strictEqual(testArgs1[0], 1, 'Arg 0 Event not received after system removed');
+    strictEqual(testArgs1[1], 2, 'Arg 1 Event not received after system removed');
+    strictEqual(testArgs1[2], 3, 'Arg 2 Event not received after system removed');
+});
