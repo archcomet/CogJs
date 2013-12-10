@@ -94,6 +94,28 @@
     }
 
     /**
+     * defaults
+     *  fill given objects with properties
+     * @param obj
+     * @returns {*}
+     */
+
+    function defaults(obj) {
+        slice.call(arguments, 1).forEach(function(source) {
+            if (source) {
+                for (var key in source) {
+                    //noinspection JSUnfilteredForInLoop
+                    if (obj[key] === undefined) {
+                        //noinspection JSUnfilteredForInLoop
+                        obj[key] = source[key];
+                    }
+                }
+            }
+        });
+        return obj;
+    }
+
+    /**
      * type
      *  Safely check typeof object.
      * @param obj
@@ -1295,6 +1317,7 @@
     /**
      * Factory
      *
+     * @param manager
      * @constructor
      */
 
@@ -1304,18 +1327,41 @@
 
         components: {},
 
-        spawn: function() {
+        init: function(manager) {
 
-        },
+            var entityManager = manager.director().entities();
 
-        despawn: function(entity) {
+            this._super(manager);
 
-        },
+            /**
+             * spawn
+             * @param [options]
+             * @returns {*}
+             */
 
-        despawnAll: function(entity) {
+            this.spawn = function(options) {
 
+                var key,
+                    entity = entityManager.add(this.entityTag),
+                    components = this.components,
+                    component,
+                    componentOptions;
+
+                for (key in components) {
+                    if (components.hasOwnProperty(key)) {
+                        component = components[key];
+                        componentOptions = (options && options[key]) ? options[key] : {};
+                        defaults(componentOptions, component.defaults);
+                        entity.add(component.constructor, componentOptions);
+                    }
+                }
+                return entity;
+            };
+
+            if (isString(this.entityTag)) {
+                this[this.entityTag + ' event'] = this.spawn;
+            }
         }
-
     });
 
     // ------------------------------------------

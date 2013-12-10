@@ -22,37 +22,53 @@ test('Create entity from factory', function() {
         entityTag: 'TestObj',
         components: {
             position: {
-                constructor: Position,
-                defaults: {
-                    x: 10, y: 32
-                }
+                constructor: Position
             },
             movement: {
                 constructor: Movement,
                 defaults: {
-                    dx: 10, dz: 15
+                    dx: 10, dy: 15
                 }
             },
             size: {
-                constructor: Size
+                constructor: Size,
+                defaults: {
+                    width: 200
+                }
             }
         }
     });
 
     var dir = cog.createDirector(),
         testFactory = dir.systems().add(TestFactory),
-        testEntity = testFactory.spawn();
+        testEntity1 = testFactory.spawn();
 
     ok(testFactory instanceof Factory, 'Is a Factory');
     ok(testFactory instanceof TestFactory, 'Is a TestFactory');
-    ok(testEntity instanceof Entity, 'Is an Entity');
-    ok(testEntity.has(Position, Movement, Size), 'Has Components');
-    strictEqual(testEntity.get(Position).x, 10, 'Position x correct');
-    strictEqual(testEntity.get(Position).y, 32, 'Position x correct');
-    strictEqual(testEntity.get(Movement).dx, 10, 'Movement dx correct');
-    strictEqual(testEntity.get(Movement).dy, 15, 'Movement dy correct');
-    strictEqual(testEntity.get(Size).width, 11, 'Size width correct');
-    strictEqual(testEntity.get(Size).height, 12, 'Size height correct');
+    ok(testEntity1 instanceof Entity, 'Is an Entity');
+    ok(testEntity1.has(Position, Movement, Size), 'Has Components');
+    strictEqual(testEntity1.get(Position).x, 0, 'Position x correct');
+    strictEqual(testEntity1.get(Position).y, 0, 'Position x correct');
+    strictEqual(testEntity1.get(Movement).dx, 10, 'Movement dx correct');
+    strictEqual(testEntity1.get(Movement).dy, 15, 'Movement dy correct');
+    strictEqual(testEntity1.get(Size).width, 200, 'Size width correct');
+    strictEqual(testEntity1.get(Size).height, 22, 'Size height correct');
+
+    var testEntity2 = testFactory.spawn({
+        position: {
+            x: 10, y:30
+        },
+        size: {
+            height: 33
+        }
+    });
+
+    strictEqual(testEntity2.get(Position).x, 10, 'Position x correct');
+    strictEqual(testEntity2.get(Position).y, 30, 'Position x correct');
+    strictEqual(testEntity2.get(Movement).dx, 10, 'Movement dx correct');
+    strictEqual(testEntity2.get(Movement).dy, 15, 'Movement dy correct');
+    strictEqual(testEntity2.get(Size).width, 200, 'Size width correct');
+    strictEqual(testEntity2.get(Size).height, 33, 'Size height correct');
 
 });
 
