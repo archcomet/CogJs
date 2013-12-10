@@ -1,4 +1,4 @@
-//      Cog.js  1.2.0
+//      Cog.js  1.2.1
 //      http://www.github.com/archcomet/cogjs
 //      (c) 2013 Michael Good
 //      Cog may be freely distributed under the MIT license.
@@ -26,7 +26,7 @@
         return !(this instanceof cog) ? new cog() : this;
     };
 
-    cog.VERSION = '1.2.0';
+    cog.VERSION = '1.2.1';
 
     // ------------------------------------------
     // Utility functions
@@ -877,10 +877,10 @@
                     return undefined;
                 }
                 var key, prop,
-                    category = System.category(),
-                    system = systems[category];
+                    typeId = System.typeId(),
+                    system = systems[typeId];
                 if (!system) {
-                    system = systems[category] = new System(this);
+                    system = systems[typeId] = new System(this);
 
                     for (key in system) {
                         //noinspection JSUnfilteredForInLoop
@@ -899,18 +899,18 @@
                 if (!System || !System.type || !System.type() === cog.System) {
                     return undefined;
                 }
-                var category = System.category();
-                return systems[category];
+                var typeId = System.typeId();
+                return systems[typeId];
             };
 
             this.remove = function(System) {
                 if (!System || !System.type || !System.type() === cog.System) {
                     return this;
                 }
-                var category = System.category();
-                events.unregisterContext(systems[category]);
-                systems[category].destroy(true);
-                systems[category] = undefined;
+                var typeId = System.typeId();
+                events.unregisterContext(systems[typeId]);
+                systems[typeId].destroy(true);
+                systems[typeId] = undefined;
                 return this;
             };
 
@@ -1194,7 +1194,7 @@
             componentCount++;
             this.category = function() {
                 return categoryId;
-            }
+            };
 
             this.type = function() {
                 return Component;
@@ -1273,13 +1273,11 @@
     var System = Construct.extend('cog.System', {
 
         setup: function() {
-            if (systemCount > 64) {
-                throw 'Exceeded 64 System types.';
-            }
-            var categoryId = (systemCount === 0) ? 0 : 1 << (systemCount-1);
+
+            var typeId = (systemCount-1);
             systemCount++;
-            this.category = function() {
-                return categoryId;
+            this.typeId = function() {
+                return typeId;
             }
         },
 

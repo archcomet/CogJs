@@ -17,9 +17,9 @@ test('Extend assigns unique bit category', function() {
         TestSystem3 = System.extend({});
 
     strictEqual(System.count(), count + 3, 'Count increments');
-    strictEqual(TestSystem1.category(), 1 << count + 0, 'Category correct');
-    strictEqual(TestSystem2.category(), 1 << count + 1, 'Category correct');
-    strictEqual(TestSystem3.category(), 1 << count + 2, 'Category correct');
+    strictEqual(TestSystem1.typeId(), count + 0, 'typeId correct');
+    strictEqual(TestSystem2.typeId(), count + 1, 'typeId correct');
+    strictEqual(TestSystem3.typeId(), count + 2, 'typeId correct');
 });
 
 test('Add System returns undefined in not passed a System', function() {
