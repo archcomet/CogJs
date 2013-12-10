@@ -1402,4 +1402,8 @@
         Factory: Factory
     });
 
+    if (isFunction(define) && define.amd) {
+        define(function() { return cog; });
+    }
+
 }).call(this);
