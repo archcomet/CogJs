@@ -327,6 +327,40 @@ test('RemoveWithTag emits correct event', function() {
     strictEqual(testListener.destroyedArgs[0], entity, 'Entity passed via destroy event');
 });
 
+
+test('RemoveWithComponents emits correct event', function() {
+
+    var dir = cog.createDirector(),
+        entities = dir.entities,
+        events = dir.events;
+
+    var TestComponent = Component.extend({});
+
+    var testListener = {
+        createdCallback: function() {
+            ok(arguments[0].valid(), 'Valid during callback');
+            this.createdArgs = arguments;
+        },
+
+        destroyedCallback: function () {
+            ok(arguments[0].valid(), 'Valid during callback');
+            this.destroyedArgs = arguments;
+        }
+    };
+
+    events.register('entityCreated', testListener, testListener.createdCallback);
+    events.register('entityDestroyed', testListener, testListener.destroyedCallback);
+
+    var entity = entities.add();
+    entity.add(TestComponent);
+
+    strictEqual(testListener.createdArgs[0], entity, 'Entity passed via created event');
+
+    entities.removeWithComponents(TestComponent);
+    strictEqual(testListener.destroyedArgs[0], entity, 'Entity passed via destroy event');
+});
+
+
 test('Add/Remove Component emits correct event', function() {
     var dir = cog.createDirector(),
         entities = dir.entities,

@@ -17,14 +17,14 @@ test('Create Director function', function() {
     ok(testDir.entities instanceof EntityManager, 'Creates EntityManager');
     ok(testDir.systems instanceof SystemManager, 'Creates SystemManager');
     ok(testDir.events instanceof EventManager, 'Creates EventManager');
-    ok(testDir.valid(), 'Director is valid');
-    ok(testDir.entities.valid(), 'EntityManager is valid');
+    ok(testDir.valid, 'Director is valid');
+    ok(testDir.entities.valid, 'EntityManager is valid');
     ok(testDir.systems.valid(), 'SystemManager is valid');
     ok(testDir.events.valid(), 'EventManager is valid');
 
     strictEqual(testDir.config, config, 'Returns config');
 
-    strictEqual(testDir.entities.director(), testDir, 'EntityManager refs director');
+    strictEqual(testDir.entities.director, testDir, 'EntityManager refs director');
     strictEqual(testDir.systems.director(), testDir, 'SystemManager refs director');
     strictEqual(testDir.events.director(), testDir, 'EventManager refs director');
 
@@ -32,7 +32,7 @@ test('Create Director function', function() {
     strictEqual(testDir.entities, undefined, 'Destroys EntityManager');
     strictEqual(testDir.systems, undefined, 'Destroys SystemManager');
     strictEqual(testDir.events, undefined, 'Destroys EventManager');
-    strictEqual(testDir.valid(), false, 'Is no longer valid');
+    strictEqual(testDir.valid, false, 'Is no longer valid');
 });
 
 test('PreUpdate and PostUpdate hooks', function() {

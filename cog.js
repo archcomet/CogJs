@@ -662,18 +662,27 @@
      */
 
     var Director = Construct.extend('cog.Director', {
+        create: function(config) {
+            return new Director(config);
+        }
+    }, {
 
         properties: {
             config: { get: function() { return this._config; } },
             events: { get: function() { return this._eventManager; } },
             entities: { get: function() { return this._entityManager; } },
-            systems: { get: function() { return this._systemManager; } }
+            systems: { get: function() { return this._systemManager; } },
+            valid: { get: function() {
+                return (this._entityManager !== undefined &&
+                        this._systemManager !== undefined &&
+                        this._eventManager !== undefined);
+            }}
         },
 
         init: function(config) {
             this._config = config;
             this._eventManager = new EventManager(this);
-            this._entityManager = new EntityManager(this);
+            this._entityManager = EntityManager.create(this);
             this._systemManager = new SystemManager(this);
             this._preUpateCallback = null;
             this._animationFrame = null;
@@ -690,14 +699,6 @@
             this._eventManager = undefined;
             this._preUpateCallback = undefined;
             this._postUpdateCallback = undefined;
-        },
-
-        valid: function() {
-            return (
-                this._entityManager !== undefined &&
-                    this._systemManager !== undefined &&
-                    this._eventManager !== undefined
-                );
         },
 
         update: function(dt) {
@@ -743,10 +744,6 @@
         }
     });
 
-    function createDirector(config) {
-        return new Director(config);
-    }
-
     /**
      * EntityManager
      *
@@ -755,99 +752,112 @@
      */
 
     var EntityManager = Construct.extend('cog.EntityManager', {
+        create: function(director) {
+            return new EntityManager(director);
+        }
+    }, {
+
+        properties: {
+            director: { get: function() { return this._director; } },
+            valid: { get: function() { return (this._director !== undefined); } }
+        },
 
         init: function(director) {
+            this._director = director;
+            this._entities = [];
+            this._entityId = 1;
+        },
 
-            var entities = [],
-                entityId = 1,
-                events = director.events;
+        destroy: function() {
+            this.removeAll();
+            this._director = undefined;
+        },
 
-            this.director = function() {
-                return director;
-            };
+        add: function(tag) {
+            var entity = new Entity(this, this._entityId++, tag);
+            this._entities.push(entity);
+            this._director.events.emit('entityCreated', entity);
+            return entity;
+        },
 
-            this.add = function(tag) {
-                var entity = new Entity(this, entityId++, tag);
-                entities.push(entity);
-                events.emit('entityCreated', entity);
-                return entity;
-            };
+        all: function() {
+            var i = 0, n = this._entities.length, ret = [];
+            for (; i < n; ++i) {
+                ret.push(this._entities[i]);
+            }
+            return ret;
+        },
 
-            this.remove = function(entity) {
-                var index = entities.indexOf(entity);
-                if (index > -1) {
-                    entities.splice(index, 1);
-                    events.emit('entityDestroyed', entity);
-                    entity.destroy(true);
-                }
-                return this;
-            };
-
-            this.removeAll = function() {
-                var entity, i = entities.length - 1;
-                for (; i > -1; --i) {
-                    entity = entities.splice(i, 1)[0];
-                    events.emit('entityDestroyed', entity);
-                    entity.destroy(true);
-                }
-                return this;
-            };
-
-            this.removeWithTag = function(tag) {
-                var entity, i = entities.length - 1;
-                for (; i > -1; --i) {
-                    if (entities[i].tag() === tag) {
-                        entity = entities.splice(i, 1)[0];
-                        events.emit('entityDestroyed', entity);
-                        entity.destroy(true);
-                    }
-                }
-                return this;
-            };
-
-            this.all = function() {
-                var i = 0, n = entities.length, ret = [];
+        withTag: function(tag) {
+            var entity, i = 0, n = this._entities.length, ret = [];
+            if (tag) {
                 for (; i < n; ++i) {
-                    ret.push(entities[i]);
-                }
-                return ret;
-            };
-
-            this.withTag = function(tag) {
-                var entity, i = 0, n = entities.length, ret = [];
-                if (tag) {
-                    for (; i < n; ++i) {
-                        entity = entities[i];
-                        if (entity.tag() === tag) {
-                            ret.push(entity);
-                        }
-                    }
-                }
-                return ret;
-            };
-
-            this.withComponents = function() {
-                var entity,
-                    inputMask = _mask.apply(_mask, arguments),
-                    i = 0, n = entities.length, ret = [];
-                for (; i < n; ++i) {
-                    entity = entities[i];
-                    if ((inputMask & entity.mask()) === inputMask) {
+                    entity = this._entities[i];
+                    if (entity.tag() === tag) {
                         ret.push(entity);
                     }
                 }
-                return ret;
-            };
+            }
+            return ret;
+        },
 
-            this.valid = function() {
-                return (director !== undefined);
-            };
+        withComponents: function() {
+            var entity,
+                inputMask = _mask.apply(_mask, arguments),
+                i = 0, n = this._entities.length, ret = [];
+            for (; i < n; ++i) {
+                entity = this._entities[i];
+                if ((inputMask & entity.mask()) === inputMask) {
+                    ret.push(entity);
+                }
+            }
+            return ret;
+        },
 
-            this.destroy = function() {
-                this.removeAll();
-                director = undefined;
-                events = undefined;
-            };
+        remove: function(entity) {
+            var index = this._entities.indexOf(entity);
+            if (index > -1) {
+                this._entities.splice(index, 1);
+                this._director.events.emit('entityDestroyed', entity);
+                entity.destroy(true);
+            }
+            return this;
+        },
+
+        removeAll: function() {
+            var entity, i = this._entities.length - 1;
+            for (; i > -1; --i) {
+                entity = this._entities.splice(i, 1)[0];
+                this._director.events.emit('entityDestroyed', entity);
+                entity.destroy(true);
+            }
+            return this;
+        },
+
+        removeWithTag: function(tag) {
+            var entity, i = this._entities.length - 1;
+            for (; i > -1; --i) {
+                if (this._entities[i].tag() === tag) {
+                    entity = this._entities.splice(i, 1)[0];
+                    this._director.events.emit('entityDestroyed', entity);
+                    entity.destroy(true);
+                }
+            }
+            return this;
+        },
+
+        removeWithComponents: function() {
+            var entity, i = this._entities.length - 1,
+                inputMask = _mask.apply(_mask, arguments);
+            for (; i > -1; --i) {
+                entity = this._entities[i];
+                if ((inputMask & entity.mask()) === inputMask) {
+                    entity = this._entities.splice(i, 1)[0];
+                    this._director.events.emit('entityDestroyed', entity);
+                    entity.destroy(true);
+                }
+            }
+            return this;
         }
     });
 
@@ -1382,7 +1392,7 @@
         isString: isString,
 
         // Main
-        createDirector: createDirector,
+        createDirector: Director.create,
 
         // Base
         Construct: Construct,

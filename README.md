@@ -6,7 +6,7 @@ Starting to get the doc up. More coming soon! :)
 Core
 -------
 
-### Static
+### Static Functions
 
 cog.createDirector() -> {director}
 
@@ -18,7 +18,7 @@ cog.defaults(target, source1, source2, ...) -> {target}
 Util
 ------
 
-### Static
+### Static Functions
 
 cog.isArray() -> {boolean}
 
@@ -46,9 +46,11 @@ Director
 
 cog.createDirector(config) -> {director}
 
+director.init(config)
+
 director.destroy()
 
-### Instance - Managers
+### Instance Methods - Managers
 
 director.config -> {config}
 
@@ -60,7 +62,7 @@ director.events -> {eventManager}
 
 director.valid -> {boolean}
 
-### Instance - Timers
+### Instance Methods - Timers
 
 director.start()
 
@@ -74,3 +76,36 @@ director.preUpdate(callback)
 
 director.postUpdate(callback)
 
+
+EntityManager
+---------------
+
+### Memory
+
+EntityManager.create(director) -> {entityManager}
+
+entityManager.init(director)
+
+entityManager.destroy()
+
+### Instance Methods - Add Entity
+
+entityManager.add(tag) -> {entity}
+
+### Instance Methods - Get Entities
+
+entityManager.all() -> [entity array]
+
+entityManager.withTag(tag) -> [entity array]
+
+entityManager.withComponents(Component1, Component2, ...) -> [entity array]
+
+### Instance Methods - Remove Entities
+
+entityManager.remove(entity)
+
+entityManager.removeAll()
+
+entityManager.removeWithTag(tag)
+
+entityManager.removeWithComponents(Component1, Component2, ...)
