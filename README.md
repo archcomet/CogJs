@@ -18,7 +18,7 @@ cog.defaults(target, source1, source2, ...) -> {target}
 Utilities
 ------
 
-### Static Functions
+#### Static Functions
 
 cog.isArray() -> {boolean}
 
@@ -42,7 +42,7 @@ cog.isString() -> {boolean}
 Director
 ----------
 
-### Memory
+#### Memory
 
 cog.createDirector(config) -> {[director](https://github.com/archcomet/CogJs#director)}
 
@@ -50,19 +50,19 @@ director.init(config)
 
 director.destroy()
 
-### Instance Properties
+#### Instance Properties
 
 director.config -> {config}
 
-director.entities -> {entityManager}
+director.entities -> {[entityManager](https://github.com/archcomet/CogJs#entitymanager)}
 
-director.systems -> {systemManager}
+director.systems -> {[systemManager](https://github.com/archcomet/CogJs#systemmanager)}
 
 director.events -> {eventManager}
 
 director.valid -> {boolean}
 
-### Instance Methods
+#### Instance Methods
 
 director.start()
 
@@ -80,7 +80,7 @@ director.postUpdate(callback)
 EntityManager
 ---------------
 
-### Memory
+#### Memory
 
 EntityManager.create([director](https://github.com/archcomet/CogJs#director)) -> {entityManager}
 
@@ -88,13 +88,13 @@ entityManager.init([director](https://github.com/archcomet/CogJs#director))
 
 entityManager.destroy()
 
-### Instance Properties
+#### Instance Properties
 
 entityManager.director -> [director](https://github.com/archcomet/CogJs#director)
 
 entityManager.valid
 
-### Instance Methods
+#### Instance Methods
 
 entityManager.add(tag) -> {entity}
 
@@ -116,7 +116,7 @@ entityManager.removeWithComponents(Component1, Component2, ...)
 SystemManager
 --------------
 
-### Memory
+#### Memory
 
 SystemManager.create([director](https://github.com/archcomet/CogJs#director)) -> {systemManager}
 
@@ -124,13 +124,13 @@ systemManager.init([director](https://github.com/archcomet/CogJs#director))
 
 systemManager.destroy()
 
-### Instance Properties
+#### Instance Properties
 
 systemManager.director -> [director](https://github.com/archcomet/CogJs#director)
 
 systemManager.valid
 
-### Instance Methods
+#### Instance Methods
 
 systemManager.add(System) -> {system}
 
@@ -146,7 +146,7 @@ systemManager.update(dt)
 EventManager
 --------------
 
-### Memory
+#### Memory
 
 EventManager.create([director](https://github.com/archcomet/CogJs#director)) -> {eventManager}
 
@@ -154,33 +154,33 @@ eventManager.init([director](https://github.com/archcomet/CogJs#director))
 
 eventManager.destroy()
 
-### Instance Properties
+#### Instance Properties
 
-systemManager.director -> [director](https://github.com/archcomet/CogJs#director)
+eventManager.director -> [director](https://github.com/archcomet/CogJs#director)
 
-systemManager.valid
+eventManager.valid
 
-### Instance Methods
+#### Instance Methods
 
-systemManager.emit(eventName, arg1, arg2, ...)
+eventManager.emit(eventName, arg1, arg2, ...)
 
-systemManager.register(eventName, context, callback)
+eventManager.register(eventName, context, callback)
 
-systemManager.registerContext(context)
+eventManager.registerContext(context)
 
-systemManager.unregister(eventName, context)
+eventManager.unregister(eventName, context)
 
-systemManager.unregisterContext(context)
+eventManager.unregisterContext(context)
 
-systemManager.unregisterEvent(eventName)
+eventManager.unregisterEvent(eventName)
 
-systemManager.unregisterAll()
+eventManager.unregisterAll()
 
 
 Entity
 ----------
 
-### Memory
+#### Memory
 
 entity.init(manager, id, tag)
 
@@ -188,7 +188,7 @@ entity.destroy()
 
 entity.clone() -> {entity}
 
-### Instance Properties
+#### Instance Properties
 
 entity.manager -> {entityManager}
 
@@ -200,7 +200,7 @@ entity.tag -> {tag}
 
 entity.mask -> {component mask}
 
-### Instance Methods
+#### Instance Methods
 
 entity.add(Component, options) -> {component}
 
@@ -216,7 +216,7 @@ entity.removeAll()
 Component
 ------------
 
-### Memory
+#### Memory
 
 Component.setup()
 
@@ -226,23 +226,23 @@ component.destroy()
 
 component.clone() -> {component}
 
-### Static Properties
+#### Static Properties
 
 Component.category -> {category bit}
 
 Component.count -> {integer}
 
-### Prototype
+#### Prototype
 
 Component.prototype.defaults -> {options}
 
-### Instance Properties
+#### Instance Properties
 
 component.entity -> {entity}
 
 component.valid -> {boolean}
 
-### Instance Methods
+#### Instance Methods
 
 component.set(options)
 
@@ -252,7 +252,7 @@ component.serialize() -> {options}
 System
 ----------
 
-### Memory
+#### Memory
 
 System.setup()
 
@@ -260,11 +260,11 @@ system.init(manager)
 
 system.destroy()
 
-### Static Methods
+#### Static Methods
 
 System.systemId() -> {system id}
 
-### Instance Methods
+#### Instance Methods
 
 system.configure(entityManager, eventManager, config)
 
@@ -273,7 +273,7 @@ system.update(entityManager, eventManager, dt)
 Factory
 ------------
 
-### Memory
+#### Memory
 
 Factory.setup()
 
@@ -281,17 +281,17 @@ Factory.init(manager)
 
 factory.destroy()
 
-### Static Methods
+#### Static Methods
 
 Factory.systemId() -> {system id}
 
-### Prototype
+#### Prototype
 
 Factory.prototype.entityTag -> {tag}
 
 Factory.prototype.components -> {options}
 
-### Instance Methods
+#### Instance Methods
 
 factory.spawn(options)
 
@@ -303,7 +303,7 @@ factory.update(entityManager, eventManager, dt)
 Construct
 ------------
 
-### Inheritance
+#### Inheritance
 
 Construct.extend(fullName, static, prototype) -> {Constructor}
 
@@ -311,10 +311,10 @@ Construct.fullName() -> {fullName}
 
 Construct.setup()
 
-### Static Prototype
+#### Static Prototype
 
 properties -> {properties def}
 
-### Instance Prototype
+#### Instance Prototype
 
 properties -> {properties def}
