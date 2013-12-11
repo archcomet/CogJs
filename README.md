@@ -6,9 +6,9 @@ Starting to get the doc up. More coming soon! :)
 Core
 -------
 
-### Static Functions
+#### Static Functions
 
-cog.createDirector() -> {director}
+cog.createDirector() -> {[director](https://github.com/archcomet/CogJs#director)}
 
 cog.extend(target, source1, source2, ...) -> {target}
 
@@ -44,7 +44,7 @@ Director
 
 ### Memory
 
-cog.createDirector(config) -> {director}
+cog.createDirector(config) -> {[director](https://github.com/archcomet/CogJs#director)}
 
 director.init(config)
 
@@ -82,15 +82,15 @@ EntityManager
 
 ### Memory
 
-EntityManager.create(director) -> {entityManager}
+EntityManager.create([director](https://github.com/archcomet/CogJs#director)) -> {entityManager}
 
-entityManager.init(director)
+entityManager.init([director](https://github.com/archcomet/CogJs#director))
 
 entityManager.destroy()
 
 ### Instance Properties
 
-entityManager.director
+entityManager.director -> [director](https://github.com/archcomet/CogJs#director)
 
 entityManager.valid
 
@@ -118,15 +118,15 @@ SystemManager
 
 ### Memory
 
-SystemManager.create(director) -> {systemManager}
+SystemManager.create([director](https://github.com/archcomet/CogJs#director)) -> {systemManager}
 
-systemManager.init(director)
+systemManager.init([director](https://github.com/archcomet/CogJs#director))
 
 systemManager.destroy()
 
 ### Instance Properties
 
-systemManager.director
+systemManager.director -> [director](https://github.com/archcomet/CogJs#director)
 
 systemManager.valid
 
@@ -148,15 +148,15 @@ EventManager
 
 ### Memory
 
-EventManager.create(director) -> {eventManager}
+EventManager.create([director](https://github.com/archcomet/CogJs#director)) -> {eventManager}
 
-eventManager.init(director)
+eventManager.init([director](https://github.com/archcomet/CogJs#director))
 
 eventManager.destroy()
 
 ### Instance Properties
 
-systemManager.director
+systemManager.director -> [director](https://github.com/archcomet/CogJs#director)
 
 systemManager.valid
 
