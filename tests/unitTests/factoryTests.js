@@ -70,5 +70,10 @@ test('Create entity from factory', function() {
     strictEqual(testEntity2.get(Size).width, 200, 'Size width correct');
     strictEqual(testEntity2.get(Size).height, 33, 'Size height correct');
 
+    testFactory.despawn(testEntity1);
+    testFactory.despawn(testEntity2);
+
+    strictEqual(testEntity1.valid, false, 'Entity1 destroyed');
+    strictEqual(testEntity2.valid, false, 'Entity2 destroyed');
 });
 

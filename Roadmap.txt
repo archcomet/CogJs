@@ -1,0 +1,37 @@
+
+* Support for Entity Hierarchy
+    - parent
+    - children
+    - queries
+    - traverse
+
+* dat-gui hooks
+    - config
+    - factories
+
+* Random Number Generator
+    - randNumber
+    - randInteger
+    - shuffle
+    - seed
+    - reseed
+
+* Math Utilities
+    - Vector2
+    - Vector3
+    - Vector4
+    - Matrix2
+    - Matrix3
+    - Matrix4
+
+* Easing Utilities
+
+* 2d Rendering System (Canvas)
+
+* 2d Rendering System (WebGl)
+
+* 2d Physics System (Box2d)
+
+* 3d Rendering System (WebGl) / Three.js
+
+* Audio System

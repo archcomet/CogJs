@@ -882,6 +882,7 @@
 
         init: function(director) {
             this._systems = {};
+            this._systemOrder = [];
             this._director = director;
         },
 
@@ -899,7 +900,9 @@
                 system = this._systems[systemId];
 
             if (!system) {
-                system = this._systems[systemId] = new System(this);
+                system = new System(this);
+                this._systems[systemId] = system;
+                this._systemOrder.push(system);
                 this._director.events.registerContext(system);
                 system.configure(this._director.entities, this._director.events, this._director.config)
             }
@@ -912,29 +915,49 @@
         },
 
         remove: function(System) {
-            var systemId = System.systemId;
-            this._director.events.unregisterContext(this._systems[systemId]);
-            this._systems[systemId].destroy(true);
-            this._systems[systemId] = undefined;
+            if (!System || !System.systemId) {
+                return undefined;
+            }
+
+            var index,
+                systemId = System.systemId,
+                system = this._systems[systemId];
+
+
+            if (system) {
+                index = this._systemOrder.indexOf(system);
+
+                this._director.events.unregisterContext(system);
+                this._systemOrder.splice(index, 1);
+                this._systems[systemId] = undefined;
+
+                system.destroy(true);
+            }
+
             return this;
         },
 
         removeAll: function() {
-            for (var key in this._systems) {
-                if (this._systems.hasOwnProperty(key)) {
-                    this._director.events.unregisterContext(this._systems[key]);
-                    this._systems[key].destroy(true);
-                    this._systems[key] = undefined;
+            var index, systemId, system;
+            for (systemId in this._systems) {
+                if (this._systems.hasOwnProperty(systemId)) {
+                    system = this._systems[systemId];
+                    index = this._systemOrder.indexOf(system);
+
+                    this._director.events.unregisterContext(system);
+                    this._systemOrder.splice(index, 1);
+                    this._systems[systemId] = undefined;
+
+                    system.destroy(true);
                 }
             }
             return this;
         },
 
         update: function(dt) {
-            for (var key in this._systems) {
-                if (this._systems.hasOwnProperty(key)) {
-                    this._systems[key].update(this._director.entities, this._director.events, dt);
-                }
+            var i = 0, n = this._systemOrder.length;
+            for (; i < n; ++i) {
+                this._systemOrder[i].update(this._director.entities, this._director.events, dt);
             }
             return this;
         }
@@ -1299,6 +1322,7 @@
         init: function(manager) {
             this._entityManager = manager.director.entities;
             this._super(manager);
+            this._entities = [];
 
             if (isString(this.entityTag)) {
                 var self = this;
@@ -1309,7 +1333,6 @@
         },
 
         spawn: function(options) {
-
             var key,
                 entity = this._entityManager.add(this.entityTag),
                 components = this.components,
@@ -1324,7 +1347,17 @@
                     entity.add(component.constructor, componentOptions);
                 }
             }
+
+            this._entities.push(entity);
             return entity;
+        },
+
+        despawn: function(entity) {
+            var index = this._entities.indexOf(entity);
+            if (index > -1) {
+                this._entities.splice(index, 1);
+                entity.destroy();
+            }
         }
     });
 
