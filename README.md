@@ -58,7 +58,7 @@ director.entities -> {[entityManager](https://github.com/archcomet/CogJs#entitym
 
 director.systems -> {[systemManager](https://github.com/archcomet/CogJs#systemmanager)}
 
-director.events -> {eventManager}
+director.events -> {[eventManager](https://github.com/archcomet/CogJs#eventmanager)}
 
 director.valid -> {boolean}
 
@@ -82,8 +82,6 @@ EntityManager
 
 #### Memory
 
-EntityManager.create([director](https://github.com/archcomet/CogJs#director)) -> {entityManager}
-
 entityManager.init([director](https://github.com/archcomet/CogJs#director))
 
 entityManager.destroy()
@@ -96,29 +94,27 @@ entityManager.valid
 
 #### Instance Methods
 
-entityManager.add(tag) -> {entity}
+entityManager.add(tag) -> {[entity](https://github.com/archcomet/CogJs#entity)}
 
-entityManager.all() -> [entity array]
+entityManager.all() -> [[entity array](https://github.com/archcomet/CogJs#entity)]
 
-entityManager.withTag(tag) -> [entity array]
+entityManager.withTag(tag) -> [[entity array](https://github.com/archcomet/CogJs#entity)]
 
-entityManager.withComponents(Component1, Component2, ...) -> [entity array]
+entityManager.withComponents([Component1](https://github.com/archcomet/CogJs#component), [Component2](https://github.com/archcomet/CogJs#component), ...) -> [[entity array](https://github.com/archcomet/CogJs#entity)]
 
-entityManager.remove(entity)
+entityManager.remove([entity](https://github.com/archcomet/CogJs#entity))
 
 entityManager.removeAll()
 
 entityManager.removeWithTag(tag)
 
-entityManager.removeWithComponents(Component1, Component2, ...)
+entityManager.removeWithComponents([Component1](https://github.com/archcomet/CogJs#component), [Component2](https://github.com/archcomet/CogJs#component), ...)
 
 
 SystemManager
 --------------
 
 #### Memory
-
-SystemManager.create([director](https://github.com/archcomet/CogJs#director)) -> {systemManager}
 
 systemManager.init([director](https://github.com/archcomet/CogJs#director))
 
@@ -132,13 +128,13 @@ systemManager.valid
 
 #### Instance Methods
 
-systemManager.add(System) -> {system}
+systemManager.add([System](https://github.com/archcomet/CogJs#system)) -> {[system](https://github.com/archcomet/CogJs#system)}
 
-systemManager.get(System) -> {system}
+systemManager.get([System](https://github.com/archcomet/CogJs#system)) -> {[system](https://github.com/archcomet/CogJs#system)}
 
-systemManager.remove(System)
+systemManager.remove([System](https://github.com/archcomet/CogJs#system))
 
-systemManager.removeAll(System)
+systemManager.removeAll([System](https://github.com/archcomet/CogJs#system))
 
 systemManager.update(dt)
 
@@ -147,8 +143,6 @@ EventManager
 --------------
 
 #### Memory
-
-EventManager.create([director](https://github.com/archcomet/CogJs#director)) -> {eventManager}
 
 eventManager.init([director](https://github.com/archcomet/CogJs#director))
 
@@ -182,15 +176,15 @@ Entity
 
 #### Memory
 
-entity.init(manager, id, tag)
+entity.init([entityManager](https://github.com/archcomet/CogJs#entitymanager), id, tag)
 
 entity.destroy()
 
-entity.clone() -> {entity}
+entity.clone() -> {[entity](https://github.com/archcomet/CogJs#entity)}
 
 #### Instance Properties
 
-entity.manager -> {entityManager}
+entity.manager -> {[entityManager](https://github.com/archcomet/CogJs#entitymanager)}
 
 entity.id -> {integer}
 
@@ -198,17 +192,17 @@ entity.valid -> {boolean}
 
 entity.tag -> {tag}
 
-entity.mask -> {component mask}
+entity.mask -> {[component](https://github.com/archcomet/CogJs#component) mask}
 
 #### Instance Methods
 
-entity.add(Component, options) -> {component}
+entity.add([Component](https://github.com/archcomet/CogJs#component), options) -> {[component](https://github.com/archcomet/CogJs#component)}
 
-entity.has(Component1, Component2, ...) -> {boolean}
+entity.has([Component1](https://github.com/archcomet/CogJs#component), [Component2](https://github.com/archcomet/CogJs#component), ...) -> {boolean}
 
-entity.get(Component) -> {component}
+entity.get([Component](https://github.com/archcomet/CogJs#component)) -> {[component](https://github.com/archcomet/CogJs#component)}
 
-entity.remove(Component)
+entity.remove([Component](https://github.com/archcomet/CogJs#component))
 
 entity.removeAll()
 
@@ -220,11 +214,11 @@ Component
 
 Component.setup()
 
-component.init(entity, options)
+component.init([entity](https://github.com/archcomet/CogJs#entity), options)
 
 component.destroy()
 
-component.clone() -> {component}
+component.clone() -> {[component](https://github.com/archcomet/CogJs#component)}
 
 #### Static Properties
 
@@ -238,7 +232,7 @@ Component.prototype.defaults -> {options}
 
 #### Instance Properties
 
-component.entity -> {entity}
+component.entity -> {[entity](https://github.com/archcomet/CogJs#entity)}
 
 component.valid -> {boolean}
 
@@ -256,7 +250,7 @@ System
 
 System.setup()
 
-system.init(manager)
+system.init([systemManager](https://github.com/archcomet/CogJs#systemmanager))
 
 system.destroy()
 
@@ -266,9 +260,10 @@ System.systemId() -> {system id}
 
 #### Instance Methods
 
-system.configure(entityManager, eventManager, config)
+system.configure([entityManager](https://github.com/archcomet/CogJs#entitymanager), [eventManager](https://github.com/archcomet/CogJs#eventmanager), config)
 
-system.update(entityManager, eventManager, dt)
+system.update([entityManager](https://github.com/archcomet/CogJs#entitymanager), [eventManager](https://github.com/archcomet/CogJs#eventmanager), dt)
+
 
 Factory
 ------------
@@ -277,7 +272,7 @@ Factory
 
 Factory.setup()
 
-Factory.init(manager)
+Factory.init([systemManager](https://github.com/archcomet/CogJs#systemmanager))
 
 factory.destroy()
 
@@ -295,9 +290,9 @@ Factory.prototype.components -> {options}
 
 factory.spawn(options)
 
-factory.configure(entityManager, eventManager, config)
+factory.configure([entityManager](https://github.com/archcomet/CogJs#entitymanager), [eventManager](https://github.com/archcomet/CogJs#eventmanager), config)
 
-factory.update(entityManager, eventManager, dt)
+factory.update([entityManager](https://github.com/archcomet/CogJs#entitymanager), [eventManager](https://github.com/archcomet/CogJs#eventmanager), dt)
 
 
 Construct
