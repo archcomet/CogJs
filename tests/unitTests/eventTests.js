@@ -7,7 +7,7 @@ module('Event Tests', {});
 test('Register/Emit/Unregister Event', function() {
 
     var dir = cog.createDirector(),
-        events = dir.events();
+        events = dir.events;
 
     var context = {},
         callbackArgs = [],
@@ -37,7 +37,7 @@ test('Register/Emit/Unregister Event', function() {
 test('Register/Emit/Unregister Multiple Callbacks', function() {
 
     var dir = cog.createDirector(),
-        events = dir.events();
+        events = dir.events;
 
     var context1 = {},
         context2 = {},
@@ -68,7 +68,7 @@ test('Register/Emit/Unregister Multiple Callbacks', function() {
 test('Unregister Context', function() {
 
     var dir = cog.createDirector(),
-        events = dir.events();
+        events = dir.events;
 
     var context1 = {},
         context2 = {},
@@ -101,7 +101,7 @@ test('Unregister Context', function() {
 test('Unregister Event', function() {
 
     var dir = cog.createDirector(),
-        events = dir.events();
+        events = dir.events;
 
     var context1 = {},
         callbackArgs = [],
@@ -134,7 +134,7 @@ test('Unregister Event', function() {
 test('Unregister All', function() {
 
     var dir = cog.createDirector(),
-        events = dir.events();
+        events = dir.events;
 
     var context1 = {},
         context2 = {},

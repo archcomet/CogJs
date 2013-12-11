@@ -22,7 +22,7 @@ module('Entity Tests', {});
 
 test('Create/Remove Entity via EntityManager', function() {
     var dir = cog.createDirector(),
-        entities = dir.entities();
+        entities = dir.entities;
 
     var entity = entities.add('TestEntity');
     ok(entity instanceof Entity, 'Entity created');
@@ -43,7 +43,7 @@ test('Create/Remove Entity via EntityManager', function() {
 
 test('Create/Remove Entity with Tags via EntityManager', function() {
     var dir = cog.createDirector(),
-        entities = dir.entities();
+        entities = dir.entities;
 
     var entity1 = entities.add('TypeA'),
         entity2 = entities.add(),
@@ -77,7 +77,7 @@ test('Create/Remove Entity with Tags via EntityManager', function() {
 
 test('Destroy Entity removes from EntityManager', function() {
     var dir = cog.createDirector(),
-        entities = dir.entities();
+        entities = dir.entities;
 
     var entity = entities.add('TestEntity');
     var search1 = entities.all();
@@ -95,7 +95,7 @@ test('Destroy Entity removes from EntityManager', function() {
 test('Add/Get/Remove a Component via Entity', function() {
 
     var dir = cog.createDirector(),
-        entity = dir.entities().add('TestEntity');
+        entity = dir.entities.add('TestEntity');
 
     var position = entity.add(Position, { x:10, y:42 });
     ok(position instanceof Position, 'Created: Position');
@@ -114,7 +114,7 @@ test('Add/Get/Remove a Component via Entity', function() {
 test('Add no-op if not passed Component type', function() {
 
     var dir = cog.createDirector(),
-        entity = dir.entities().add('TestEntity');
+        entity = dir.entities.add('TestEntity');
 
     var ret = entity.add({});
 
@@ -124,7 +124,7 @@ test('Add no-op if not passed Component type', function() {
 test('Add sets Component', function() {
 
     var dir = cog.createDirector(),
-        entity = dir.entities().add('TestEntity');
+        entity = dir.entities.add('TestEntity');
 
     var position = entity.add(Position, { x:10, y:42 });
     var position2 = entity.add(Position, { x: 42, y: 10 });
@@ -137,7 +137,7 @@ test('Add sets Component', function() {
 test('WithComponents matching', function() {
 
     var dir = cog.createDirector(),
-        entities = dir.entities(),
+        entities = dir.entities,
         entity0 = entities.add(),
         entity1 = entities.add(),
         entity2 = entities.add(),
@@ -179,7 +179,7 @@ test('WithComponents matching', function() {
 test('Add/Remove Component - Mask is correct', function() {
 
     var dir = cog.createDirector(),
-        entities = dir.entities(),
+        entities = dir.entities,
         entity = entities.add();
 
     var posCat = Position.category(),
@@ -214,7 +214,7 @@ test('Add/Remove Component - Mask is correct', function() {
 test('RemoveAll Components', function() {
 
     var dir = cog.createDirector(),
-        entities = dir.entities(),
+        entities = dir.entities,
         entity = entities.add();
 
     entity.add(Position);
@@ -229,7 +229,7 @@ test('RemoveAll Components', function() {
 test('Destroy removes all Components', function() {
 
     var dir = cog.createDirector(),
-        entities = dir.entities(),
+        entities = dir.entities,
         entity = entities.add();
 
     entity.add(Position);
@@ -244,8 +244,8 @@ test('Destroy removes all Components', function() {
 test('Add/Remove Entity emits correct event', function() {
 
     var dir = cog.createDirector(),
-        entities = dir.entities(),
-        events = dir.events();
+        entities = dir.entities,
+        events = dir.events;
 
     var testListener = {
         createdCallback: function() {
@@ -273,8 +273,8 @@ test('Add/Remove Entity emits correct event', function() {
 test('RemoveAll emits correct event', function() {
 
     var dir = cog.createDirector(),
-        entities = dir.entities(),
-        events = dir.events();
+        entities = dir.entities,
+        events = dir.events;
 
     var testListener = {
         createdCallback: function() {
@@ -302,8 +302,8 @@ test('RemoveAll emits correct event', function() {
 test('RemoveWithTag emits correct event', function() {
 
     var dir = cog.createDirector(),
-        entities = dir.entities(),
-        events = dir.events();
+        entities = dir.entities,
+        events = dir.events;
 
     var testListener = {
         createdCallback: function() {
@@ -329,8 +329,8 @@ test('RemoveWithTag emits correct event', function() {
 
 test('Add/Remove Component emits correct event', function() {
     var dir = cog.createDirector(),
-        entities = dir.entities(),
-        events = dir.events();
+        entities = dir.entities,
+        events = dir.events;
 
     var TestComponent = Component.extend({});
 
@@ -353,6 +353,7 @@ test('Add/Remove Component emits correct event', function() {
 
     var entity = entities.add('test.Entity'),
         comp = entity.add(TestComponent);
+
     strictEqual(testListener.createdArgs[0], comp, 'Component passed via created event');
     strictEqual(testListener.createdArgs[1], entity, 'Entity passed via created event');
 
@@ -363,7 +364,7 @@ test('Add/Remove Component emits correct event', function() {
 
 test('Clone Entity', function() {
     var dir = cog.createDirector(),
-        entities = dir.entities(),
+        entities = dir.entities,
         entity = entities.add('test.Clone');
 
     entity.add(Position, {x:42, y:31});

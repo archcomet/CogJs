@@ -25,7 +25,7 @@ test('Create/Destroy Component', function() {
 
 test('Destroy Component removes from Entity', function() {
     var dir = cog.createDirector(),
-       entities = dir.entities(),
+       entities = dir.entities,
        entity = entities.add();
 
     var TestComponent = Component.extend({}),
@@ -87,14 +87,24 @@ test('Create Component with options (recursive copy)', function() {
 });
 
 test('Serialize Component', function() {
+
+    var construct = new Construct();
     var TestComponent = Component.extend({
         defaults: {
             number: 42,
             string: "hello",
             object: { x:1, y:'2', z:[3] },
-            arr: [10, "stuff", { foo: 'bar'}]
+            arr: [10, "stuff", { foo: 'bar'}],
+            construct: construct,
+            _prop: 10
         },
         foo:function(){}
+    });
+
+    Object.defineProperty(TestComponent.prototype, 'prop', {
+        get: function() {
+            return this._prop;
+        }
     });
 
     var comp = new TestComponent();
@@ -103,4 +113,12 @@ test('Serialize Component', function() {
     ok(cog.isPlainObject(copy), 'Is an object');
     strictEqual(copy.number, 42, 'Copied number');
     strictEqual(copy.string, 'hello', 'Copied string');
+    notStrictEqual(copy.arr, comp.arr, 'Array is a copy');
+    notStrictEqual(copy.arr[2], comp.arr[2], 'Array is a copy');
+    notStrictEqual(copy.object.z, comp.object.z, 'Object is a copy');
+    notStrictEqual(copy.object, comp.object, 'Object is a copy');
+    notStrictEqual(copy.construct, undefined, 'Instance is not copied');
+
+    strictEqual(copy.prop, undefined, 'Prop is not copied');
+    strictEqual(copy._prop, 10, 'Private number is copied');
 });

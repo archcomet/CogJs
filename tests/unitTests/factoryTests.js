@@ -40,7 +40,7 @@ test('Create entity from factory', function() {
     });
 
     var dir = cog.createDirector(),
-        testFactory = dir.systems().add(TestFactory),
+        testFactory = dir.systems.add(TestFactory),
         testEntity1 = testFactory.spawn();
 
     ok(testFactory instanceof Factory, 'Is a Factory');

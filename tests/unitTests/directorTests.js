@@ -14,24 +14,24 @@ test('Create Director function', function() {
     var testDir = cog.createDirector(config);
 
     ok(testDir instanceof Director, 'Creates director');
-    ok(testDir.entities() instanceof EntityManager, 'Creates EntityManager');
-    ok(testDir.systems() instanceof SystemManager, 'Creates SystemManager');
-    ok(testDir.events() instanceof EventManager, 'Creates EventManager');
+    ok(testDir.entities instanceof EntityManager, 'Creates EntityManager');
+    ok(testDir.systems instanceof SystemManager, 'Creates SystemManager');
+    ok(testDir.events instanceof EventManager, 'Creates EventManager');
     ok(testDir.valid(), 'Director is valid');
-    ok(testDir.entities().valid(), 'EntityManager is valid');
-    ok(testDir.systems().valid(), 'SystemManager is valid');
-    ok(testDir.events().valid(), 'EventManager is valid');
+    ok(testDir.entities.valid(), 'EntityManager is valid');
+    ok(testDir.systems.valid(), 'SystemManager is valid');
+    ok(testDir.events.valid(), 'EventManager is valid');
 
-    strictEqual(testDir.config(), config, 'Returns config');
+    strictEqual(testDir.config, config, 'Returns config');
 
-    strictEqual(testDir.entities().director(), testDir, 'EntityManager refs director');
-    strictEqual(testDir.systems().director(), testDir, 'SystemManager refs director');
-    strictEqual(testDir.events().director(), testDir, 'EventManager refs director');
+    strictEqual(testDir.entities.director(), testDir, 'EntityManager refs director');
+    strictEqual(testDir.systems.director(), testDir, 'SystemManager refs director');
+    strictEqual(testDir.events.director(), testDir, 'EventManager refs director');
 
     testDir.destroy();
-    strictEqual(testDir.entities(), undefined, 'Destroys EntityManager');
-    strictEqual(testDir.systems(), undefined, 'Destroys SystemManager');
-    strictEqual(testDir.events(), undefined, 'Destroys EventManager');
+    strictEqual(testDir.entities, undefined, 'Destroys EntityManager');
+    strictEqual(testDir.systems, undefined, 'Destroys SystemManager');
+    strictEqual(testDir.events, undefined, 'Destroys EventManager');
     strictEqual(testDir.valid(), false, 'Is no longer valid');
 });
 
@@ -70,8 +70,8 @@ asyncTest('Start/stop animation frames', function() {
 
             if (updateCount >= 3) {
                 ok(true, 'Ran 3 steps');
-                strictEqual(entities, dir.entities(), 'Passed EntityManager');
-                strictEqual(events, dir.events(), 'Passed EventManager');
+                strictEqual(entities, dir.entities, 'Passed EntityManager');
+                strictEqual(events, dir.events, 'Passed EventManager');
                 for(var i = 0, n = times.length; i < n; ++i) {
                     ok(times[i] > 0 , 'Time ' + i + ' is in correct range: ' + times[i]);
                 }
@@ -81,6 +81,6 @@ asyncTest('Start/stop animation frames', function() {
         }
     });
 
-    dir.systems().add(TestSystem);
+    dir.systems.add(TestSystem);
     dir.start();
 });

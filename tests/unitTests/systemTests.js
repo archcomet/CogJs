@@ -25,7 +25,7 @@ test('Extend assigns unique bit category', function() {
 test('Add System returns undefined in not passed a System', function() {
 
     var dir = cog.createDirector(),
-        systems = dir.systems();
+        systems = dir.systems;
 
     var ret = systems.add({});
 
@@ -35,7 +35,7 @@ test('Add System returns undefined in not passed a System', function() {
 test('Add/Get/Remove System', function() {
 
     var dir = cog.createDirector(),
-        systems = dir.systems();
+        systems = dir.systems;
 
     var TestSystem = System.extend({});
 
@@ -49,7 +49,7 @@ test('Add/Get/Remove System', function() {
 test('Add/Get/Remove System', function() {
 
     var dir = cog.createDirector(),
-        systems = dir.systems();
+        systems = dir.systems;
 
     var TestSystem1 = System.extend({}),
         TestSystem2 = System.extend({}),
@@ -69,7 +69,7 @@ test('Add/Get/Remove System', function() {
 test('Update Systems', function() {
 
     var dir = cog.createDirector(),
-        systems = dir.systems();
+        systems = dir.systems;
 
     var testArgs1 = [],
         testArgs2 = [],
@@ -97,13 +97,13 @@ test('Update Systems', function() {
 
     dir.update(16);
 
-    strictEqual(testArgs1[0], dir.entities(), 'Entities passed to system 1');
-    strictEqual(testArgs2[0], dir.entities(), 'Entities passed to system 2');
-    strictEqual(testArgs3[0], dir.entities(), 'Entities passed to system 3');
+    strictEqual(testArgs1[0], dir.entities, 'Entities passed to system 1');
+    strictEqual(testArgs2[0], dir.entities, 'Entities passed to system 2');
+    strictEqual(testArgs3[0], dir.entities, 'Entities passed to system 3');
 
-    strictEqual(testArgs1[1], dir.events(), 'Events passed to system 1');
-    strictEqual(testArgs2[1], dir.events(), 'Events passed to system 2');
-    strictEqual(testArgs3[1], dir.events(), 'Events passed to system 3');
+    strictEqual(testArgs1[1], dir.events, 'Events passed to system 1');
+    strictEqual(testArgs2[1], dir.events, 'Events passed to system 2');
+    strictEqual(testArgs3[1], dir.events, 'Events passed to system 3');
 
     strictEqual(testArgs1[2], 16, 'dt passed to system 1');
     strictEqual(testArgs2[2], 16, 'dt passed to system 2');
@@ -113,7 +113,7 @@ test('Update Systems', function() {
 test('Configure Systems', function() {
 
     var dir = cog.createDirector(),
-        systems = dir.systems();
+        systems = dir.systems;
 
     var testArgs1 = [];
 
@@ -125,15 +125,15 @@ test('Configure Systems', function() {
 
     systems.add(TestSystem1);
 
-    strictEqual(testArgs1[0], dir.entities(), 'Entities passed to system 1');
-    strictEqual(testArgs1[1], dir.events(), 'Events passed to system 1');
+    strictEqual(testArgs1[0], dir.entities, 'Entities passed to system 1');
+    strictEqual(testArgs1[1], dir.events, 'Events passed to system 1');
 });
 
 test('Auto Events Systems', function() {
 
     var dir = cog.createDirector(),
-        systems = dir.systems(),
-        events = dir.events();
+        systems = dir.systems,
+        events = dir.events;
 
     var testArgs1 = [];
     var TestSystem1 = System.extend({

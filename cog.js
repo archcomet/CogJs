@@ -1,4 +1,4 @@
-//      Cog.js  1.2.1
+//      Cog.js  1.2.2
 //      http://www.github.com/archcomet/cogjs
 //      (c) 2013 Michael Good
 //      Cog may be freely distributed under the MIT license.
@@ -26,7 +26,7 @@
         return !(this instanceof cog) ? new cog() : this;
     };
 
-    cog.VERSION = '1.2.1';
+    cog.VERSION = '1.2.2';
 
     // ------------------------------------------
     // Utility functions
@@ -361,7 +361,10 @@
             key = arguments[i];
             if (obj && isFunction(obj[key])) {
                 obj = obj[key]();
-            } else {
+            } else if (obj) {
+                obj = obj[key];
+            }
+            else {
                 return undefined;
             }
         }
@@ -429,6 +432,10 @@
         _inherit(Constructor, superPrototype.constructor, staticProps);
 
         Constructor.fullName = function () { return fullName; };
+
+        if (instanceProps.properties) {
+            Object.defineProperties(Constructor.prototype, instanceProps.properties);
+        }
 
         if (Constructor.setup) {
             Constructor.setup();
@@ -655,91 +662,84 @@
      */
 
     var Director = Construct.extend('cog.Director', {
+
+        properties: {
+            config: { get: function() { return this._config; } },
+            events: { get: function() { return this._eventManager; } },
+            entities: { get: function() { return this._entityManager; } },
+            systems: { get: function() { return this._systemManager; } }
+        },
+
         init: function(config) {
+            this._config = config;
+            this._eventManager = new EventManager(this);
+            this._entityManager = new EntityManager(this);
+            this._systemManager = new SystemManager(this);
+            this._preUpateCallback = null;
+            this._animationFrame = null;
+            this._lastFrame = 0;
+        },
 
-            var eventManager = new EventManager(this),
-                preUpdateCallback,
-                postUpdateCallback;
+        destroy: function() {
+            this.stop();
+            this._entityManager.destroy();
+            this._eventManager.destroy();
+            this._systemManager.destroy();
+            this._entityManager = undefined;
+            this._systemManager = undefined;
+            this._eventManager = undefined;
+            this._preUpateCallback = undefined;
+            this._postUpdateCallback = undefined;
+        },
 
-            this.events = function() {
-                return eventManager;
-            };
+        valid: function() {
+            return (
+                this._entityManager !== undefined &&
+                    this._systemManager !== undefined &&
+                    this._eventManager !== undefined
+                );
+        },
 
-            var entityManager = new EntityManager(this);
-            this.entities = function() {
-                return entityManager;
-            };
+        update: function(dt) {
+            if (this._preUpateCallback) {
+                this._preUpateCallback();
+            }
+            this._systemManager.update(dt);
+            if (this._postUpdateCallback) {
+                this._postUpdateCallback();
+            }
+        },
 
-            var systemManager = new SystemManager(this);
-            this.systems = function() {
-                return systemManager;
-            };
+        preUpdate: function(callback) {
+            this._preUpateCallback = callback;
+        },
 
-            this.config = function() {
-                return config;
-            };
+        postUpdate: function(callback) {
+            this._postUpdateCallback = callback;
+        },
 
-            var animationFrame = null,
-                lastFrame = 0;
+        start:function() {
+            if (!this._animationFrame) {
+                this._lastFrame = 0;
+                this._animationFrame = requestAnimationFrame(this.step.bind(this));
+            }
+        },
 
-            this.start = function() {
-                if (!animationFrame) {
-                    lastFrame = 0;
-                    animationFrame = requestAnimationFrame(this.step.bind(this));
-                }
-            };
+        stop: function() {
+            if (this._animationFrame) {
+                cancelAnimationFrame(this._animationFrame);
+                this._animationFrame = null;
+            }
+        },
 
-            this.stop = function() {
-                if (animationFrame) {
-                    cancelAnimationFrame(animationFrame);
-                    animationFrame = null;
-                }
-            };
-
-            this.step = function(timestamp) {
-                var dt = (lastFrame !== 0) ? timestamp - lastFrame : 16;
-                this.update(dt);
-                if (animationFrame) {
-                    lastFrame = timestamp;
-                    animationFrame = requestAnimationFrame(this.step.bind(this));
-                }
-            };
-
-            this.update = function(dt) {
-                if (preUpdateCallback) {
-                    preUpdateCallback();
-                }
-                systemManager.update(dt);
-                if (postUpdateCallback) {
-                    postUpdateCallback();
-                }
-            };
-
-            this.preUpdate = function(callback) {
-                preUpdateCallback = callback;
-            };
-
-            this.postUpdate = function(callback) {
-                postUpdateCallback = callback;
-            };
-
-            this.valid = function() {
-                return (entityManager !== undefined &&
-                        systemManager !== undefined &&
-                        eventManager !== undefined);
-            };
-
-            this.destroy = function() {
-                this.stop();
-                entityManager.destroy();
-                eventManager.destroy();
-                systemManager.destroy();
-                entityManager = undefined;
-                systemManager = undefined;
-                eventManager = undefined;
-                preUpdateCallback = undefined;
-                postUpdateCallback = undefined;
-            };
+        step: function(timestamp) {
+            var lastFrame = this._lastFrame,
+                dt = (lastFrame !== 0) ? timestamp - lastFrame : 16;
+            this.update(dt);
+            if (this._animationFrame) {
+                this._lastFrame = timestamp;
+                this._animationFrame = requestAnimationFrame(this.step.bind(this));
+            }
         }
     });
 
@@ -760,7 +760,7 @@
 
             var entities = [],
                 entityId = 1,
-                events = director.events();
+                events = director.events;
 
             this.director = function() {
                 return director;
@@ -865,8 +865,9 @@
         init: function(director) {
 
             var systems = {},
-                entities = director.entities(),
-                events = director.events();
+                entities = director.entities,
+                events = director.events,
+                config = director.config;
 
             this.director = function() {
                 return director;
@@ -890,7 +891,7 @@
                         }
                     }
 
-                    system.configure(entities, events)
+                    system.configure(entities, events, config)
                 }
                 return system;
             };
@@ -1327,7 +1328,7 @@
 
         init: function(manager) {
 
-            var entityManager = manager.director().entities();
+            var entityManager = manager.director().entities;
 
             this._super(manager);
 
@@ -1357,7 +1358,7 @@
             };
 
             if (isString(this.entityTag)) {
-                this[this.entityTag + ' event'] = this.spawn;
+                this['spawn ' + this.entityTag + ' event'] = this.spawn;
             }
         }
     });
@@ -1369,6 +1370,7 @@
 
         // Util
         extend: extend,
+        defaults: defaults,
         isArray: isArray,
         isBoolean: isBoolean,
         isDate: isDate,
@@ -1402,7 +1404,7 @@
         Factory: Factory
     });
 
-    if (isFunction(define) && define.amd) {
+    if (typeof define === "function" && define.amd) {
         define(function() { return cog; });
     }
 
