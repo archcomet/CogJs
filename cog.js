@@ -1285,19 +1285,20 @@
         
     }, {
 
+        properties: {
+            manager: { get: function() { return this._manager; } }
+        },
+
         init: function(manager) {
+            this._manager = manager;
+        },
 
-            this.manager = function() {
-                return manager;
-            };
-
-            this.destroy = function(managed) {
-                if (manager && !managed) {
-                    manager.remove(this);
-                    return;
-                }
-                manager = undefined;
-            };
+        destroy: function(managed) {
+            if (this._manager && !managed) {
+                this._manager.remove(this);
+                return;
+            }
+            this._manager = undefined;
         },
 
         configure: function(entityManager, eventManager) {},
