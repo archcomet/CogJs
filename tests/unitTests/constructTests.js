@@ -208,19 +208,14 @@ test('_super for instance functions', function() {
     strictEqual(derived2Foo, true, 'Derived2 foo override');
 });
 
-test('Inherit properties', function() {
+test('Inherit instance properties', function() {
 
     var Derived1 = Construct.extend({
-        _x: 10
-    });
-
-    Object.defineProperty(Derived1.prototype, 'x', {
-        get: function() {
-            return this._x;
+        properties: {
+            x: { get: function() { return this._x; },
+                 set: function(val) { this._x = val } }
         },
-        set: function(value) {
-            this._x = value;
-        }
+        _x: 10
     });
 
     var d1 = new Derived1();
@@ -237,4 +232,25 @@ test('Inherit properties', function() {
     d2.x = 42;
     strictEqual(d2._x, 42, 'Property carries to Derived2');
 
+});
+
+test('Inherit static properties', function() {
+    var Derived1 = Construct.extend({
+        properties: {
+            x: { get: function() { return this._x; },
+                set: function(val) { this._x = val } }
+        },
+        _x: 10
+    },{});
+
+
+    Derived1.x = 42;
+    strictEqual(Derived1._x, 42, 'Property sets private');
+
+    var Derived2 = Derived1.extend({
+        y: 10
+    });
+
+    Derived2.x = 42;
+    strictEqual(Derived2._x, 42, 'Property carries to Derived2');
 });

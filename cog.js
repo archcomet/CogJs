@@ -141,17 +141,6 @@
     }
 
     /**
-     * isType
-     * @param obj
-     * @param type
-     * @returns {boolean}
-     */
-
-    function isType(obj, type) {
-        return (obj !== undefined && obj.type !== undefined && obj.type() === type);
-    }
-
-    /**
      * isDate
      * @param obj
      * @returns {boolean}
@@ -344,8 +333,8 @@
     function _mask() {
         var arg, ret = 0, i = 0, n = arguments.length;
         for(; i < n; ++i) {
-            if ((arg = arguments[i]) && isFunction(arg.category)) {
-                ret |= arg.category();
+            if ((arg = arguments[i]) && arg.category) {
+                ret |= arg.category;
             }
         }
         return ret;
@@ -392,7 +381,12 @@
      * @constructor
      */
 
-    var Construct = function() {};
+    var Construct = function() {
+        if (arguments.length) {
+            return Construct.extend.apply(Construct, arguments);
+        }
+        return this;
+    };
 
     /**
      * Construct Extend
@@ -446,6 +440,10 @@
 
         if (instanceProps.properties) {
             Object.defineProperties(Constructor.prototype, instanceProps.properties);
+        }
+
+        if (Constructor.properties) {
+            Object.defineProperties(Constructor, Constructor.properties);
         }
 
         if (Constructor.setup) {
@@ -692,9 +690,9 @@
 
         init: function(config) {
             this._config = config;
-            this._eventManager = EventManager.create(this);
-            this._entityManager = EntityManager.create(this);
-            this._systemManager = SystemManager.create(this);
+            this._eventManager = new EventManager(this);
+            this._entityManager = new EntityManager(this);
+            this._systemManager = new SystemManager(this);
             this._preUpateCallback = null;
             this._animationFrame = null;
             this._lastFrame = 0;
@@ -763,10 +761,6 @@
      */
 
     var EntityManager = Construct.extend('cog.EntityManager', {
-        create: function(director) {
-            return new EntityManager(director);
-        }
-    }, {
 
         properties: {
             director: { get: function() { return this._director; } },
@@ -804,7 +798,7 @@
             if (tag) {
                 for (; i < n; ++i) {
                     entity = this._entities[i];
-                    if (entity.tag() === tag) {
+                    if (entity.tag === tag) {
                         ret.push(entity);
                     }
                 }
@@ -818,7 +812,7 @@
                 i = 0, n = this._entities.length, ret = [];
             for (; i < n; ++i) {
                 entity = this._entities[i];
-                if ((inputMask & entity.mask()) === inputMask) {
+                if ((inputMask & entity.mask) === inputMask) {
                     ret.push(entity);
                 }
             }
@@ -848,7 +842,7 @@
         removeWithTag: function(tag) {
             var entity, i = this._entities.length - 1;
             for (; i > -1; --i) {
-                if (this._entities[i].tag() === tag) {
+                if (this._entities[i].tag === tag) {
                     entity = this._entities.splice(i, 1)[0];
                     this._director.events.emit('entityDestroyed', entity);
                     entity.destroy(true);
@@ -862,7 +856,7 @@
                 inputMask = _mask.apply(_mask, arguments);
             for (; i > -1; --i) {
                 entity = this._entities[i];
-                if ((inputMask & entity.mask()) === inputMask) {
+                if ((inputMask & entity.mask) === inputMask) {
                     entity = this._entities.splice(i, 1)[0];
                     this._director.events.emit('entityDestroyed', entity);
                     entity.destroy(true);
@@ -880,10 +874,6 @@
      */
 
     var SystemManager = Construct.extend('cog.SystemManager', {
-        create: function(director) {
-            return new SystemManager(director);
-        }
-    },{
 
         properties: {
             director: { get: function() { return this._director; } },
@@ -901,15 +891,15 @@
         },
 
         add: function(System) {
-            if (!isType(System, cog.System)) {
+            if (!System || !System.systemId) {
                 return undefined;
             }
 
-            var typeId = System.typeId(),
-                system = this._systems[typeId];
+            var systemId = System.systemId,
+                system = this._systems[systemId];
 
             if (!system) {
-                system = this._systems[typeId] = new System(this);
+                system = this._systems[systemId] = new System(this);
                 this._director.events.registerContext(system);
                 system.configure(this._director.entities, this._director.events, this._director.config)
             }
@@ -917,21 +907,15 @@
         },
 
         get: function(System) {
-            if (!isType(System, cog.System)) {
-                return undefined;
-            }
-            var typeId = System.typeId();
-            return this._systems[typeId];
+            var systemId = System.systemId;
+            return this._systems[systemId];
         },
 
         remove: function(System) {
-            if (!isType(System, cog.System)) {
-                return undefined;
-            }
-            var typeId = System.typeId();
-            this._director.events.unregisterContext(this._systems[typeId]);
-            this._systems[typeId].destroy(true);
-            this._systems[typeId] = undefined;
+            var systemId = System.systemId;
+            this._director.events.unregisterContext(this._systems[systemId]);
+            this._systems[systemId].destroy(true);
+            this._systems[systemId] = undefined;
             return this;
         },
 
@@ -966,10 +950,6 @@
     var _eventRegEx = /.* event$/;
 
     var EventManager = Construct.extend('cog.SystemManager', {
-        create: function(director) {
-            return new EventManager(director);
-        }
-    },{
 
         properties: {
             director: { get: function() { return this._director; } },
@@ -1085,116 +1065,96 @@
 
     var Entity = Construct.extend('cog.Entity', {
 
+        properties: {
+            manager: { get: function() { return this._manager; } },
+            id: { get: function() { return this._id } },
+            tag: { get: function() { return this._tag } },
+            valid: { get: function() { return (this._manager && this._id) ? true : false; } },
+            mask: { get: function() { return this._componentMask; } }
+        },
+
         init: function(manager, id, tag) {
+            this._manager = manager;
+            this._id = id;
+            this._tag = tag || null;
+            this._components = {};
+            this._componentMask = 0;
+        },
 
-            var components = {},
-                componentMask = 0,
-                events = _read(manager, 'director', 'events');
-
-            if (!tag) {
-                tag = null;
+        destroy: function(managed) {
+            if (this._manager && !managed) {
+                this._manager.remove(this);
+                return;
             }
+            this.removeAll();
+            this._manager = undefined;
+            this._id = undefined;
+            this._tag = undefined;
+        },
 
-            this.id = function() {
-                return id;
-            };
-
-            this.tag = function() {
-                return tag;
-            };
-
-            this.manager = function() {
-                return manager;
-            };
-
-            this.valid = function() {
-                return (manager && id) ? true : false;
-            };
-
-            this.add = function(Component, options) {
-                if (!Component || !Component.type || !Component.type() === cog.Component) {
-                    return undefined;
+        clone: function() {
+            var key, component, clone = this._manager.add(this._tag);
+            for (key in this._components) {
+                if (this._components.hasOwnProperty(key)) {
+                    component = this._components[key];
+                    clone.add(component.constructor, component.serialize());
                 }
-                var component, category = Component.category();
-                if ((category & componentMask) === category) {
-                    component = components[category];
-                    component.set(options);
-                } else {
-                    component = components[category] = new Component(this, options);
-                    componentMask |= category;
-                    if (events) {
-                        events.emit('componentCreated', component, this);
-                    }
-                }
-                return component;
-            };
-
-            this.has = function(Component) {
-                var inputMask = _mask.apply(_mask, arguments);
-                return inputMask !== 0 && (inputMask & componentMask) === inputMask;
-            };
-
-            this.get = function(Component) {
-                if (!Component || !Component.type || !Component.type() === cog.Component) {
-                    return undefined;
-                }
-                var category = Component.category();
-                return components[category];
-            };
-
-            this.remove = function(Component) {
-                if (Component instanceof cog.Component) {
-                    Component = Component.constructor;
-                }
-                var component, category = Component.category();
-                if ((category & componentMask) === category) {
-                    component = components[category];
-                    componentMask &= ~(category);
-                    components[category] = undefined;
-                    if (events) {
-                        events.emit('componentDestroyed', component, this);
-                    }
-                    component.destroy(true);
-                }
-                return this;
-            };
-
-            this.removeAll = function() {
-                var key;
-                for (key in components) {
-                    if (components.hasOwnProperty(key)) {
-                        this.remove(components[key]);
-                    }
-                }
-                return this;
-            };
-
-            this.mask = function() {
-                return componentMask;
-            };
-
-            this.clone = function() {
-                var key, component, clone = manager.add(tag);
-                for (key in components) {
-                    if (components.hasOwnProperty(key)) {
-                        component = components[key];
-                        clone.add(component.constructor, component.serialize());
-                    }
-                }
-                return clone;
-            };
-
-            this.destroy = function(managed) {
-                if (manager && !managed) {
-                    manager.remove(this);
-                    return;
-                }
-
-                this.removeAll();
-                manager = undefined;
-                id = undefined;
-                tag = undefined;
             }
+            return clone;
+        },
+
+        add: function(Component, options) {
+            if (!Component || !Component.category) {
+                return undefined;
+            }
+            var component, category = Component.category;
+            if ((category & this._componentMask) === category) {
+                component = this._components[category];
+                component.set(options);
+            } else {
+                component = this._components[category] = new Component(this, options);
+                this._componentMask |= category;
+                this._manager.director.events.emit('componentCreated', component, this);
+            }
+            return component;
+        },
+
+        has: function(Component) {
+            var inputMask = _mask.apply(_mask, arguments);
+            return inputMask !== 0 && (inputMask & this._componentMask) === inputMask;
+        },
+
+        get: function(Component) {
+            if (!Component || !Component.category) {
+                return undefined;
+            }
+            var category = Component.category;
+            return this._components[category];
+        },
+
+        remove: function(Component) {
+            if (Component instanceof cog.Component) {
+                Component = Component.constructor;
+            }
+            var component, category = Component.category;
+            if ((category & this._componentMask) === category) {
+                component = this._components[category];
+                this._componentMask &= ~(category);
+                this._components[category] = undefined;
+                this._manager.director.events.emit('componentDestroyed', component, this);
+                component.destroy(true);
+            }
+            return this;
+        },
+
+        removeAll: function() {
+            var key;
+            for (key in this._components) {
+                if (this._components.hasOwnProperty(key)) {
+                    this.remove(this._components[key]);
+                }
+            }
+            return this;
         }
     });
 
@@ -1213,48 +1173,39 @@
 
     var Component = Construct.extend('cog.Component', {
 
+        properties: {
+            category: { get: function() { return this._category; } },
+            count: { get: function() { return componentCount-1; } }
+        },
+
         setup: function() {
             if (componentCount > 64) {
                 throw 'Exceeded 64 Component types.';
             }
-            var categoryId = (componentCount === 0) ? 0 : 1 << (componentCount-1);
+            this._category= (componentCount === 0) ? 0 : 1 << (componentCount-1);
             componentCount++;
-            this.category = function() {
-                return categoryId;
-            };
-
-            this.type = function() {
-                return Component;
-            }
-        },
-
-        count: function() {
-            return componentCount-1;
         }
 
     }, {
 
         defaults: {},
 
+        properties: {
+            entity: { get: function() { return this._entity; } },
+            valid: { get: function() { return (this._entity !== undefined); } }
+        },
+
         init: function(entity, options) {
-
+            this._entity = entity;
             this.set(options);
+        },
 
-            this.entity = function() {
-                return entity;
-            };
-
-            this.valid = function() {
-                return (entity !== undefined);
-            };
-
-            this.destroy = function(managed) {
-                if (!managed && entity && entity.remove) {
-                    entity.remove(this);
-                    return;
-                }
-                entity = undefined;
-            };
+        destroy: function(managed) {
+            if (!managed && this._entity && this._entity.remove) {
+                this._entity.remove(this);
+                return;
+            }
+            this._entity = undefined;
         },
 
         set: function(options) {
@@ -1299,23 +1250,16 @@
 
     var System = Construct.extend('cog.System', {
 
+        properties: {
+            systemId: { get: function() { return this._systemId; } },
+            count: { get: function() { return systemCount -1; } }
+        },
+
         setup: function() {
-
-            var typeId = (systemCount-1);
+            this._systemId = (systemCount-1);
             systemCount++;
-            this.typeId = function() {
-                return typeId;
-            }
-        },
-
-        count: function() {
-            return systemCount-1;
-        },
-
-        type: function() {
-            return System;
         }
-
+        
     }, {
 
         init: function(manager) {
@@ -1353,39 +1297,34 @@
         components: {},
 
         init: function(manager) {
-
-            var entityManager = manager.director.entities;
-
+            this._entityManager = manager.director.entities;
             this._super(manager);
 
-            /**
-             * spawn
-             * @param [options]
-             * @returns {*}
-             */
-
-            this.spawn = function(options) {
-
-                var key,
-                    entity = entityManager.add(this.entityTag),
-                    components = this.components,
-                    component,
-                    componentOptions;
-
-                for (key in components) {
-                    if (components.hasOwnProperty(key)) {
-                        component = components[key];
-                        componentOptions = (options && options[key]) ? options[key] : {};
-                        defaults(componentOptions, component.defaults);
-                        entity.add(component.constructor, componentOptions);
-                    }
-                }
-                return entity;
-            };
-
             if (isString(this.entityTag)) {
-                this['spawn ' + this.entityTag + ' event'] = this.spawn;
+                var self = this;
+                this['spawn ' + this.entityTag + ' event'] = function() {
+                    self.spawn.apply(self, arguments);
+                }
             }
+        },
+
+        spawn: function(options) {
+
+            var key,
+                entity = this._entityManager.add(this.entityTag),
+                components = this.components,
+                component,
+                componentOptions;
+
+            for (key in components) {
+                if (components.hasOwnProperty(key)) {
+                    component = components[key];
+                    componentOptions = (options && options[key]) ? options[key] : {};
+                    defaults(componentOptions, component.defaults);
+                    entity.add(component.constructor, componentOptions);
+                }
+            }
+            return entity;
         }
     });
 

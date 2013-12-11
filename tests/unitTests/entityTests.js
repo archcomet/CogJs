@@ -26,16 +26,16 @@ test('Create/Remove Entity via EntityManager', function() {
 
     var entity = entities.add('TestEntity');
     ok(entity instanceof Entity, 'Entity created');
-    strictEqual(entity.id(), 1, 'Has expected id');
-    strictEqual(entity.valid(), true, 'Entity is valid');
-    strictEqual(entity.manager(), entities, 'Has ref to manager');
+    strictEqual(entity.id, 1, 'Has expected id');
+    strictEqual(entity.valid, true, 'Entity is valid');
+    strictEqual(entity.manager, entities, 'Has ref to manager');
 
     var search1 = entities.withTag('TestEntity');
     strictEqual(search1.length, 1, 'Search by tag returns one result');
     strictEqual(search1[0], entity, 'Search contains created entity');
 
     entities.remove(entity);
-    strictEqual(entity.valid(), false, 'Entity no longer valid after remove');
+    strictEqual(entity.valid, false, 'Entity no longer valid after remove');
 
     var search2 = entities.withTag('TestEntity');
     strictEqual(search2.length, 0, 'Search has no result after remove');
@@ -51,11 +51,11 @@ test('Create/Remove Entity with Tags via EntityManager', function() {
         entity4 = entities.add('TypeB'),
         entity5 = entities.add('TypeA');
 
-    ok(entity1.valid(), 'Entity 1 is valid');
-    ok(entity2.valid(), 'Entity 2 is valid');
-    ok(entity3.valid(), 'Entity 3 is valid');
-    ok(entity4.valid(), 'Entity 4 is valid');
-    ok(entity5.valid(), 'Entity 5 is valid');
+    ok(entity1.valid, 'Entity 1 is valid');
+    ok(entity2.valid, 'Entity 2 is valid');
+    ok(entity3.valid, 'Entity 3 is valid');
+    ok(entity4.valid, 'Entity 4 is valid');
+    ok(entity5.valid, 'Entity 5 is valid');
 
     var search1 = entities.all();
     strictEqual(search1.length, 5, 'Found all 5');
@@ -85,7 +85,7 @@ test('Destroy Entity removes from EntityManager', function() {
     strictEqual(search1[0], entity, 'Search contains created entity');
 
     entity.destroy();
-    strictEqual(entity.valid(), false, 'Entity no longer valid after destroy');
+    strictEqual(entity.valid, false, 'Entity no longer valid after destroy');
 
     var search2 = entities.all();
     strictEqual(search2.length, 0, 'Search by tag returns one result');
@@ -182,33 +182,33 @@ test('Add/Remove Component - Mask is correct', function() {
         entities = dir.entities,
         entity = entities.add();
 
-    var posCat = Position.category(),
-        moveCat = Movement.category(),
-        sizeCat = Size.category();
+    var posCat = Position.category,
+        moveCat = Movement.category,
+        sizeCat = Size.category;
 
     var position = entity.add(Position);
-    strictEqual(entity.mask(), posCat, 'After add 1: Mask correct');
-    strictEqual(position.entity(), entity, 'After add 1: Entity correct');
+    strictEqual(entity.mask, posCat, 'After add 1: Mask correct');
+    strictEqual(position.entity, entity, 'After add 1: Entity correct');
 
     var movement = entity.add(Movement);
-    strictEqual(entity.mask(), posCat | moveCat, 'After add 2: Mask correct');
-    strictEqual(movement.entity(), entity, 'After add 2: Entity correct');
+    strictEqual(entity.mask, posCat | moveCat, 'After add 2: Mask correct');
+    strictEqual(movement.entity, entity, 'After add 2: Entity correct');
 
     var size = entity.add(Size);
-    strictEqual(entity.mask(), posCat | moveCat | sizeCat, 'After add 3: Mask correct');
-    strictEqual(size.entity(), entity, 'After add 3: Entity correct');
+    strictEqual(entity.mask, posCat | moveCat | sizeCat, 'After add 3: Mask correct');
+    strictEqual(size.entity, entity, 'After add 3: Entity correct');
 
     entity.remove(Position);
-    strictEqual(entity.mask(), moveCat | sizeCat, 'After remove 1: Mask correct');
-    strictEqual(position.entity(), undefined, 'After remove 1: Entity undefined');
+    strictEqual(entity.mask, moveCat | sizeCat, 'After remove 1: Mask correct');
+    strictEqual(position.entity, undefined, 'After remove 1: Entity undefined');
 
     entity.remove(Movement);
-    strictEqual(entity.mask(), sizeCat, 'After remove 2: Mask correct');
-    strictEqual(movement.entity(), undefined, 'After remove 2: Entity undefined');
+    strictEqual(entity.mask, sizeCat, 'After remove 2: Mask correct');
+    strictEqual(movement.entity, undefined, 'After remove 2: Entity undefined');
 
     entity.remove(Size);
-    strictEqual(entity.mask(), 0, 'After remove 3: Mask correct');
-    strictEqual(size.entity(), undefined, 'After remove 3: Entity undefined');
+    strictEqual(entity.mask, 0, 'After remove 3: Mask correct');
+    strictEqual(size.entity, undefined, 'After remove 3: Entity undefined');
 });
 
 test('RemoveAll Components', function() {
@@ -223,7 +223,7 @@ test('RemoveAll Components', function() {
     ok(entity.has(Position, Movement, Size), 'Before RemoveAll: Contains Components');
 
     entity.removeAll();
-    strictEqual(entity.mask(), 0, 'After RemoveAll: Has no Components');
+    strictEqual(entity.mask, 0, 'After RemoveAll: Has no Components');
 });
 
 test('Destroy removes all Components', function() {
@@ -238,7 +238,7 @@ test('Destroy removes all Components', function() {
     ok(entity.has(Position, Movement, Size), 'Before RemoveAll: Contains Components');
 
     entity.destroy();
-    strictEqual(entity.mask(), 0, 'After Destroy: Has no Components');
+    strictEqual(entity.mask, 0, 'After Destroy: Has no Components');
 });
 
 test('Add/Remove Entity emits correct event', function() {
@@ -249,12 +249,12 @@ test('Add/Remove Entity emits correct event', function() {
 
     var testListener = {
         createdCallback: function() {
-            ok(arguments[0].valid(), 'Valid during callback');
+            ok(arguments[0].valid, 'Valid during callback');
             this.createdArgs = arguments;
         },
 
         destroyedCallback: function () {
-            ok(arguments[0].valid(), 'Valid during callback');
+            ok(arguments[0].valid, 'Valid during callback');
             this.destroyedArgs = arguments;
         }
     };
@@ -278,12 +278,12 @@ test('RemoveAll emits correct event', function() {
 
     var testListener = {
         createdCallback: function() {
-            ok(arguments[0].valid(), 'Valid during callback');
+            ok(arguments[0].valid, 'Valid during callback');
             this.createdArgs = arguments;
         },
 
         destroyedCallback: function () {
-            ok(arguments[0].valid(), 'Valid during callback');
+            ok(arguments[0].valid, 'Valid during callback');
             this.destroyedArgs = arguments;
         }
     };
@@ -307,12 +307,12 @@ test('RemoveWithTag emits correct event', function() {
 
     var testListener = {
         createdCallback: function() {
-            ok(arguments[0].valid(), 'Valid during callback');
+            ok(arguments[0].valid, 'Valid during callback');
             this.createdArgs = arguments;
         },
 
         destroyedCallback: function () {
-            ok(arguments[0].valid(), 'Valid during callback');
+            ok(arguments[0].valid, 'Valid during callback');
             this.destroyedArgs = arguments;
         }
     };
@@ -338,12 +338,12 @@ test('RemoveWithComponents emits correct event', function() {
 
     var testListener = {
         createdCallback: function() {
-            ok(arguments[0].valid(), 'Valid during callback');
+            ok(arguments[0].valid, 'Valid during callback');
             this.createdArgs = arguments;
         },
 
         destroyedCallback: function () {
-            ok(arguments[0].valid(), 'Valid during callback');
+            ok(arguments[0].valid, 'Valid during callback');
             this.destroyedArgs = arguments;
         }
     };
@@ -372,12 +372,12 @@ test('Add/Remove Component emits correct event', function() {
         createdArgs: [],
         destroyedArgs: [],
         createdCallback: function() {
-            ok(arguments[0].entity().valid(), 'Valid during callback');
+            ok(arguments[0].entity.valid, 'Valid during callback');
             this.createdArgs = arguments;
         },
 
         destroyedCallback: function () {
-            ok(arguments[0].entity().valid(), 'Valid during callback');
+            ok(arguments[0].entity.valid, 'Valid during callback');
             this.destroyedArgs = arguments;
         }
     };
@@ -411,10 +411,10 @@ test('Clone Entity', function() {
         size = entity2.get(Size);
 
     ok(entity2 instanceof Entity, 'Is an Entity');
-    strictEqual(entity2.id(), 2, 'Has expected id');
-    strictEqual(entity2.tag(), 'test.Clone', 'Has expected tag');
-    strictEqual(entity2.valid(), true, 'Entity is valid');
-    strictEqual(entity2.manager(), entities, 'Has ref to manager');
+    strictEqual(entity2.id, 2, 'Has expected id');
+    strictEqual(entity2.tag, 'test.Clone', 'Has expected tag');
+    strictEqual(entity2.valid, true, 'Entity is valid');
+    strictEqual(entity2.manager, entities, 'Has ref to manager');
 
     strictEqual(position.x, 42, 'X correct');
     strictEqual(position.y, 31, 'X correct');

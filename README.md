@@ -15,7 +15,7 @@ cog.extend(target, source1, source2, ...) -> {target}
 cog.defaults(target, source1, source2, ...) -> {target}
 
 
-Util
+Utilities
 ------
 
 ### Static Functions
@@ -175,3 +175,146 @@ systemManager.unregisterContext(context)
 systemManager.unregisterEvent(eventName)
 
 systemManager.unregisterAll()
+
+
+Entity
+----------
+
+### Memory
+
+entity.init(manager, id, tag)
+
+entity.destroy()
+
+entity.clone() -> {entity}
+
+### Instance Properties
+
+entity.manager -> {entityManager}
+
+entity.id -> {integer}
+
+entity.valid -> {boolean}
+
+entity.tag -> {tag}
+
+entity.mask -> {component mask}
+
+### Instance Methods
+
+entity.add(Component, options) -> {component}
+
+entity.has(Component1, Component2, ...) -> {boolean}
+
+entity.get(Component) -> {component}
+
+entity.remove(Component)
+
+entity.removeAll()
+
+
+Component
+------------
+
+### Memory
+
+Component.setup()
+
+component.init(entity, options)
+
+component.destroy()
+
+component.clone() -> {component}
+
+### Static Properties
+
+Component.category -> {category bit}
+
+Component.count -> {integer}
+
+### Prototype
+
+Component.prototype.defaults -> {options}
+
+### Instance Properties
+
+component.entity -> {entity}
+
+component.valid -> {boolean}
+
+### Instance Methods
+
+component.set(options)
+
+component.serialize() -> {options}
+
+
+System
+----------
+
+### Memory
+
+System.setup()
+
+system.init(manager)
+
+system.destroy()
+
+### Static Methods
+
+System.systemId() -> {system id}
+
+### Instance Methods
+
+system.configure(entityManager, eventManager, config)
+
+system.update(entityManager, eventManager, dt)
+
+Factory
+------------
+
+### Memory
+
+Factory.setup()
+
+Factory.init(manager)
+
+factory.destroy()
+
+### Static Methods
+
+Factory.systemId() -> {system id}
+
+### Prototype
+
+Factory.prototype.entityTag -> {tag}
+
+Factory.prototype.components -> {options}
+
+### Instance Methods
+
+factory.spawn(options)
+
+factory.configure(entityManager, eventManager, config)
+
+factory.update(entityManager, eventManager, dt)
+
+
+Construct
+------------
+
+### Inheritance
+
+Construct.extend(fullName, static, prototype) -> {Constructor}
+
+Construct.fullName() -> {fullName}
+
+Construct.setup()
+
+### Static Prototype
+
+properties -> {properties def}
+
+### Instance Prototype
+
+properties -> {properties def}

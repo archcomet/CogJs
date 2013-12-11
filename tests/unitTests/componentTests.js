@@ -15,12 +15,12 @@ test('Create/Destroy Component', function() {
     var comp = new TestComponent(entity);
 
     ok(comp instanceof Component, 'Is a component type');
-    strictEqual(comp.entity(), entity, 'Exposes entity after create');
-    strictEqual(comp.valid(), true, 'Component is valid');
+    strictEqual(comp.entity, entity, 'Exposes entity after create');
+    strictEqual(comp.valid, true, 'Component is valid');
 
     comp.destroy();
-    strictEqual(comp.entity(), undefined, 'Removes entity after destroy');
-    strictEqual(comp.valid(), false, 'Component is valid');
+    strictEqual(comp.entity, undefined, 'Removes entity after destroy');
+    strictEqual(comp.valid, false, 'Component is valid');
 });
 
 test('Destroy Component removes from Entity', function() {
@@ -31,30 +31,30 @@ test('Destroy Component removes from Entity', function() {
     var TestComponent = Component.extend({}),
         comp = entity.add(TestComponent);
 
-    strictEqual(comp.entity(), entity, 'Has correct entity ref');
+    strictEqual(comp.entity, entity, 'Has correct entity ref');
     strictEqual(entity.get(TestComponent), comp, 'Has correct component ref');
 
     comp.destroy();
 
-    strictEqual(comp.entity(), undefined, 'Has no entity ref');
+    strictEqual(comp.entity, undefined, 'Has no entity ref');
     strictEqual(entity.get(TestComponent), undefined, 'Has no component ref');
 });
 
 test('Component assigned unique category bit', function() {
-    var count = Component.count();
+    var count = Component.count;
 
     var TestComponent1 = Component.extend({}),
         TestComponent2 = Component.extend({}),
         TestComponent3 = Component.extend({});
 
-    strictEqual(Component.category(), 0, 'Component has a category of 0');
-    strictEqual(Component.category(), 0, 'Component has a category of 0 (2nd call)');
-    strictEqual(TestComponent1.category(), 1 << (count + 0), 'TestComponent1 has a category of 1');
-    strictEqual(TestComponent1.category(), 1 << (count + 0), 'TestComponent1 has a category of 1 (2nd call)');
-    strictEqual(TestComponent2.category(), 1 << (count + 1), 'TestComponent2 has a category of 2');
-    strictEqual(TestComponent2.category(), 1 << (count + 1), 'TestComponent2 has a category of 2 (2nd call)');
-    strictEqual(TestComponent3.category(), 1 << (count + 2), 'TestComponent3 has a category of 4');
-    strictEqual(TestComponent3.category(), 1 << (count + 2), 'TestComponent3 has a category of 4 (2nd call)');
+    strictEqual(Component.category, 0, 'Component has a category of 0');
+    strictEqual(Component.category, 0, 'Component has a category of 0 (2nd call)');
+    strictEqual(TestComponent1.category, 1 << (count + 0), 'TestComponent1 has a category of 1');
+    strictEqual(TestComponent1.category, 1 << (count + 0), 'TestComponent1 has a category of 1 (2nd call)');
+    strictEqual(TestComponent2.category, 1 << (count + 1), 'TestComponent2 has a category of 2');
+    strictEqual(TestComponent2.category, 1 << (count + 1), 'TestComponent2 has a category of 2 (2nd call)');
+    strictEqual(TestComponent3.category, 1 << (count + 2), 'TestComponent3 has a category of 4');
+    strictEqual(TestComponent3.category, 1 << (count + 2), 'TestComponent3 has a category of 4 (2nd call)');
 });
 
 test('Create Component with options (recursive copy)', function() {

@@ -11,15 +11,15 @@ module('System Tests', {});
 
 test('Extend assigns unique bit category', function() {
 
-    var count = System.count();
+    var count = System.count;
     var TestSystem1 = System.extend({}),
         TestSystem2 = System.extend({}),
         TestSystem3 = System.extend({});
 
-    strictEqual(System.count(), count + 3, 'Count increments');
-    strictEqual(TestSystem1.typeId(), count + 0, 'typeId correct');
-    strictEqual(TestSystem2.typeId(), count + 1, 'typeId correct');
-    strictEqual(TestSystem3.typeId(), count + 2, 'typeId correct');
+    strictEqual(System.count, count + 3, 'Count increments');
+    strictEqual(TestSystem1.systemId, count + 0, 'systemId correct');
+    strictEqual(TestSystem2.systemId, count + 1, 'systemId correct');
+    strictEqual(TestSystem3.systemId, count + 2, 'systemId correct');
 });
 
 test('Add System returns undefined in not passed a System', function() {
