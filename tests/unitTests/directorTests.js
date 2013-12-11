@@ -19,14 +19,14 @@ test('Create Director function', function() {
     ok(testDir.events instanceof EventManager, 'Creates EventManager');
     ok(testDir.valid, 'Director is valid');
     ok(testDir.entities.valid, 'EntityManager is valid');
-    ok(testDir.systems.valid(), 'SystemManager is valid');
-    ok(testDir.events.valid(), 'EventManager is valid');
+    ok(testDir.systems.valid, 'SystemManager is valid');
+    ok(testDir.events.valid, 'EventManager is valid');
 
     strictEqual(testDir.config, config, 'Returns config');
 
     strictEqual(testDir.entities.director, testDir, 'EntityManager refs director');
-    strictEqual(testDir.systems.director(), testDir, 'SystemManager refs director');
-    strictEqual(testDir.events.director(), testDir, 'EventManager refs director');
+    strictEqual(testDir.systems.director, testDir, 'SystemManager refs director');
+    strictEqual(testDir.events.director, testDir, 'EventManager refs director');
 
     testDir.destroy();
     strictEqual(testDir.entities, undefined, 'Destroys EntityManager');

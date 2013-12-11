@@ -141,6 +141,17 @@
     }
 
     /**
+     * isType
+     * @param obj
+     * @param type
+     * @returns {boolean}
+     */
+
+    function isType(obj, type) {
+        return (obj !== undefined && obj.type !== undefined && obj.type() === type);
+    }
+
+    /**
      * isDate
      * @param obj
      * @returns {boolean}
@@ -681,9 +692,9 @@
 
         init: function(config) {
             this._config = config;
-            this._eventManager = new EventManager(this);
+            this._eventManager = EventManager.create(this);
             this._entityManager = EntityManager.create(this);
-            this._systemManager = new SystemManager(this);
+            this._systemManager = SystemManager.create(this);
             this._preUpateCallback = null;
             this._animationFrame = null;
             this._lastFrame = 0;
@@ -868,91 +879,80 @@
      * @constructor
      */
 
-    var eventRegEx = /.* event$/;
-
     var SystemManager = Construct.extend('cog.SystemManager', {
+        create: function(director) {
+            return new SystemManager(director);
+        }
+    },{
+
+        properties: {
+            director: { get: function() { return this._director; } },
+            valid: { get: function() { return (this._director !== undefined); } }
+        },
 
         init: function(director) {
+            this._systems = {};
+            this._director = director;
+        },
 
-            var systems = {},
-                entities = director.entities,
-                events = director.events,
-                config = director.config;
+        destroy: function() {
+            this.removeAll();
+            this._director = undefined;
+        },
 
-            this.director = function() {
-                return director;
-            };
+        add: function(System) {
+            if (!isType(System, cog.System)) {
+                return undefined;
+            }
 
-            this.add = function(System) {
-                if (!System || !System.type || !System.type() === cog.System) {
-                    return undefined;
+            var typeId = System.typeId(),
+                system = this._systems[typeId];
+
+            if (!system) {
+                system = this._systems[typeId] = new System(this);
+                this._director.events.registerContext(system);
+                system.configure(this._director.entities, this._director.events, this._director.config)
+            }
+            return system;
+        },
+
+        get: function(System) {
+            if (!isType(System, cog.System)) {
+                return undefined;
+            }
+            var typeId = System.typeId();
+            return this._systems[typeId];
+        },
+
+        remove: function(System) {
+            if (!isType(System, cog.System)) {
+                return undefined;
+            }
+            var typeId = System.typeId();
+            this._director.events.unregisterContext(this._systems[typeId]);
+            this._systems[typeId].destroy(true);
+            this._systems[typeId] = undefined;
+            return this;
+        },
+
+        removeAll: function() {
+            for (var key in this._systems) {
+                if (this._systems.hasOwnProperty(key)) {
+                    this._director.events.unregisterContext(this._systems[key]);
+                    this._systems[key].destroy(true);
+                    this._systems[key] = undefined;
                 }
-                var key, prop,
-                    typeId = System.typeId(),
-                    system = systems[typeId];
-                if (!system) {
-                    system = systems[typeId] = new System(this);
+            }
+            return this;
+        },
 
-                    for (key in system) {
-                        //noinspection JSUnfilteredForInLoop
-                        if ((prop = system[key]) && isFunction(prop) && eventRegEx.test(key)) {
-                            //noinspection JSUnfilteredForInLoop
-                            events.register(key.substring(0, key.length-6), system, prop);
-                        }
-                    }
-
-                    system.configure(entities, events, config)
+        update: function(dt) {
+            for (var key in this._systems) {
+                if (this._systems.hasOwnProperty(key)) {
+                    this._systems[key].update(this._director.entities, this._director.events, dt);
                 }
-                return system;
-            };
-
-            this.get = function(System) {
-                if (!System || !System.type || !System.type() === cog.System) {
-                    return undefined;
-                }
-                var typeId = System.typeId();
-                return systems[typeId];
-            };
-
-            this.remove = function(System) {
-                if (!System || !System.type || !System.type() === cog.System) {
-                    return this;
-                }
-                var typeId = System.typeId();
-                events.unregisterContext(systems[typeId]);
-                systems[typeId].destroy(true);
-                systems[typeId] = undefined;
-                return this;
-            };
-
-            this.removeAll = function() {
-                for (var key in systems) {
-                    if (systems.hasOwnProperty(key)) {
-                        events.unregisterContext(systems[key]);
-                        systems[key].destroy(true);
-                        systems[key] = undefined;
-                    }
-                }
-                return this;
-            };
-
-            this.update = function(dt) {
-                for (var key in systems) {
-                    if (systems.hasOwnProperty(key)) {
-                        systems[key].update(entities, events, dt);
-                    }
-                }
-                return this;
-            };
-
-            this.valid = function() {
-                return (director !== undefined);
-            };
-
-            this.destroy = function() {
-                this.removeAll();
-                director = undefined;
-            };
+            }
+            return this;
         }
     });
 
@@ -963,95 +963,111 @@
      * @constructor
      */
 
+    var _eventRegEx = /.* event$/;
+
     var EventManager = Construct.extend('cog.SystemManager', {
+        create: function(director) {
+            return new EventManager(director);
+        }
+    },{
+
+        properties: {
+            director: { get: function() { return this._director; } },
+            valid: { get: function() { return (this._director !== undefined); } }
+        },
 
         init: function(director) {
+            this._director = director;
+            this._eventContexts = {};
+            this._eventCallbacks = {};
+        },
 
-            var eventContexts = {},
-                eventCallbacks = {};
+        destroy:  function() {
+            this.unregisterAll();
+            this._director = undefined;
+        },
 
-            this.director = function() {
-                return director;
-            };
+        emit: function(eventName) {
+            var i, n, args,
+                contexts = this._eventContexts[eventName],
+                callbacks = this._eventCallbacks[eventName];
+            if (contexts && callbacks) {
+                args = slice.call(arguments, 1);
+                for (i = 0, n = callbacks.length; i < n; ++i) {
+                    callbacks[i].apply(contexts[i], args);
+                }
+            }
+            return this;
+        },
 
-            this.emit = function(eventName) {
-                var i, n, args,
-                    contexts = eventContexts[eventName],
-                    callbacks = eventCallbacks[eventName];
-                if (contexts && callbacks) {
-                    args = slice.call(arguments, 1);
-                    for (i = 0, n = callbacks.length; i < n; ++i) {
-                        callbacks[i].apply(contexts[i], args);
+        register: function(eventName, context, callback) {
+            if (!isObject(context) || !isFunction(callback)) {
+                return this;
+            }
+            var contexts = this._eventContexts[eventName],
+                callbacks = this._eventCallbacks[eventName];
+
+            if (contexts === undefined || callbacks === undefined) {
+                contexts = this._eventContexts[eventName] = [];
+                callbacks = this._eventCallbacks[eventName] = [];
+            }
+            contexts.push(context);
+            callbacks.push(callback);
+            return this;
+        },
+
+        registerContext: function(context) {
+            var key, prop;
+            for (key in context) {
+                //noinspection JSUnfilteredForInLoop
+                if ((prop = context[key]) && isFunction(prop) && _eventRegEx.test(key)) {
+                    //noinspection JSUnfilteredForInLoop
+                    this.register(key.substring(0, key.length-6), context, prop);
+                }
+            }
+            return this;
+        },
+
+        unregister: function(eventName, context) {
+            var i, contexts = this._eventContexts[eventName],
+                callbacks = this._eventCallbacks[eventName];
+            if (contexts && callbacks) {
+                for (i = contexts.length - 1; i >= 0; --i) {
+                    if (contexts[i] === context) {
+                        contexts.splice(i, 1);
+                        callbacks.splice(i, 1);
                     }
                 }
-                return this;
-            };
+            }
+            return this;
+        },
 
-            this.register = function(eventName, context, callback) {
-                if (!isObject(context) || !isFunction(callback)) {
-                    return this;
+        unregisterContext: function(context) {
+            for (var event in this._eventContexts) {
+                if (this._eventContexts.hasOwnProperty(event)) {
+                    this.unregister(event, context);
                 }
-                var contexts = eventContexts[eventName],
-                    callbacks = eventCallbacks[eventName];
-                if (contexts === undefined || callbacks === undefined) {
-                    contexts = eventContexts[eventName] = [];
-                    callbacks = eventCallbacks[eventName] = [];
+            }
+            return this;
+        },
+
+        unregisterEvent: function(eventName) {
+            var contexts = this._eventContexts[eventName],
+                callbacks = this._eventCallbacks[eventName];
+            if (contexts && callbacks) {
+                this._eventContexts[eventName].length = 0;
+                this._eventCallbacks[eventName].length = 0;
+            }
+            return this;
+        },
+
+        unregisterAll: function() {
+            for (var event in this._eventContexts) {
+                if (this._eventContexts.hasOwnProperty(event)) {
+                    this.unregisterEvent(event);
                 }
-                contexts.push(context);
-                callbacks.push(callback);
-                return this;
-            };
-
-            this.unregister = function(eventName, context) {
-                var i, contexts = eventContexts[eventName],
-                    callbacks = eventCallbacks[eventName];
-                if (contexts && callbacks) {
-                    for (i = contexts.length - 1; i >= 0; --i) {
-                        if (contexts[i] === context) {
-                            contexts.splice(i, 1);
-                            callbacks.splice(i, 1);
-                        }
-                    }
-                }
-                return this;
-            };
-
-            this.unregisterContext = function(context) {
-                for (var event in eventContexts) {
-                    if (eventContexts.hasOwnProperty(event)) {
-                        this.unregister(event, context);
-                    }
-                }
-                return this;
-            };
-
-            this.unregisterEvent = function(eventName) {
-                var contexts = eventContexts[eventName],
-                    callbacks = eventCallbacks[eventName];
-                if (contexts && callbacks) {
-                    eventContexts[eventName].length = 0;
-                    eventCallbacks[eventName].length = 0;
-                }
-                return this;
-            };
-
-            this.unregisterAll = function() {
-                for (var event in eventContexts) {
-                    if (eventContexts.hasOwnProperty(event)) {
-                        this.unregisterEvent(event);
-                    }
-                }
-                return this;
-            };
-
-            this.valid = function() {
-                return (director !== undefined);
-            };
-
-            this.destroy = function() {
-                this.unregisterAll();
-                director = undefined;
-            };
+            }
+            return this;
         }
     });
 
@@ -1338,7 +1354,7 @@
 
         init: function(manager) {
 
-            var entityManager = manager.director().entities;
+            var entityManager = manager.director.entities;
 
             this._super(manager);
 

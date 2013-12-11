@@ -50,7 +50,7 @@ director.init(config)
 
 director.destroy()
 
-### Instance Methods - Managers
+### Instance Properties
 
 director.config -> {config}
 
@@ -62,7 +62,7 @@ director.events -> {eventManager}
 
 director.valid -> {boolean}
 
-### Instance Methods - Timers
+### Instance Methods
 
 director.start()
 
@@ -88,19 +88,21 @@ entityManager.init(director)
 
 entityManager.destroy()
 
-### Instance Methods - Add Entity
+### Instance Properties
+
+entityManager.director
+
+entityManager.valid
+
+### Instance Methods
 
 entityManager.add(tag) -> {entity}
-
-### Instance Methods - Get Entities
 
 entityManager.all() -> [entity array]
 
 entityManager.withTag(tag) -> [entity array]
 
 entityManager.withComponents(Component1, Component2, ...) -> [entity array]
-
-### Instance Methods - Remove Entities
 
 entityManager.remove(entity)
 
@@ -109,3 +111,67 @@ entityManager.removeAll()
 entityManager.removeWithTag(tag)
 
 entityManager.removeWithComponents(Component1, Component2, ...)
+
+
+SystemManager
+--------------
+
+### Memory
+
+SystemManager.create(director) -> {systemManager}
+
+systemManager.init(director)
+
+systemManager.destroy()
+
+### Instance Properties
+
+systemManager.director
+
+systemManager.valid
+
+### Instance Methods
+
+systemManager.add(System) -> {system}
+
+systemManager.get(System) -> {system}
+
+systemManager.remove(System)
+
+systemManager.removeAll(System)
+
+systemManager.update(dt)
+
+
+EventManager
+--------------
+
+### Memory
+
+EventManager.create(director) -> {eventManager}
+
+eventManager.init(director)
+
+eventManager.destroy()
+
+### Instance Properties
+
+systemManager.director
+
+systemManager.valid
+
+### Instance Methods
+
+systemManager.emit(eventName, arg1, arg2, ...)
+
+systemManager.register(eventName, context, callback)
+
+systemManager.registerContext(context)
+
+systemManager.unregister(eventName, context)
+
+systemManager.unregisterContext(context)
+
+systemManager.unregisterEvent(eventName)
+
+systemManager.unregisterAll()
