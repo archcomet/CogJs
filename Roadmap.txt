@@ -1,3 +1,5 @@
+* Convert fullName to property on Constructors
+
 
 * Support for Entity Hierarchy
     - parent
