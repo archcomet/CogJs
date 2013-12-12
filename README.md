@@ -6,19 +6,17 @@ Starting to get the doc up. More coming soon! :)
 Core
 -------
 
-#### Static Functions
+##### Engine Functions
 
-cog.createDirector() → {[director](https://github.com/archcomet/CogJs#director)}
+cog.createDirector(config) → {[director](https://github.com/archcomet/CogJs#director)}
+
+##### Object Manipulation
 
 cog.extend(target, source1, source2, ...) → {target}
 
 cog.defaults(target, source1, source2, ...) → {target}
 
-
-Utilities
-------
-
-#### Static Functions
+##### Type Checking
 
 cog.isArray() → {boolean}
 
@@ -42,15 +40,13 @@ cog.isString() → {boolean}
 Director
 ----------
 
-#### Memory
+Inherits: [cog.Construct](https://github.com/archcomet/CogJs#construct)
 
-cog.createDirector(config) → {[director](https://github.com/archcomet/CogJs#director)}
+##### Constructor
 
-director.init(config)
+cog.Director()
 
-director.destroy()
-
-#### Instance Properties
+##### Properties
 
 director.config → {config}
 
@@ -62,7 +58,11 @@ director.events → {[eventManager](https://github.com/archcomet/CogJs#eventmana
 
 director.valid → {boolean}
 
-#### Instance Methods
+##### Methods
+
+director.init(config)
+
+director.destroy()
 
 director.start()
 
@@ -77,22 +77,27 @@ director.preUpdate(callback)
 director.postUpdate(callback)
 
 
+
 EntityManager
 ---------------
 
-#### Memory
+Inherits: [cog.Construct](https://github.com/archcomet/CogJs#construct)
 
-entityManager.init([director](https://github.com/archcomet/CogJs#director))
+##### Constructor
 
-entityManager.destroy()
+cog.EntityManager()
 
-#### Instance Properties
+##### Properties
 
 entityManager.director → [director](https://github.com/archcomet/CogJs#director)
 
 entityManager.valid
 
-#### Instance Methods
+##### Methods
+
+entityManager.init([director](https://github.com/archcomet/CogJs#director))
+
+entityManager.destroy()
 
 entityManager.add(tag) → {[entity](https://github.com/archcomet/CogJs#entity)}
 
@@ -111,8 +116,15 @@ entityManager.removeWithTag(tag)
 entityManager.removeWithComponents([Component1](https://github.com/archcomet/CogJs#component), [Component2](https://github.com/archcomet/CogJs#component), ...)
 
 
+
 SystemManager
 --------------
+
+Inherits: [cog.Construct](https://github.com/archcomet/CogJs#construct)
+
+##### Constructor
+
+cog.SystemManager()
 
 #### Memory
 
@@ -141,6 +153,12 @@ systemManager.update(dt)
 
 EventManager
 --------------
+
+Inherits: [cog.Construct](https://github.com/archcomet/CogJs#construct)
+
+##### Constructor
+
+cog.EventManager()
 
 #### Memory
 
@@ -173,6 +191,12 @@ eventManager.unregisterAll()
 
 Entity
 ----------
+
+Inherits: [cog.Construct](https://github.com/archcomet/CogJs#construct)
+
+##### Constructor
+
+cog.Entity()
 
 #### Memory
 
@@ -210,6 +234,12 @@ entity.removeAll()
 Component
 ------------
 
+Inherits: [cog.Construct](https://github.com/archcomet/CogJs#construct)
+
+##### Constructor
+
+cog.Component()
+
 #### Memory
 
 Component.setup()
@@ -246,6 +276,12 @@ component.serialize() → {options}
 System
 ----------
 
+Inherits: [cog.Construct](https://github.com/archcomet/CogJs#construct)
+
+##### Constructor
+
+cog.System()
+
 #### Memory
 
 System.setup()
@@ -267,6 +303,12 @@ system.update([entityManager](https://github.com/archcomet/CogJs#entitymanager),
 
 Factory
 ------------
+
+Inherits: [cog.Construct](https://github.com/archcomet/CogJs#construct) → [cog.System](https://github.com/archcomet/CogJs#system)
+
+##### Constructor
+
+cog.Factory()
 
 #### Memory
 
