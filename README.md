@@ -304,7 +304,7 @@ Construct
 
 Construct.extend(fullName, static, prototype) → {Constructor}
 
-Construct.fullName() → {fullName}
+Construct.fullName → {fullName}
 
 Construct.setup()
 
