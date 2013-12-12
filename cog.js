@@ -436,14 +436,18 @@
         _inherit(Constructor, {}, superPrototype.constructor);
         _inherit(Constructor, superPrototype.constructor, staticProps);
 
-        Constructor.fullName = function () { return fullName; };
-
         if (instanceProps.properties) {
             Object.defineProperties(Constructor.prototype, instanceProps.properties);
         }
 
         if (Constructor.properties) {
             Object.defineProperties(Constructor, Constructor.properties);
+        }
+
+        if (!Object.getOwnPropertyDescriptor(Constructor, 'fullName')) {
+            Object.defineProperty(Constructor, 'fullName', {
+                get: function () { return fullName; }
+            });
         }
 
         if (Constructor.setup) {

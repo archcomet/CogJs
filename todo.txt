@@ -1,15 +1,10 @@
-* Convert fullName to property on Constructors
-
+Short term:
 
 * Support for Entity Hierarchy
     - parent
     - children
     - queries
     - traverse
-
-* dat-gui hooks
-    - config
-    - factories
 
 * Random Number Generator
     - randNumber
@@ -28,12 +23,14 @@
 
 * Easing Utilities
 
+Mid term:
+
 * 2d Rendering System (Canvas)
 
-* 2d Rendering System (WebGl)
-
-* 2d Physics System (Box2d)
-
-* 3d Rendering System (WebGl) / Three.js
+* 2d Physics System using Box2d
 
 * Audio System
+
+Long term:
+
+* 3d Rendering System (WebGl) using Three.js

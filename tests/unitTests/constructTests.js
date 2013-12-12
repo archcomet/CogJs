@@ -38,7 +38,7 @@ test('Construct with instanceProps', function() {
     strictEqual(initArgs[0], 1, 'First arg');
     strictEqual(initArgs[1], 2, 'Second arg');
     strictEqual(fooCalled, true, 'Foo called');
-    strictEqual(Derived.fullName(), null, 'Has no name');
+    strictEqual(Derived.fullName, null, 'Has no name');
 });
 
 test('Construct with fullName and instanceProps', function() {
@@ -65,7 +65,7 @@ test('Construct with fullName and instanceProps', function() {
     strictEqual(initArgs[0], 1, 'First arg');
     strictEqual(initArgs[1], 2, 'Second arg');
     strictEqual(fooCalled, true, 'Foo called');
-    strictEqual(Derived.fullName(), 'test.Derived', 'Has correct name');
+    strictEqual(Derived.fullName, 'test.Derived', 'Has correct name');
 });
 
 test('Construct with staticProps and instanceProps', function() {
@@ -101,7 +101,7 @@ test('Construct with staticProps and instanceProps', function() {
     strictEqual(setupCalled, true, 'Setup called');
     strictEqual(Derived.obj.val, 13, 'Extends constructor');
     strictEqual(instance.obj.val, 42, 'Extends prototype');
-    strictEqual(Derived.fullName(), null, 'Has correct name');
+    strictEqual(Derived.fullName, null, 'Has correct name');
 });
 
 test('Construct with fullName, staticProps, and instanceProps', function() {
@@ -137,7 +137,7 @@ test('Construct with fullName, staticProps, and instanceProps', function() {
     strictEqual(setupCalled, true, 'Setup called');
     strictEqual(Derived.obj.val, 13, 'Extends constructor');
     strictEqual(instance.obj.val, 42, 'Extends prototype');
-    strictEqual(Derived.fullName(), 'test.Derived', 'Has correct name');
+    strictEqual(Derived.fullName, 'test.Derived', 'Has correct name');
 });
 
 test('_super for static functions', function() {
