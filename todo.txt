@@ -1,5 +1,9 @@
 Short term:
 
+* Trackable objects
+
+* Frame skip updating
+
 * Support for Entity Hierarchy
     - parent
     - children
@@ -13,7 +17,7 @@ Short term:
     - seed
     - reseed
 
-* Math Utilities
+* Math Utilities (two or three js?)
     - Vector2
     - Vector3
     - Vector4
@@ -21,11 +25,11 @@ Short term:
     - Matrix3
     - Matrix4
 
-* Easing Utilities
+* Easing Utilities (tween js?)
 
 Mid term:
 
-* 2d Rendering System (Canvas)
+* 2d Rendering System (two))
 
 * 2d Physics System using Box2d
 
