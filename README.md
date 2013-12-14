@@ -72,10 +72,15 @@ director.step(timestamp)
 
 director.update(dt)
 
-director.preUpdate(callback)
+director.render()
 
-director.postUpdate(callback)
+director.onBeginUpdate(callback)
 
+director.onEndUpdate(callback)
+
+director.onBeginStep(callback)
+
+director.onEndStep(callback)
 
 
 EntityManager
@@ -149,6 +154,8 @@ systemManager.remove([System](https://github.com/archcomet/CogJs#system))
 systemManager.removeAll([System](https://github.com/archcomet/CogJs#system))
 
 systemManager.update(dt)
+
+systemManager.render()
 
 
 EventManager
@@ -300,6 +307,7 @@ system.configure([entityManager](https://github.com/archcomet/CogJs#entitymanage
 
 system.update([entityManager](https://github.com/archcomet/CogJs#entitymanager), [eventManager](https://github.com/archcomet/CogJs#eventmanager), dt)
 
+system.render([entityManager](https://github.com/archcomet/CogJs#entitymanager))
 
 Factory
 ------------

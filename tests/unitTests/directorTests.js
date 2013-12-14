@@ -41,11 +41,11 @@ test('PreUpdate and PostUpdate hooks', function() {
         preUpdate = false,
         postUpdate = false;
 
-    testDir.preUpdate(function() {
+    testDir.onBeginUpdate(function() {
         preUpdate = true;
     });
 
-    testDir.postUpdate(function() {
+    testDir.onEndUpdate(function() {
         postUpdate = true;
     });
 
@@ -61,7 +61,18 @@ asyncTest('Start/stop animation frames', function() {
     var updateCount = 0,
         times = [];
 
-    var dir = cog.createDirector();
+    var dir = cog.createDirector(),
+        onStepStart = 0,
+        onStepEnd = 0;
+
+    dir.onBeginStep(function() {
+        onStepStart++;
+    });
+
+    dir.onEndStep(function() {
+        onStepEnd++;
+    });
+
     var TestSystem = System.extend({
         update: function(entities, events, dt) {
 
@@ -69,9 +80,13 @@ asyncTest('Start/stop animation frames', function() {
             times.push(dt);
 
             if (updateCount >= 3) {
+
                 ok(true, 'Ran 3 steps');
                 strictEqual(entities, dir.entities, 'Passed EntityManager');
                 strictEqual(events, dir.events, 'Passed EventManager');
+                strictEqual(onStepStart, 3, 'Begin step callback');
+                strictEqual(onStepEnd, 2, 'End step callback');
+
                 for(var i = 0, n = times.length; i < n; ++i) {
                     ok(times[i] > 0 , 'Time ' + i + ' is in correct range: ' + times[i]);
                 }

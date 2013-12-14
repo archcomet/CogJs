@@ -1,4 +1,4 @@
-//      Cog.js  1.2.2
+//      Cog.js  1.2.3
 //      http://www.github.com/archcomet/cogjs
 //      (c) 2013 Michael Good
 //      Cog may be freely distributed under the MIT license.
@@ -26,7 +26,7 @@
         return !(this instanceof cog) ? new cog() : this;
     };
 
-    cog.VERSION = '1.2.2';
+    cog.VERSION = '1.2.3';
 
     // ------------------------------------------
     // Utility functions
@@ -697,7 +697,7 @@
             this._eventManager = new EventManager(this);
             this._entityManager = new EntityManager(this);
             this._systemManager = new SystemManager(this);
-            this._preUpateCallback = null;
+            this._beginUpdateCallback = null;
             this._animationFrame = null;
             this._lastFrame = 0;
         },
@@ -710,26 +710,8 @@
             this._entityManager = undefined;
             this._systemManager = undefined;
             this._eventManager = undefined;
-            this._preUpateCallback = undefined;
-            this._postUpdateCallback = undefined;
-        },
-
-        update: function(dt) {
-            if (this._preUpateCallback) {
-                this._preUpateCallback();
-            }
-            this._systemManager.update(dt);
-            if (this._postUpdateCallback) {
-                this._postUpdateCallback();
-            }
-        },
-
-        preUpdate: function(callback) {
-            this._preUpateCallback = callback;
-        },
-
-        postUpdate: function(callback) {
-            this._postUpdateCallback = callback;
+            this._beginUpdateCallback = undefined;
+            this._endUpdateCallback = undefined;
         },
 
         start:function() {
@@ -749,11 +731,56 @@
         step: function(timestamp) {
             var lastFrame = this._lastFrame,
                 dt = (lastFrame !== 0) ? timestamp - lastFrame : 16;
+
+            if (this._beginStepCallback) {
+                this._beginStepCallback();
+            }
+
             this.update(dt);
+            this.render();
+
+            if (this._endStepCallback) {
+                this._endStepCallback();
+            }
+
             if (this._animationFrame) {
                 this._lastFrame = timestamp;
                 this._animationFrame = requestAnimationFrame(this.step.bind(this));
             }
+        },
+
+        update: function(dt) {
+            if (this._beginUpdateCallback) {
+                this._beginUpdateCallback();
+            }
+            this._systemManager.update(dt);
+            if (this._endUpdateCallback) {
+                this._endUpdateCallback();
+            }
+        },
+
+        render: function() {
+            this._systemManager.render();
+        },
+
+        onBeginUpdate: function(callback) {
+            this._beginUpdateCallback = callback;
+            return this;
+        },
+
+        onEndUpdate: function(callback) {
+            this._endUpdateCallback = callback;
+            return this;
+        },
+
+        onBeginStep: function(callback) {
+            this._beginStepCallback = callback;
+            return this;
+        },
+
+        onEndStep: function(callback) {
+            this._endStepCallback = callback;
+            return this;
         }
     });
 
@@ -959,9 +986,24 @@
         },
 
         update: function(dt) {
-            var i = 0, n = this._systemOrder.length;
+            var i = 0,
+                n = this._systemOrder.length,
+                systems = this._systemOrder,
+                entities = this._director.entities,
+                events = this._director.events;
             for (; i < n; ++i) {
-                this._systemOrder[i].update(this._director.entities, this._director.events, dt);
+                systems[i].update(entities, events, dt);
+            }
+            return this;
+        },
+
+        render: function() {
+            var i = 0,
+                n = this._systemOrder.length,
+                systems = this._systemOrder,
+                entities = this._director.entities;
+            for (; i < n; ++i) {
+                systems[i].render(entities);
             }
             return this;
         }
@@ -1307,7 +1349,9 @@
 
         configure: function(entityManager, eventManager) {},
 
-        update: function(entityManager, eventManager, dt) {}
+        update: function(entityManager, eventManager, dt) {},
+
+        render: function(entityManager) {}
 
     });
 
