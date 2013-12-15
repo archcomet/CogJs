@@ -666,6 +666,92 @@
         }
     });
 
+
+    /**
+     * Map
+     * @constructor
+     */
+
+    var Map = Construct.extend('cog.Map', {
+
+        dirtyOnChange: false,
+
+        defaults: {},
+
+        setup: function() {
+            if (this.dirtyOnChange) {
+                this.prototype._dirty = true;
+                Object.defineProperty(this.prototype, 'dirty', {
+                    get: function() { return this._dirty; },
+                    set: function(val) { this._dirty = val; }
+                })
+            }
+
+            var key;
+            for (key in this.defaults) {
+                if (this.defaults.hasOwnProperty(key)) {
+                    this.addProp(key, this.defaults[key]);
+                }
+            }
+        },
+
+        addProp: function(key, value) {
+            var privateKey = '_' + key;
+            var def = { get: function() { return this[privateKey]; } };
+
+            if (this.dirtyOnChange) {
+                def.set = function(val) {
+                    if (this[privateKey] !== val) {
+                        this[privateKey] = val;
+                        this._dirty = true;
+                    }
+                }
+            } else {
+                def.set = function(val) {
+                    this[privateKey] = val;
+                }
+            }
+
+            Object.defineProperty(this.prototype, key, def);
+            this.prototype[privateKey] = value;
+        }
+
+    }, {
+
+        init: function(props) {
+            this.set(props);
+        },
+
+        set: function(props) {
+            extend(this, props);
+        },
+
+        serialize: function() {
+            var key, copy, clone,
+                target = {},
+                defaults = this.constructor.defaults;
+
+            for (key in defaults) {
+                if (defaults.hasOwnProperty(key)) {
+                    copy = this[key];
+
+                    if (isArray(copy)) {
+                        clone = [];
+                        extend(true, clone, copy);
+                    } else if (isPlainObject(copy)) {
+                        clone = {};
+                        extend(true, clone, copy);
+                    } else {
+                        clone = copy;
+                    }
+
+                    target[key] = clone;
+                }
+            }
+            return target;
+        }
+    });
+
     // ------------------------------------------
     // Managers
 
@@ -698,7 +784,7 @@
             this._entityManager = new EntityManager(this);
             this._systemManager = new SystemManager(this);
             this._beginUpdateCallback = null;
-            this._animationFrame = null;
+            this._aniFmationFrame = null;
             this._lastFrame = 0;
         },
 
@@ -1240,7 +1326,7 @@
 
     var componentCount = 0;
 
-    var Component = Construct.extend('cog.Component', {
+    var Component = Map.extend('cog.Component', {
 
         properties: {
             category: { get: function() { return this._category; } },
@@ -1253,11 +1339,10 @@
             }
             this._category= (componentCount === 0) ? 0 : 1 << (componentCount-1);
             componentCount++;
+            this._super();
         }
 
     }, {
-
-        defaults: {},
 
         properties: {
             entity: { get: function() { return this._entity; } },
@@ -1265,6 +1350,7 @@
         },
 
         init: function(entity, options) {
+            this._super(options);
             this._entity = entity;
             this.set(options);
         },
@@ -1275,36 +1361,6 @@
                 return;
             }
             this._entity = undefined;
-        },
-
-        set: function(options) {
-            extend(true, this, this.constructor.prototype.defaults, options);
-        },
-
-        serialize: function() {
-            var key, copy, clone, target = {};
-            for (key in this) {
-                if (this.hasOwnProperty(key)) {
-                    copy = this[key];
-
-                    if (isFunction(copy)) {
-                        continue;
-                    }
-
-                    if (isArray(copy)) {
-                        clone = [];
-                        extend(true, clone, copy);
-                    } else if (isPlainObject(copy)) {
-                        clone = {};
-                        extend(true, clone, copy);
-                    } else {
-                        clone = copy;
-                    }
-
-                    target[key] = clone;
-                }
-            }
-            return target;
         }
     });
 

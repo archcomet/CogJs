@@ -57,7 +57,7 @@ test('Component assigned unique category bit', function() {
     strictEqual(TestComponent3.category, 1 << (count + 2), 'TestComponent3 has a category of 4 (2nd call)');
 });
 
-test('Create Component with options (recursive copy)', function() {
+test('Create Component with defaults', function() {
     var TestComponent = Component.extend({
         defaults: {
             number: 42,
@@ -65,25 +65,15 @@ test('Create Component with options (recursive copy)', function() {
             object: { x:1, y:'2', z:[3] },
             arr: [10, "stuff", { foo: 'bar'}]
         }
-    });
+    }, {});
 
     var comp = new TestComponent();
+    var def = TestComponent.defaults;
 
-    // Test Values
     strictEqual(comp.number, 42, 'Number copied');
     strictEqual(comp.string, 'hello', 'String copied');
-    strictEqual(comp.object.x, 1, 'Object x copied');
-    strictEqual(comp.object.y, '2', 'Object y copied');
-    strictEqual(comp.object.z[0], 3, 'Object z copied');
-    strictEqual(comp.arr[0], 10, 'Object arr[0] copied');
-    strictEqual(comp.arr[1], 'stuff', 'Object arr[1] copied');
-    strictEqual(comp.arr[2].foo, 'bar', 'Object arr[2] copied');
-
-    var def = TestComponent.prototype.defaults;
-    notStrictEqual(comp.object, def.object, 'object is not a ref');
-    notStrictEqual(comp.object.z, def.object.z, 'object.z is a ref');
-    notStrictEqual(comp.arr, def.arr, 'arr is not a ref');
-    notStrictEqual(comp.arr[2], def.arr[2], 'arr[2] is not a ref');
+    strictEqual(comp.object, def.object, 'object is a ref');
+    strictEqual(comp.arr, def.arr, 'arr is a ref');
 });
 
 test('Serialize Component', function() {
@@ -97,9 +87,8 @@ test('Serialize Component', function() {
             arr: [10, "stuff", { foo: 'bar'}],
             construct: construct,
             _prop: 10
-        },
-        foo:function(){}
-    });
+        }
+    }, {});
 
     Object.defineProperty(TestComponent.prototype, 'prop', {
         get: function() {
@@ -121,4 +110,34 @@ test('Serialize Component', function() {
 
     strictEqual(copy.prop, undefined, 'Prop is not copied');
     strictEqual(copy._prop, 10, 'Private number is copied');
+});
+
+test('Dirtyable Component', function() {
+
+    var TestComponent = Component.extend({
+        dirtyOnChange: true,
+        defaults: {
+            foo: 42,
+            bar: 'Hello',
+            x: 0,
+            y: 1
+        }
+    }, {});
+
+    var comp = new TestComponent();
+
+    strictEqual(comp.dirty, true, 'Dirty starts true');
+    strictEqual(comp.foo, 42, 'Foo has default value');
+    strictEqual(comp.bar, 'Hello', 'Bar has default value');
+    strictEqual(comp.x, 0, 'x has default value');
+    strictEqual(comp.y, 1, 'y has default value');
+
+    comp.dirty = false;
+    strictEqual(comp._dirty, false, 'Dirty set to false');
+
+    comp.foo = 43;
+    strictEqual(comp._foo, 43, 'Foo changed');
+    strictEqual(comp._dirty, true, 'Dirty now true');
+
+
 });
