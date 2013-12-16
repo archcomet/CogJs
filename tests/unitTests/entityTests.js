@@ -423,3 +423,66 @@ test('Clone Entity', function() {
     strictEqual(size.width, 22, 'width correct');
     strictEqual(size.height, 10, 'height correct');
 });
+
+test('Add child to Entity', function() {
+    var dir = cog.createDirector(),
+        entities = dir.entities;
+
+    var parent = entities.add('test.Parent'),
+        child1 = entities.add('test.Child'),
+        child2 = entities.add('test.Child'),
+        child3 = entities.add('test.Child');
+
+    strictEqual(parent.parent, null, 'Parent has no parent');
+    strictEqual(parent.children.length, 0, 'Parent has no children before add');
+
+    parent.addChild(child1)
+        .addChild(child2)
+        .addChild(child3);
+
+    strictEqual(parent.children.length, 3, 'Children added to parent');
+    strictEqual(parent.parent, null, 'Parent still has no parent');
+    strictEqual(child1.parent, parent, 'Child1 has correct parent');
+    strictEqual(child2.parent, parent, 'Child2 has correct parent');
+    strictEqual(child3.parent, parent, 'Child3 has correct parent');
+    strictEqual(child1.children.length, 0, 'Child1 has no children');
+    strictEqual(child2.children.length, 0, 'Child2 has no children');
+    strictEqual(child3.children.length, 0, 'Child3 has no children');
+    strictEqual(parent.children.indexOf(child1), 0, 'Has child1');
+    strictEqual(parent.children.indexOf(child2), 1, 'Has child2');
+    strictEqual(parent.children.indexOf(child3), 2, 'Has child3');
+
+
+});
+
+test('Remove child from Entity', function() {
+    var dir = cog.createDirector(),
+        entities = dir.entities;
+
+    var parent = entities.add('test.Parent'),
+        child1 = entities.add('test.Child'),
+        child2 = entities.add('test.Child'),
+        child3 = entities.add('test.Child');
+
+    parent.addChild(child1)
+        .addChild(child2)
+        .addChild(child3);
+    strictEqual(parent.children.length, 3, 'Children added to parent');
+
+    child1.removeChild(parent);
+    strictEqual(parent.parent, null, 'No op on parent when removing invalid child');
+    strictEqual(parent.children.length, 3, 'No op on parent children when removing invalid child');
+    strictEqual(child1.parent, parent, 'No op on child when removing invalid child');
+
+    parent.removeChild(child1);
+    strictEqual(parent.children.length, 2, 'Children length decreased by 1');
+    strictEqual(parent.children.indexOf(child1), -1, 'Child1 no longer a child');
+    strictEqual(child1.parent, null, 'Child1 no longer has a parent');
+
+    parent.removeAllChildren();
+    strictEqual(parent.children.length, 0, 'Parent no longer has children');
+    strictEqual(parent.children.indexOf(child2), -1, 'Child2 no longer a child');
+    strictEqual(parent.children.indexOf(child3), -1, 'Child3 no longer a child');1
+    strictEqual(child2.parent, null, 'Child2 no longer has a parent');
+    strictEqual(child3.parent, null, 'Child3 no longer has a parent');
+});

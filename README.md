@@ -209,6 +209,10 @@ entity.tag → {tag}
 
 entity.mask → {[component](https://github.com/archcomet/CogJs#component) mask}
 
+entity.parent -> {[entity](https://github.com/archcomet/CogJs#entity)}
+
+entity.children -> [{[entity](https://github.com/archcomet/CogJs#entity)}]
+
 ##### Instance Methods
 
 entity.init([entityManager](https://github.com/archcomet/CogJs#entitymanager), id, tag)
@@ -227,6 +231,11 @@ entity.remove([Component](https://github.com/archcomet/CogJs#component))
 
 entity.removeAll()
 
+entity.addChild([entity](https://github.com/archcomet/CogJs#entity))
+
+entity.removeChild([entity](https://github.com/archcomet/CogJs#entity))
+
+entity.removeAllChildren()
 
 Component
 ------------

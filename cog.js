@@ -1177,7 +1177,9 @@
             id: { get: function() { return this._id } },
             tag: { get: function() { return this._tag } },
             valid: { get: function() { return (this._manager && this._id) ? true : false; } },
-            mask: { get: function() { return this._componentMask; } }
+            mask: { get: function() { return this._componentMask; } },
+            parent: { get: function() { return this._parent; } },
+            children: { get: function() { return this._children.slice(0); } }
         },
 
         init: function(manager, id, tag) {
@@ -1186,6 +1188,8 @@
             this._tag = tag || null;
             this._components = {};
             this._componentMask = 0;
+            this._parent = null;
+            this._children = [];
         },
 
         destroy: function(managed) {
@@ -1197,6 +1201,7 @@
             this._manager = undefined;
             this._id = undefined;
             this._tag = undefined;
+            this._children = undefined;
         },
 
         clone: function() {
@@ -1261,6 +1266,39 @@
                     this.remove(this._components[key]);
                 }
             }
+            return this;
+        },
+
+        addChild: function(entity) {
+            if (entity.parent) {
+                entity.parent.removeChild(entity);
+            }
+
+            entity._parent = this;
+            this._children.push(entity);
+            return this;
+        },
+
+        removeChild: function(entity) {
+            var index;
+            if (entity.parent === this) {
+                entity._parent = null;
+                index = this._children.indexOf(entity);
+                if (index > -1) {
+                    this._children.splice(index, 1);
+                }
+            }
+            return this;
+        },
+
+        removeAllChildren: function() {
+            var children = this._children,
+                i = 0,
+                n = children.length;
+            for (; i < n; ++i) {
+                children[i]._parent = null;
+            }
+            children.length = 0;
             return this;
         }
     });
