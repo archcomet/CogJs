@@ -4,15 +4,15 @@ var Director = cog.Director,
 
 var Position = Component.extend({
     defaults: { x:0, y:0 }
-}, {});
+});
 
 var Movement = Component.extend({
     defaults: { dx:0, dy:0 }
-}, {});
+});
 
 var Size = Component.extend({
     defaults: { width:11, height:22 }
-}, {});
+});
 
 module('Factory tests', {});
 

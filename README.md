@@ -338,42 +338,14 @@ Construct
 
 Construct.fullName → {fullName}
 
-Construct.properties → {properties def}
+Construct.defaults -> {defaults}
+
+Construct.properties → {properties}
+
+Construct.dirtyOnChange → {boolean}
 
 ##### Static Methods
 
 Construct.extend(fullName, static, prototype) → {Constructor}
 
 Construct.setup()
-
-
-Map
----------------
-
-Inherits: [cog.Construct](https://github.com/archcomet/CogJs#construct)
-
-##### Constructor
-
-cog.Map(properties)
-
-##### Static Properties
-
-Map.dirtyOnChange → {boolean}
-
-Map.defaults → {defaults}
-
-##### Static Methods
-
-Map.setup()
-
-Map.addProp(key, value)
-
-##### Instance Properties
-
-map.init(properties)
-
-map.set(properties)
-
-map.serialize() → {properties}
-
-

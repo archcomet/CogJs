@@ -65,10 +65,10 @@ test('Create Component with defaults', function() {
             object: { x:1, y:'2', z:[3] },
             arr: [10, "stuff", { foo: 'bar'}]
         }
-    }, {});
+    });
 
     var comp = new TestComponent();
-    var def = TestComponent.defaults;
+    var def = TestComponent.prototype.defaults;
 
     strictEqual(comp.number, 42, 'Number copied');
     strictEqual(comp.string, 'hello', 'String copied');
@@ -88,7 +88,7 @@ test('Serialize Component', function() {
             construct: construct,
             _prop: 10
         }
-    }, {});
+    });
 
     Object.defineProperty(TestComponent.prototype, 'prop', {
         get: function() {
@@ -102,11 +102,11 @@ test('Serialize Component', function() {
     ok(cog.isPlainObject(copy), 'Is an object');
     strictEqual(copy.number, 42, 'Copied number');
     strictEqual(copy.string, 'hello', 'Copied string');
-    notStrictEqual(copy.arr, comp.arr, 'Array is a copy');
-    notStrictEqual(copy.arr[2], comp.arr[2], 'Array is a copy');
-    notStrictEqual(copy.object.z, comp.object.z, 'Object is a copy');
-    notStrictEqual(copy.object, comp.object, 'Object is a copy');
-    notStrictEqual(copy.construct, undefined, 'Instance is not copied');
+    strictEqual(copy.arr, comp.arr, 'Array is a copy');
+    strictEqual(copy.arr[2], comp.arr[2], 'Array is a ref');
+    strictEqual(copy.object.z, comp.object.z, 'Object is a ref');
+    strictEqual(copy.object, comp.object, 'Object is a ref');
+    strictEqual(copy.construct, construct, 'Instance is copied');
 
     strictEqual(copy.prop, undefined, 'Prop is not copied');
     strictEqual(copy._prop, 10, 'Private number is copied');
@@ -115,14 +115,15 @@ test('Serialize Component', function() {
 test('Dirtyable Component', function() {
 
     var TestComponent = Component.extend({
-        dirtyOnChange: true,
+        dirtyOnChange: true
+    }, {
         defaults: {
             foo: 42,
             bar: 'Hello',
             x: 0,
             y: 1
         }
-    }, {});
+    });
 
     var comp = new TestComponent();
 
@@ -133,11 +134,16 @@ test('Dirtyable Component', function() {
     strictEqual(comp.y, 1, 'y has default value');
 
     comp.dirty = false;
-    strictEqual(comp._dirty, false, 'Dirty set to false');
+    strictEqual(comp.dirty, false, 'Dirty set to false');
 
     comp.foo = 43;
-    strictEqual(comp._foo, 43, 'Foo changed');
-    strictEqual(comp._dirty, true, 'Dirty now true');
+    strictEqual(comp.foo, 43, 'Foo changed');
+    strictEqual(comp.dirty, true, 'Dirty now true');
 
-
+    var copy = comp.serialize();
+    strictEqual(copy.dirty, undefined, 'Dirty is undefined on copy');
+    strictEqual(copy.foo, 43, 'Foo has copy value');
+    strictEqual(copy.bar, 'Hello', 'Copy Bar has copy value');
+    strictEqual(copy.x, 0, 'x has copy value');
+    strictEqual(copy.y, 1, 'y has copy value');
 });

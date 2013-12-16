@@ -341,34 +341,52 @@
     }
 
     /**
-     * _read
-     *  Safely reads a chain of functions with no parameters.
-     *  eg:
-     *      // will throw if obj, foo, or bar are not defined
-     *      var a = obj.foo().bar();
-     *
-     *      // will return undefined if obj, foo, or bar are not defined
-     *      var a = _read(obj, 'foo', 'bar');
-     *
+     * _defineDirtyableProp
      * @param obj
-     * @returns {*}
+     * @param key
+     * @param value
      * @private
      */
 
-    function _read(obj) {
-        var key, i = 1, n = arguments.length;
-        for(;i < n; ++i) {
-            key = arguments[i];
-            if (obj && isFunction(obj[key])) {
-                obj = obj[key]();
-            } else if (obj) {
-                obj = obj[key];
-            }
-            else {
-                return undefined;
+    function _defineDirtyableProp(obj, key, value) {
+        var storage = value;
+        Object.defineProperty(obj, key, {
+            get: function() {
+                return storage;
+            },
+            set: function(value) {
+                storage = value;
+                this.dirty = true;
+            },
+            enumerable: true,
+            configurable: true
+        })
+    }
+
+    /**
+     * _defaultProperties
+     * @param obj
+     * @param defaults
+     * @param dirtyable
+     * @private
+     */
+
+    function _defaultProperties(obj, defaults, dirtyable) {
+        var key;
+        for (key in defaults) {
+            if (defaults.hasOwnProperty(key)) {
+                if (dirtyable) {
+                    _defineDirtyableProp(obj, key, defaults[key]);
+                } else {
+                    Object.defineProperty(obj, key, {
+                        value: defaults[key],
+                        configurable: true,
+                        writable: true,
+                        enumerable: true
+                    });
+                }
             }
         }
-        return obj;
     }
 
     // ------------------------------------------
@@ -400,6 +418,8 @@
 
     Construct.extend = function(fullName, staticProps, instanceProps) {
 
+        var prototype, superPrototype;
+
         if (!isString(fullName)) {
             instanceProps = staticProps;
             staticProps = fullName;
@@ -415,8 +435,8 @@
         staticProps = staticProps || {};
 
         initializing = true;
-        var prototype = new this(),
-            superPrototype = this.prototype;
+        prototype = new this();
+        superPrototype = this.prototype;
         initializing = false;
 
         _inherit(prototype, superPrototype, instanceProps);
@@ -436,18 +456,36 @@
         _inherit(Constructor, {}, superPrototype.constructor);
         _inherit(Constructor, superPrototype.constructor, staticProps);
 
+        Object.defineProperty(Constructor, 'fullName', {
+            value: fullName,
+            writable: false,
+            configurable: true,
+            enumerable: false
+        });
+
+        if (Constructor.dirtyOnChange) {
+            Object.defineProperty(Constructor.prototype, 'dirty', {
+                value: true,
+                writable: true,
+                configurable: true,
+                enumerable: false
+            });
+        }
+
+        if (instanceProps.defaults) {
+           _defaultProperties(Constructor.prototype, instanceProps.defaults, Constructor.dirtyOnChange);
+        }
+
         if (instanceProps.properties) {
             Object.defineProperties(Constructor.prototype, instanceProps.properties);
         }
 
-        if (Constructor.properties) {
-            Object.defineProperties(Constructor, Constructor.properties);
+        if (Constructor.defaults) {
+            _defaultProperties(Constructor, Constructor.defaults, false);
         }
 
-        if (!Object.getOwnPropertyDescriptor(Constructor, 'fullName')) {
-            Object.defineProperty(Constructor, 'fullName', {
-                get: function () { return fullName; }
-            });
+        if (Constructor.properties) {
+            Object.defineProperties(Constructor, Constructor.properties);
         }
 
         if (Constructor.setup) {
@@ -663,92 +701,6 @@
             this.readOnly = function() {
                 return new SetWrapper(this, true);
             };
-        }
-    });
-
-
-    /**
-     * Map
-     * @constructor
-     */
-
-    var Map = Construct.extend('cog.Map', {
-
-        dirtyOnChange: false,
-
-        defaults: {},
-
-        setup: function() {
-            if (this.dirtyOnChange) {
-                this.prototype._dirty = true;
-                Object.defineProperty(this.prototype, 'dirty', {
-                    get: function() { return this._dirty; },
-                    set: function(val) { this._dirty = val; }
-                })
-            }
-
-            var key;
-            for (key in this.defaults) {
-                if (this.defaults.hasOwnProperty(key)) {
-                    this.addProp(key, this.defaults[key]);
-                }
-            }
-        },
-
-        addProp: function(key, value) {
-            var privateKey = '_' + key;
-            var def = { get: function() { return this[privateKey]; } };
-
-            if (this.dirtyOnChange) {
-                def.set = function(val) {
-                    if (this[privateKey] !== val) {
-                        this[privateKey] = val;
-                        this._dirty = true;
-                    }
-                }
-            } else {
-                def.set = function(val) {
-                    this[privateKey] = val;
-                }
-            }
-
-            Object.defineProperty(this.prototype, key, def);
-            this.prototype[privateKey] = value;
-        }
-
-    }, {
-
-        init: function(props) {
-            this.set(props);
-        },
-
-        set: function(props) {
-            extend(this, props);
-        },
-
-        serialize: function() {
-            var key, copy, clone,
-                target = {},
-                defaults = this.constructor.defaults;
-
-            for (key in defaults) {
-                if (defaults.hasOwnProperty(key)) {
-                    copy = this[key];
-
-                    if (isArray(copy)) {
-                        clone = [];
-                        extend(true, clone, copy);
-                    } else if (isPlainObject(copy)) {
-                        clone = {};
-                        extend(true, clone, copy);
-                    } else {
-                        clone = copy;
-                    }
-
-                    target[key] = clone;
-                }
-            }
-            return target;
         }
     });
 
@@ -1326,11 +1278,11 @@
 
     var componentCount = 0;
 
-    var Component = Map.extend('cog.Component', {
+    var Component = Construct.extend('cog.Component', {
 
         properties: {
             category: { get: function() { return this._category; } },
-            count: { get: function() { return componentCount-1; } }
+            count: { get: function() { return componentCount - 1; } }
         },
 
         setup: function() {
@@ -1339,7 +1291,6 @@
             }
             this._category= (componentCount === 0) ? 0 : 1 << (componentCount-1);
             componentCount++;
-            this._super();
         }
 
     }, {
@@ -1349,10 +1300,37 @@
             valid: { get: function() { return (this._entity !== undefined); } }
         },
 
-        init: function(entity, options) {
-            this._super(options);
+        init: function(entity, props) {
             this._entity = entity;
-            this.set(options);
+            extend(this, props);
+        },
+
+        set: function(props) {
+            extend(this, props);
+        },
+
+        serialize: function() {
+            var key,
+                target = {};
+
+            for (key in this) {
+                if (key === '_entity' ||
+                    key === 'defaults' ||
+                    key === 'properties' ||
+                    key === 'constructor' ||
+                    key === 'dirty') {
+                    continue;
+                }
+
+                //noinspection JSUnfilteredForInLoop
+                if (isFunction(this[key])) {
+                    continue;
+                }
+
+                //noinspection JSUnfilteredForInLoop
+                target[key] = this[key];
+            }
+            return target;
         },
 
         destroy: function(managed) {
