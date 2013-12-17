@@ -156,3 +156,15 @@ test('Auto Events Systems', function() {
     strictEqual(testArgs1[1], 2, 'Arg 1 Event not received after system removed');
     strictEqual(testArgs1[2], 3, 'Arg 2 Event not received after system removed');
 });
+
+test('RemoveAll does not throw after Remove', function() {
+
+    var dir = cog.createDirector();
+    var TestSystem1 = System.extend({});
+
+    dir.systems.add(TestSystem1);
+    dir.systems.remove(TestSystem1);
+    dir.systems.removeAll();
+
+    ok(true, 'Did not throw error');
+});

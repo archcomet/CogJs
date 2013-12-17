@@ -1019,13 +1019,15 @@
             for (systemId in this._systems) {
                 if (this._systems.hasOwnProperty(systemId)) {
                     system = this._systems[systemId];
-                    index = this._systemOrder.indexOf(system);
+                    if (system) {
+                        index = this._systemOrder.indexOf(system);
 
-                    this._director.events.unregisterContext(system);
-                    this._systemOrder.splice(index, 1);
-                    this._systems[systemId] = undefined;
+                        this._director.events.unregisterContext(system);
+                        this._systemOrder.splice(index, 1);
+                        this._systems[systemId] = undefined;
 
-                    system.destroy(true);
+                        system.destroy(true);
+                    }
                 }
             }
             return this;
