@@ -744,7 +744,7 @@
             this._entityManager = new EntityManager(this);
             this._systemManager = new SystemManager(this);
             this._beginUpdateCallback = null;
-            this._aniFmationFrame = null;
+            this._animationFrame = null;
             this._lastFrame = 0;
         },
 
