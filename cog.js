@@ -1,4 +1,4 @@
-//      Cog.js  1.2.3
+//      Cog.js  1.2.4
 //      http://www.github.com/archcomet/cogjs
 //      (c) 2013 Michael Good
 //      Cog may be freely distributed under the MIT license.
@@ -26,7 +26,7 @@
         return !(this instanceof cog) ? new cog() : this;
     };
 
-    cog.VERSION = '1.2.3';
+    cog.VERSION = '1.2.4';
 
     // ------------------------------------------
     // Utility functions
@@ -405,6 +405,14 @@
         }
         return this;
     };
+
+    Construct.create = function() {
+        var args = Array.prototype.slice.call(arguments);
+        args.splice(0, 0, this);
+        return new (Function.prototype.bind.apply(this, args));
+    };
+
+    Construct.prototype.destroy = function() {};
 
     /**
      * Construct Extend
@@ -1276,6 +1284,9 @@
 
             entity._parent = this;
             this._children.push(entity);
+            if (isFunction(this._sortFunction)) {
+                this._children.sort(this._sortFunction);
+            }
             return this;
         },
 

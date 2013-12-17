@@ -254,3 +254,41 @@ test('Inherit static properties', function() {
     Derived2.x = 42;
     strictEqual(Derived2._x, 42, 'Property carries to Derived2');
 });
+
+test('Construct provides a create function', function() {
+    var Derived1 = Construct.extend({
+        init: function() {
+            this.args = Array.prototype.slice.call(arguments);
+        }
+    });
+
+    var Derived2 = Derived1.extend({});
+    var derived1 = Derived1.create('foo', 13),
+        derived2 = Derived2.create('bar', 23);
+
+    ok(derived1 instanceof Derived1, 'derived1 instanceof Derived1');
+    ok(derived2 instanceof Derived2, 'derived2 instanceof Derived2');
+    strictEqual(derived1.args[0], 'foo', 'Derived1.create passes arguments to new Derived1');
+    strictEqual(derived1.args[1], 13, 'Derived1.create passes arguments to new Derived1');
+    strictEqual(derived2.args[0], 'bar', 'Derived2.create passes arguments to new Derived2');
+    strictEqual(derived2.args[1], 23, 'Derived2.create passes arguments to new Derived2');
+});
+
+test('Construct provides a destroy function', function() {
+    var Derived1 = Construct.extend({});
+
+    var Derived2 = Derived1.extend({
+        destroy: function() {
+            this.x = 0;
+        }
+    });
+
+    var derived1 = Derived1.create('foo', 13),
+        derived2 = Derived2.create('bar', 23);
+
+    ok(cog.isFunction(derived1.destroy), 'derived1 has a destroy function');
+    ok(cog.isFunction(derived2.destroy), 'derived2 has a destroy function');
+
+    derived2.destroy();
+    strictEqual(derived2.x, 0, 'derived2.destroy called override function');
+});
