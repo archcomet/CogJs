@@ -360,7 +360,6 @@ test('RemoveWithComponents emits correct event', function() {
     strictEqual(testListener.destroyedArgs[0], entity, 'Entity passed via destroy event');
 });
 
-
 test('Add/Remove Component emits correct event', function() {
     var dir = cog.createDirector(),
         entities = dir.entities,
@@ -382,8 +381,42 @@ test('Add/Remove Component emits correct event', function() {
         }
     };
 
-    events.register('componentCreated', testListener, testListener.createdCallback);
-    events.register('componentDestroyed', testListener, testListener.destroyedCallback);
+    events.register('component added', testListener, testListener.createdCallback);
+    events.register('component removed', testListener, testListener.destroyedCallback);
+
+    var entity = entities.add('test.Entity'),
+        comp = entity.add(TestComponent);
+
+    strictEqual(testListener.createdArgs[0], comp, 'Component passed via created event');
+    strictEqual(testListener.createdArgs[1], entity, 'Entity passed via created event');
+
+    entity.remove(TestComponent);
+    strictEqual(testListener.destroyedArgs[0], comp, 'Component passed via destroy event');
+    strictEqual(testListener.destroyedArgs[1], entity, 'Entity passed via destroy event');
+});
+
+test('Add/Remove Component emits named event', function() {
+    var dir = cog.createDirector(),
+        entities = dir.entities,
+        events = dir.events;
+
+    var TestComponent = Component.extend('test.Named', {});
+
+    var testListener = {
+        createdArgs: [],
+        destroyedArgs: [],
+        createdCallback: function() {
+            ok(arguments[0].entity.valid, 'Valid during callback');
+            this.createdArgs = arguments;
+        },
+        destroyedCallback: function () {
+            ok(arguments[0].entity.valid, 'Valid during callback');
+            this.destroyedArgs = arguments;
+        }
+    };
+
+    events.register('test.Named added', testListener, testListener.createdCallback);
+    events.register('test.Named removed', testListener, testListener.destroyedCallback);
 
     var entity = entities.add('test.Entity'),
         comp = entity.add(TestComponent);

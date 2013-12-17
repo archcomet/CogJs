@@ -1234,7 +1234,8 @@
             } else {
                 component = this._components[category] = new Component(this, options);
                 this._componentMask |= category;
-                this._manager.director.events.emit('componentCreated', component, this);
+                var event = Component.fullName ? Component.fullName + ' added' : 'component added';
+                this._manager.director.events.emit(event, component, this);
             }
             return component;
         },
@@ -1261,7 +1262,8 @@
                 component = this._components[category];
                 this._componentMask &= ~(category);
                 this._components[category] = undefined;
-                this._manager.director.events.emit('componentDestroyed', component, this);
+                var event = Component.fullName ? Component.fullName + ' removed' : 'component removed';
+                this._manager.director.events.emit(event, component, this);
                 component.destroy(true);
             }
             return this;
