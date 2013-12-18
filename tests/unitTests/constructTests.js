@@ -292,3 +292,22 @@ test('Construct provides a destroy function', function() {
     derived2.destroy();
     strictEqual(derived2.x, 0, 'derived2.destroy called override function');
 });
+
+test('Construct dirtyable properties not shared between instances', function() {
+    var Derived = Construct.extend({
+        dirtyOnChange:true
+    },{
+        defaults: {
+            x: 0
+        }
+    });
+
+    var d1 = new Derived(),
+        d2 = new Derived();
+
+    d1.x = 22;
+
+    strictEqual(d1.x, 22, 'D1 property has changed');
+    strictEqual(d2.x, 0, 'D2 property has not changed');
+
+});

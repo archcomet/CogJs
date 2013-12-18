@@ -349,13 +349,16 @@
      */
 
     function _defineDirtyableProp(obj, key, value) {
-        var storage = value;
+
+        var privateKey = '_' + key;
+        obj[privateKey] = value;
+
         Object.defineProperty(obj, key, {
             get: function() {
-                return storage;
+                return this[privateKey];
             },
             set: function(value) {
-                storage = value;
+                this[privateKey] = value;
                 this.dirty = true;
             },
             enumerable: true,
