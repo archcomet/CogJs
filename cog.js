@@ -1362,27 +1362,49 @@
             extend(this, props);
         },
 
+        keys: function() {
+            var key, keys = [];
+
+            for (key in this.defaults) {
+                if (this.defaults.hasOwnProperty(key)) {
+                    keys.push(key);
+                }
+            }
+
+            for (key in this.properties) {
+                if (this.properties.hasOwnProperty(key)) {
+                    if ( key === 'entity' || key === 'valid') {
+                        continue;
+                    }
+                    if (keys.indexOf(key) > -1) {
+                        continue;
+                    }
+                    keys.push(key);
+                }
+            }
+
+            return keys;
+        },
+
         serialize: function() {
             var key,
                 target = {};
 
-            for (key in this) {
-                if (key === '_entity' ||
-                    key === 'defaults' ||
-                    key === 'properties' ||
-                    key === 'constructor' ||
-                    key === 'dirty') {
-                    continue;
+            for (key in this.defaults) {
+                if (this.defaults.hasOwnProperty(key)) {
+                    target[key] = this[key];
                 }
-
-                //noinspection JSUnfilteredForInLoop
-                if (isFunction(this[key])) {
-                    continue;
-                }
-
-                //noinspection JSUnfilteredForInLoop
-                target[key] = this[key];
             }
+
+            for (key in this.properties) {
+                if (this.properties.hasOwnProperty(key)) {
+                    if ( key === 'entity' || key === 'valid') {
+                        continue;
+                    }
+                    target[key] = this[key];
+                }
+            }
+
             return target;
         },
 

@@ -147,3 +147,32 @@ test('Dirtyable Component', function() {
     strictEqual(copy.x, 0, 'x has copy value');
     strictEqual(copy.y, 1, 'y has copy value');
 });
+
+test('Keys from component', function() {
+
+    var TestComponent = Component.extend({
+        dirtyOnChange: true
+    }, {
+        defaults: {
+            foo: 42,
+            bar: 'Hello',
+            x: 0,
+            y: 1
+        },
+
+        properties: {
+            x: { value: 1 },
+            z: { value: 2 }
+        }
+    });
+
+    var comp = new TestComponent();
+    var keys = comp.keys();
+
+    strictEqual(keys.length, 5, 'Has correct length');
+    ok(keys.indexOf('foo') > -1, 'Has foo');
+    ok(keys.indexOf('bar') > -1, 'Has foo');
+    ok(keys.indexOf('x') > -1, 'Has x');
+    ok(keys.indexOf('y') > -1, 'Has y');
+    ok(keys.indexOf('z') > -1, 'Has z');
+});
