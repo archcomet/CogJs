@@ -1,4 +1,4 @@
-//      Cog.js  1.2.4
+//      Cog.js  1.2.5
 //      http://www.github.com/archcomet/cogjs
 //      (c) 2013 Michael Good
 //      Cog may be freely distributed under the MIT license.
@@ -26,7 +26,7 @@
         return !(this instanceof cog) ? new cog() : this;
     };
 
-    cog.VERSION = '1.2.4';
+    cog.VERSION = '1.2.5';
 
     // ------------------------------------------
     // Utility functions
@@ -861,7 +861,7 @@
         add: function(tag) {
             var entity = new Entity(this, this._entityId++, tag);
             this._entities.push(entity);
-            this._director.events.emit('entityCreated', entity);
+            this._director.events.emit('entity added', entity);
             return entity;
         },
 
@@ -903,7 +903,7 @@
             var index = this._entities.indexOf(entity);
             if (index > -1) {
                 this._entities.splice(index, 1);
-                this._director.events.emit('entityDestroyed', entity);
+                this._director.events.emit('entity removed', entity);
                 entity.destroy(true);
             }
             return this;
@@ -913,7 +913,7 @@
             var entity, i = this._entities.length - 1;
             for (; i > -1; --i) {
                 entity = this._entities.splice(i, 1)[0];
-                this._director.events.emit('entityDestroyed', entity);
+                this._director.events.emit('entity removed', entity);
                 entity.destroy(true);
             }
             return this;
@@ -924,7 +924,7 @@
             for (; i > -1; --i) {
                 if (this._entities[i].tag === tag) {
                     entity = this._entities.splice(i, 1)[0];
-                    this._director.events.emit('entityDestroyed', entity);
+                    this._director.events.emit('entity removed', entity);
                     entity.destroy(true);
                 }
             }
@@ -938,7 +938,7 @@
                 entity = this._entities[i];
                 if ((inputMask & entity.mask) === inputMask) {
                     entity = this._entities.splice(i, 1)[0];
-                    this._director.events.emit('entityDestroyed', entity);
+                    this._director.events.emit('entity removed', entity);
                     entity.destroy(true);
                 }
             }
@@ -995,14 +995,22 @@
         },
 
         remove: function(System) {
-            if (!System || !System.systemId) {
-                return undefined;
+            var index, systemId, system;
+
+            if (System instanceof cog.System) {
+                system = System;
+                System = system.constructor;
             }
 
-            var index,
-                systemId = System.systemId,
-                system = this._systems[systemId];
+            if (!System || !System.systemId) {
+                return this;
+            }
 
+            systemId = System.systemId;
+
+            if (!system) {
+                system = this._systems[systemId];
+            }
 
             if (system) {
                 index = this._systemOrder.indexOf(system);
@@ -1291,9 +1299,7 @@
 
             entity._parent = this;
             this._children.push(entity);
-            if (isFunction(this._sortFunction)) {
-                this._children.sort(this._sortFunction);
-            }
+            this._manager.director.events.emit('entity addChild', this, entity);
             return this;
         },
 
@@ -1304,6 +1310,7 @@
                 index = this._children.indexOf(entity);
                 if (index > -1) {
                     this._children.splice(index, 1);
+                    this._manager.director.events.emit('entity removeChild', this, entity);
                 }
             }
             return this;
@@ -1311,12 +1318,10 @@
 
         removeAllChildren: function() {
             var children = this._children,
-                i = 0,
-                n = children.length;
-            for (; i < n; ++i) {
-                children[i]._parent = null;
+                n = children.length - 1;
+            for (; n >= 0; --n) {
+                this.removeChild(children[n]);
             }
-            children.length = 0;
             return this;
         }
     });
@@ -1376,9 +1381,6 @@
 
             for (key in this.properties) {
                 if (this.properties.hasOwnProperty(key)) {
-                    if ( key === 'entity' || key === 'valid') {
-                        continue;
-                    }
                     if (keys.indexOf(key) > -1) {
                         continue;
                     }
@@ -1530,6 +1532,7 @@
         // Util
         extend: extend,
         defaults: defaults,
+        type: type,
         isArray: isArray,
         isBoolean: isBoolean,
         isDate: isDate,

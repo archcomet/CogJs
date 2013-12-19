@@ -1,166 +1,183 @@
+define([
+    'cog'
+], function(cog) {
 
-var Director = cog.Director,
-    EventManager = cog.EventManager;
+    module('Event Tests', {});
 
-module('Event Tests', {});
+    test('Register/Emit/Unregister Event', function() {
 
-test('Register/Emit/Unregister Event', function() {
+        var dir = cog.createDirector(),
+            events = dir.events;
 
-    var dir = cog.createDirector(),
-        events = dir.events;
+        var context = {},
+            callbackArgs = [],
+            callbackContext = null,
+            callbackCount = 0;
 
-    var context = {},
-        callbackArgs = [],
-        callbackContext = null,
-        callbackCount = 0;
+        function callback() {
+            callbackArgs = arguments;
+            callbackContext = this;
+            callbackCount++;
+        }
 
-    function callback() {
-        callbackArgs = arguments;
-        callbackContext = this;
-        callbackCount++;
-    }
+        events.register('testEvent', context, callback);
+        events.emit('testEvent', 1, 2, 3);
 
-    events.register('testEvent', context, callback);
-    events.emit('testEvent', 1, 2, 3);
+        strictEqual(callbackArgs[0], 1, 'Arg0 is correct');
+        strictEqual(callbackArgs[1], 2, 'Arg1 is correct');
+        strictEqual(callbackArgs[2], 3, 'Arg2 is correct');
+        strictEqual(callbackContext, context, 'After register: Callback context is correct');
+        strictEqual(callbackCount, 1, 'After register: Callback count correct');
 
-    strictEqual(callbackArgs[0], 1, 'Arg0 is correct');
-    strictEqual(callbackArgs[1], 2, 'Arg1 is correct');
-    strictEqual(callbackArgs[2], 3, 'Arg2 is correct');
-    strictEqual(callbackContext, context, 'After register: Callback context is correct');
-    strictEqual(callbackCount, 1, 'After register: Callback count correct');
+        events.unregister('testEvent', context);
+        events.emit('testEvent', 2, 3, 4);
+        strictEqual(callbackCount, 1, 'After unregister: Callback count correct');
+    });
 
-    events.unregister('testEvent', context);
-    events.emit('testEvent', 2, 3, 4);
-    strictEqual(callbackCount, 1, 'After unregister: Callback count correct');
-});
+    test('Register/Emit/Unregister Multiple Callbacks', function() {
 
-test('Register/Emit/Unregister Multiple Callbacks', function() {
+        var dir = cog.createDirector(),
+            events = dir.events;
 
-    var dir = cog.createDirector(),
-        events = dir.events;
+        var context1 = {},
+            context2 = {},
+            callbackArgs = [],
+            callbackContext = null,
+            callbackCount = 0;
 
-    var context1 = {},
-        context2 = {},
-        callbackArgs = [],
-        callbackContext = null,
-        callbackCount = 0;
+        function callback() {
+            callbackArgs = arguments;
+            callbackContext = this;
+            callbackCount++;
+        }
 
-    function callback() {
-        callbackArgs = arguments;
-        callbackContext = this;
-        callbackCount++;
-    }
+        events.register('testEvent', context1, callback);
+        events.register('testEvent', context1, callback);
+        events.register('testEvent', context2, callback);
+        events.register('testEvent', context2, callback);
 
-    events.register('testEvent', context1, callback);
-    events.register('testEvent', context1, callback);
-    events.register('testEvent', context2, callback);
-    events.register('testEvent', context2, callback);
+        events.emit('testEvent', 1, 2, 3);
+        strictEqual(callbackCount, 4, 'After register: Callback count correct');
 
-    events.emit('testEvent', 1, 2, 3);
-    strictEqual(callbackCount, 4, 'After register: Callback count correct');
+        events.unregister('testEvent', context1);
+        events.emit('testEvent', 2, 3, 4);
+        strictEqual(callbackCount, 6, 'After unregister: Callback count correct');
+    });
 
-    events.unregister('testEvent', context1);
-    events.emit('testEvent', 2, 3, 4);
-    strictEqual(callbackCount, 6, 'After unregister: Callback count correct');
-});
+    test('Register event ', function() {
 
+        var dir = cog.createDirector(),
+            events = dir.events;
 
-test('Unregister Context', function() {
+        var ret1 = events.register('testEvent', 1, function(){}),
+            ret2 = events.register('testEvent', {}, 'foo');
 
-    var dir = cog.createDirector(),
-        events = dir.events;
+        strictEqual(ret1, events, 'Did not throw error on invalid context');
+        strictEqual(ret2, events, 'Did not throw error on invalid callback');
 
-    var context1 = {},
-        context2 = {},
-        callbackArgs = [],
-        callbackContext = null,
-        callbackCount = 0;
+        events.emit('testEvent');
+        ok(true, 'Did not throw error on emit');
 
-    function callback() {
-        callbackArgs = arguments;
-        callbackContext = this;
-        callbackCount++;
-    }
+    });
 
-    events.register('testEvent1', context1, callback);
-    events.register('testEvent2', context1, callback);
-    events.register('testEvent3', context1, callback);
-    events.register('testEvent3', context2, callback);
+    test('Unregister Context', function() {
 
-    events.emit('testEvent1', 1, 2, 3);
-    strictEqual(callbackCount, 1, 'After register: Callback count correct');
+        var dir = cog.createDirector(),
+            events = dir.events;
 
-    events.unregisterContext(context1);
-    events.emit('testEvent1', 2, 3, 4);
-    strictEqual(callbackCount, 1, 'After unregister: Callback count correct');
+        var context1 = {},
+            context2 = {},
+            callbackArgs = [],
+            callbackContext = null,
+            callbackCount = 0;
 
-    events.emit('testEvent3', 2, 3, 4);
-    strictEqual(callbackCount, 2, 'After unregister: Callback count correct');
-});
+        function callback() {
+            callbackArgs = arguments;
+            callbackContext = this;
+            callbackCount++;
+        }
 
-test('Unregister Event', function() {
+        events.register('testEvent1', context1, callback);
+        events.register('testEvent2', context1, callback);
+        events.register('testEvent3', context1, callback);
+        events.register('testEvent3', context2, callback);
 
-    var dir = cog.createDirector(),
-        events = dir.events;
+        events.emit('testEvent1', 1, 2, 3);
+        strictEqual(callbackCount, 1, 'After register: Callback count correct');
 
-    var context1 = {},
-        callbackArgs = [],
-        callbackContext = null,
-        callbackCount = 0;
+        events.unregisterContext(context1);
+        events.emit('testEvent1', 2, 3, 4);
+        strictEqual(callbackCount, 1, 'After unregister: Callback count correct');
 
-    function callback() {
-        callbackArgs = arguments;
-        callbackContext = this;
-        callbackCount++;
-    }
+        events.emit('testEvent3', 2, 3, 4);
+        strictEqual(callbackCount, 2, 'After unregister: Callback count correct');
+    });
 
-    events.register('testEvent1', context1, callback);
-    events.register('testEvent2', context1, callback);
-    events.register('testEvent3', context1, callback);
+    test('Unregister Event', function() {
 
-    events.emit('testEvent1', 1, 2, 3);
-    events.emit('testEvent2', 1, 2, 3);
-    events.emit('testEvent3', 1, 2, 3);
-    strictEqual(callbackCount, 3, 'After register: Callback count correct');
+        var dir = cog.createDirector(),
+            events = dir.events;
 
-    events.unregisterEvent('testEvent2');
+        var context1 = {},
+            callbackArgs = [],
+            callbackContext = null,
+            callbackCount = 0;
 
-    events.emit('testEvent1', 2, 3, 4);
-    events.emit('testEvent2', 1, 2, 3);
-    events.emit('testEvent3', 2, 3, 4);
-    strictEqual(callbackCount, 5, 'After unregister: Callback count correct');
-});
+        function callback() {
+            callbackArgs = arguments;
+            callbackContext = this;
+            callbackCount++;
+        }
 
-test('Unregister All', function() {
+        events.register('testEvent1', context1, callback);
+        events.register('testEvent2', context1, callback);
+        events.register('testEvent3', context1, callback);
 
-    var dir = cog.createDirector(),
-        events = dir.events;
+        events.emit('testEvent1', 1, 2, 3);
+        events.emit('testEvent2', 1, 2, 3);
+        events.emit('testEvent3', 1, 2, 3);
+        strictEqual(callbackCount, 3, 'After register: Callback count correct');
 
-    var context1 = {},
-        context2 = {},
-        callbackArgs = [],
-        callbackContext = null,
-        callbackCount = 0;
+        events.unregisterEvent('testEvent2');
 
-    function callback() {
-        callbackArgs = arguments;
-        callbackContext = this;
-        callbackCount++;
-    }
+        events.emit('testEvent1', 2, 3, 4);
+        events.emit('testEvent2', 1, 2, 3);
+        events.emit('testEvent3', 2, 3, 4);
+        strictEqual(callbackCount, 5, 'After unregister: Callback count correct');
+    });
 
-    events.register('testEvent1', context1, callback);
-    events.register('testEvent2', context1, callback);
-    events.register('testEvent3', context1, callback);
-    events.register('testEvent3', context2, callback);
+    test('Unregister All', function() {
 
-    events.emit('testEvent1', 1, 2, 3);
-    events.emit('testEvent2', 1, 2, 3);
-    events.emit('testEvent3', 1, 2, 3);
-    strictEqual(callbackCount, 4, 'After register: Callback count correct');
+        var dir = cog.createDirector(),
+            events = dir.events;
 
-    events.unregisterAll();
-    events.emit('testEvent1', 1, 2, 3);
-    events.emit('testEvent2', 1, 2, 3);
-    events.emit('testEvent3', 1, 2, 3);
-    strictEqual(callbackCount, 4, 'After unregister: Callback count correct');
+        var context1 = {},
+            context2 = {},
+            callbackArgs = [],
+            callbackContext = null,
+            callbackCount = 0;
+
+        function callback() {
+            callbackArgs = arguments;
+            callbackContext = this;
+            callbackCount++;
+        }
+
+        events.register('testEvent1', context1, callback);
+        events.register('testEvent2', context1, callback);
+        events.register('testEvent3', context1, callback);
+        events.register('testEvent3', context2, callback);
+
+        events.emit('testEvent1', 1, 2, 3);
+        events.emit('testEvent2', 1, 2, 3);
+        events.emit('testEvent3', 1, 2, 3);
+        strictEqual(callbackCount, 4, 'After register: Callback count correct');
+
+        events.unregisterAll();
+        events.emit('testEvent1', 1, 2, 3);
+        events.emit('testEvent2', 1, 2, 3);
+        events.emit('testEvent3', 1, 2, 3);
+        strictEqual(callbackCount, 4, 'After unregister: Callback count correct');
+    });
+
 });
