@@ -116,7 +116,7 @@ define([
         }
     });
 
-    cog.extend(cog, {
+    cog.extend({
         EntityManager: EntityManager
     });
 

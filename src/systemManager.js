@@ -123,7 +123,7 @@ define([
         }
     });
 
-    cog.extend(cog, {
+    cog.extend({
         SystemManager: SystemManager
     });
 

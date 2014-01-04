@@ -120,7 +120,7 @@ define([
         }
     });
 
-    cog.extend(cog, {
+    cog.extend({
         Director: Director,
         createDirector: Director.create
     });

@@ -211,7 +211,7 @@ define([
         }
     });
 
-    cog.extend(cog, {
+    cog.extend({
         ArrayWrapper: ArrayWrapper,
         SetWrapper: SetWrapper
     });

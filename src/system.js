@@ -48,7 +48,7 @@ define([
 
     });
 
-    cog.extend(cog, {
+    cog.extend({
         System: System
     });
 

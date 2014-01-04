@@ -22,7 +22,7 @@ module.exports = function(grunt) {
                     .replace( /@VERSION/g, version )
                     // Embed Date
                     // yyyy-mm-ddThh:mmZ
-                    .replace( /@DATE/g, ( new Date() ).toLocaleDateString() );
+                    .replace( /@DATE/g, ( new Date() ).toISOString() );
 
                 // Write concatenated source to file
                 grunt.file.write( name, compiled );

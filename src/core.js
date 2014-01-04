@@ -28,7 +28,7 @@ define([
      * @returns {*|{}}
      */
 
-    function extend() {
+    cog.extend = function extend() {
         var options, key, src, copy, copyIsArray, clone,
             target = arguments[0] || {},
             i = 1,
@@ -43,6 +43,11 @@ define([
 
         if (typeof target !== 'object' && !isFunction(target)) {
             target = {};
+        }
+
+        if (i === n) {
+            target = this;
+            i--;
         }
 
         for(; i < n; ++i) {
@@ -447,8 +452,7 @@ define([
         return Constructor;
     };
 
-    extend(cog, {
-        extend: extend,
+    cog.extend({
         defaults: defaults,
         type: type,
         isArray: isArray,

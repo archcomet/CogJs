@@ -146,7 +146,7 @@ define([
         }
     });
 
-    cog.extend(cog, {
+    cog.extend({
         Entity: Entity
     });
 

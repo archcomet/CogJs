@@ -113,7 +113,7 @@ define([
         }
     });
 
-    cog.extend(cog, {
+    cog.extend({
         EventManager: EventManager
     });
 

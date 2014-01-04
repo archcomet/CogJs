@@ -11,6 +11,7 @@
             'unitTests/eventTests.js',
             'unitTests/factoryTests.js',
             'unitTests/utilityTests.js',
+            'unitTests/randomTests.js',
             'unitTests/arrayWrapperTests.js',
             'unitTests/setWrapperTests.js'
         ];

@@ -1,6 +1,7 @@
 define([
     './core',
     './utils/collections',
+    './utils/random',
     './entity',
     './component',
     './system',
@@ -11,6 +12,6 @@ define([
     './director',
     './amd'
 ], function(cog) {
-
+    this.cog = cog;
     return cog;
 });

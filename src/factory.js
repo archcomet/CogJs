@@ -56,7 +56,7 @@ define([
         }
     });
 
-    cog.extend(cog, {
+    cog.extend({
         Factory: Factory
     });
 

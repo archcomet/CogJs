@@ -143,7 +143,7 @@ define([
         }
     });
 
-    cog.extend(cog, {
+    cog.extend({
         Component: Component
     });
 
