@@ -1,4 +1,4 @@
-//      Cog.js  1.2.5
+//      Cog.js  1.2.6
 //      http://www.github.com/archcomet/cogjs
 //      (c) 2013 Michael Good
 //      Cog may be freely distributed under the MIT license.
@@ -26,7 +26,7 @@
         return !(this instanceof cog) ? new cog() : this;
     };
 
-    cog.VERSION = '1.2.5';
+    cog.VERSION = '1.2.6';
 
     // ------------------------------------------
     // Utility functions
@@ -358,8 +358,12 @@
                 return this[privateKey];
             },
             set: function(value) {
+                var oldValue = this[privateKey];
                 this[privateKey] = value;
                 this.dirty = true;
+                if (typeof this.trigger === 'function') {
+                    this.trigger(key, value, oldValue);
+                }
             },
             enumerable: true,
             configurable: true
@@ -1363,11 +1367,57 @@
 
         init: function(entity, props) {
             this._entity = entity;
+            this._listeners = {};
             extend(this, props);
         },
 
         set: function(props) {
-            extend(this, props);
+            for(var key in props) {
+                if (props.hasOwnProperty(key)) {
+                    this.prop(key, props[key]);
+                }
+            }
+        },
+
+        prop: function(propName, value) {
+            if (arguments.length === 2) {
+                var oldValue = this[propName];
+                this[propName] = value;
+                this.trigger(propName, value, oldValue);
+                return undefined;
+            }
+            return this[propName];
+        },
+
+        on: function(key, handler) {
+            var handlers = this._listeners[key];
+            if (!handlers) {
+                handlers = this._listeners[key] = [];
+            }
+            handlers.push(handler);
+        },
+
+        off: function(key) {
+            if (key) {
+                if (this._listeners[key]) {
+                    this._listeners[key].length = 0;
+                }
+            } else {
+                for (key in this._listeners) {
+                    if (this._listeners.hasOwnProperty(key)) {
+                        this._listeners[key].length = 0;
+                    }
+                }
+            }
+        },
+
+        trigger: function(key, value, oldValue) {
+            var i, n, handlers = this._listeners[key];
+            if (handlers) {
+                for (i = 0, n = handlers.length; i < n; ++i) {
+                    handlers[i](value, oldValue);
+                }
+            }
         },
 
         keys: function() {
@@ -1421,6 +1471,7 @@
                 this._entity.remove(this);
                 return;
             }
+            this.off();
             this._entity = undefined;
         }
     });

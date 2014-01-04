@@ -274,6 +274,18 @@ component.clone() → {[component](https://github.com/archcomet/CogJs#component)
 
 component.set(options)
 
+component.prop(propName) → value
+
+component.prop(propName, value)
+
+component.on(key, handler)
+
+component.off(key)
+
+component.trigger(key, value, oldValue)
+
+component.keys() → [keys]
+
 component.serialize() → {options}
 
 

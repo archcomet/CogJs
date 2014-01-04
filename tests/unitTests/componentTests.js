@@ -156,6 +156,95 @@ define([
         strictEqual(copy.y, 1, 'y has copy value');
     });
 
+    test('Dirtyable Component triggers handlers', function() {
+
+        var _value, _oldValue;
+        function testHandler(value, oldValue) {
+            _value = value;
+            _oldValue = oldValue;
+        }
+
+        var TestComponent = Component.extend({
+            dirtyOnChange: true
+        }, {
+            defaults: {
+                foo: 42
+            }
+        });
+
+        var component = new TestComponent();
+        component.on('foo', testHandler);
+
+        component.foo = 43;
+
+        strictEqual(_value, 43, 'Handler received value');
+        strictEqual(_oldValue, 42, 'Handler received oldValue');
+    });
+
+    test('Dirtyable Component handlers can be turned off', function() {
+
+        var _value, _oldValue;
+        function testHandler(value, oldValue) {
+            _value = value;
+            _oldValue = oldValue;
+        }
+
+        var TestComponent = Component.extend({
+            dirtyOnChange: true
+        }, {
+            defaults: {
+                foo: 42
+            }
+        });
+
+        var component = new TestComponent();
+        component.on('foo', testHandler);
+        component.on('foo2', testHandler);
+        component.on('foo3', testHandler);
+
+        component.off('foo');
+        component.off();
+
+        component.foo = 43;
+
+        strictEqual(_value, undefined, 'Handler did not receive value');
+        strictEqual(_oldValue, undefined, 'Handler did not receive oldValue');
+    });
+
+    test('component.prop can set a value and trigger a callback', function() {
+
+        var _value, _oldValue;
+        function testHandler(value, oldValue) {
+            _value = value;
+            _oldValue = oldValue;
+        }
+
+        var TestComponent = Component.extend({});
+        var comp = new TestComponent({});
+
+        comp.on('foo', testHandler);
+        comp.prop('foo', 42);
+
+        strictEqual(_value, 42, 'Handler received value');
+        strictEqual(_oldValue, undefined, 'Handler received oldValue');
+    });
+
+    test('component.prop can read a value', function() {
+
+        var TestComponent = Component.extend({
+            defaults: {
+                foo: 42
+            }
+        });
+
+        var comp = new TestComponent({});
+        var val = comp.prop('foo');
+
+        strictEqual(val, 42, 'Prop returned value');
+    });
+
+
+
     test('Keys from component', function() {
 
         var TestComponent = Component.extend({
