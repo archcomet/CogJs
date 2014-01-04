@@ -1,0 +1,3 @@
+    root.cog = cog;
+
+}).call(this);

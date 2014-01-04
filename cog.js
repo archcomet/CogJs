@@ -1,20 +1,19 @@
-//      Cog.js  1.2.6
+//      Cog.js 1.3.0pre
 //      http://www.github.com/archcomet/cogjs
-//      (c) 2013 Michael Good
+//      (c) 2013-2014 Michael Good
 //      Cog may be freely distributed under the MIT license.
+//      Saturday, January 04, 2014
 
 (function() {
-    'use strict';
-
-    // ------------------------------------------
-    // Setup
 
     var root = this;
 
-    // Short cuts
-    var slice = Array.prototype.slice,
-        toString = Object.prototype.toString,
-        hasOwn = Object.prototype.hasOwnProperty;
+    var hasOwn = Object.prototype.hasOwnProperty;
+
+    var slice = Array.prototype.slice;
+
+    var toString = Object.prototype.toString;
+
 
     /**
      * cog
@@ -26,7 +25,8 @@
         return !(this instanceof cog) ? new cog() : this;
     };
 
-    cog.VERSION = '1.2.6';
+    cog.VERSION = '1.3.0pre';
+
 
     // ------------------------------------------
     // Utility functions
@@ -246,40 +246,6 @@
         return obj != null && obj === obj.window;
     }
 
-    // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
-    // http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
-
-    // requestAnimationFrame polyfill by Erik Möller. fixes from Paul Irish and Tino Zijdel
-
-    // MIT license
-    (function() {
-        var lastTime = 0;
-        var vendors = ['webkit', 'moz'];
-        for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
-            window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
-            window.cancelAnimationFrame =
-                window[vendors[x]+'CancelAnimationFrame'] || window[vendors[x]+'CancelRequestAnimationFrame'];
-        }
-
-        if (!window.requestAnimationFrame)
-            window.requestAnimationFrame = function(callback, element) {
-                var currTime = new Date().getTime();
-                var timeToCall = Math.max(0, 16 - (currTime - lastTime));
-                var id = window.setTimeout(function() { callback(currTime + timeToCall); },
-                    timeToCall);
-                lastTime = currTime + timeToCall;
-                return id;
-            };
-
-        if (!window.cancelAnimationFrame)
-            window.cancelAnimationFrame = function(id) {
-                clearTimeout(id);
-            };
-    }());
-
-    var requestAnimationFrame = window.requestAnimationFrame,
-        cancelAnimationFrame = window.cancelAnimationFrame;
-
     // ------------------------------------------
     // Internal Utilities
 
@@ -324,23 +290,6 @@
     }
 
     /**
-     * _mask
-     *  Creates a bit mask from the arguments array.
-     * @returns {number}
-     * @private
-     */
-
-    function _mask() {
-        var arg, ret = 0, i = 0, n = arguments.length;
-        for(; i < n; ++i) {
-            if ((arg = arguments[i]) && arg.category) {
-                ret |= arg.category;
-            }
-        }
-        return ret;
-    }
-
-    /**
      * _defineDirtyableProp
      * @param obj
      * @param key
@@ -361,7 +310,7 @@
                 var oldValue = this[privateKey];
                 this[privateKey] = value;
                 this.dirty = true;
-                if (typeof this.trigger === 'function') {
+                if (isFunction(this.trigger)) {
                     this.trigger(key, value, oldValue);
                 }
             },
@@ -414,7 +363,7 @@
     };
 
     Construct.create = function() {
-        var args = Array.prototype.slice.call(arguments);
+        var args = slice.call(arguments);
         args.splice(0, 0, this);
         return new (Function.prototype.bind.apply(this, args));
     };
@@ -488,7 +437,7 @@
         }
 
         if (instanceProps.defaults) {
-           _defaultProperties(Constructor.prototype, instanceProps.defaults, Constructor.dirtyOnChange);
+            _defaultProperties(Constructor.prototype, instanceProps.defaults, Constructor.dirtyOnChange);
         }
 
         if (instanceProps.properties) {
@@ -510,6 +459,22 @@
         return Constructor;
     };
 
+    extend(cog, {
+        extend: extend,
+        defaults: defaults,
+        type: type,
+        isArray: isArray,
+        isBoolean: isBoolean,
+        isDate: isDate,
+        isFunction: isFunction,
+        isNumber: isNumber,
+        isObject: isObject,
+        isPlainObject: isPlainObject,
+        isRegExp: isRegExp,
+        isString: isString,
+        Construct: Construct
+    });
+
     /**
      * ArrayWrapper
      *
@@ -530,7 +495,7 @@
      * @constructor
      */
 
-    var ArrayWrapper = Construct.extend('cog.ArrayWrapper', {
+    var ArrayWrapper = cog.Construct.extend('cog.ArrayWrapper', {
 
         init: function(arg, readOnly) {
 
@@ -541,10 +506,10 @@
             if (arg instanceof ArrayWrapper) {
                 data = arg.serialize();
             }
-            else if (isArray(arg)) {
+            else if (cog.isArray(arg)) {
                 data = arg.slice(0);
             } else {
-                data = new Array((isNumber(arg) ? arg : 0));
+                data = new Array((cog.isNumber(arg) ? arg : 0));
             }
 
             if (!readOnly) {
@@ -629,7 +594,7 @@
      * @constructor
      */
 
-    var SetWrapper = Construct.extend('cog.SetWrapper', {
+    var SetWrapper = cog.Construct.extend('cog.SetWrapper', {
 
         init: function(arg, readonly) {
 
@@ -639,8 +604,8 @@
 
             if (arg instanceof SetWrapper) {
                 data = arg.serialize();
-            } else if (isObject(arg)) {
-                data = extend({}, arg);
+            } else if (cog.isObject(arg)) {
+                data = cog.extend({}, arg);
             } else {
                 data = {};
             }
@@ -677,7 +642,7 @@
                 this.extend = function() {
                     var args = slice.call(arguments);
                     args.splice(0, 0, data);
-                    extend.apply(extend, args);
+                    cog.extend.apply(cog.extend, args);
                     return this;
                 };
             }
@@ -706,7 +671,7 @@
             };
 
             this.serialize = function() {
-                return extend({}, data);
+                return cog.extend({}, data);
             };
 
             this.clone = function() {
@@ -719,472 +684,27 @@
         }
     });
 
-    // ------------------------------------------
-    // Managers
-
-    /**
-     * Director
-     * @constructor
-     */
-
-    var Director = Construct.extend('cog.Director', {
-        create: function(config) {
-            return new Director(config);
-        }
-    }, {
-
-        properties: {
-            config: { get: function() { return this._config; } },
-            events: { get: function() { return this._eventManager; } },
-            entities: { get: function() { return this._entityManager; } },
-            systems: { get: function() { return this._systemManager; } },
-            valid: { get: function() {
-                return (this._entityManager !== undefined &&
-                        this._systemManager !== undefined &&
-                        this._eventManager !== undefined);
-            }}
-        },
-
-        init: function(config) {
-            this._config = config;
-            this._eventManager = new EventManager(this);
-            this._entityManager = new EntityManager(this);
-            this._systemManager = new SystemManager(this);
-            this._beginUpdateCallback = null;
-            this._animationFrame = null;
-            this._lastFrame = 0;
-        },
-
-        destroy: function() {
-            this.stop();
-            this._entityManager.destroy();
-            this._eventManager.destroy();
-            this._systemManager.destroy();
-            this._entityManager = undefined;
-            this._systemManager = undefined;
-            this._eventManager = undefined;
-            this._beginUpdateCallback = undefined;
-            this._endUpdateCallback = undefined;
-        },
-
-        start:function() {
-            if (!this._animationFrame) {
-                this._lastFrame = 0;
-                this._animationFrame = requestAnimationFrame(this.step.bind(this));
-            }
-        },
-
-        stop: function() {
-            if (this._animationFrame) {
-                cancelAnimationFrame(this._animationFrame);
-                this._animationFrame = null;
-            }
-        },
-
-        step: function(timestamp) {
-            var lastFrame = this._lastFrame,
-                dt = (lastFrame !== 0) ? timestamp - lastFrame : 16;
-
-            if (this._beginStepCallback) {
-                this._beginStepCallback();
-            }
-
-            this.update(dt);
-            this.render();
-
-            if (this._endStepCallback) {
-                this._endStepCallback();
-            }
-
-            if (this._animationFrame) {
-                this._lastFrame = timestamp;
-                this._animationFrame = requestAnimationFrame(this.step.bind(this));
-            }
-        },
-
-        update: function(dt) {
-            if (this._beginUpdateCallback) {
-                this._beginUpdateCallback();
-            }
-            this._systemManager.update(dt);
-            if (this._endUpdateCallback) {
-                this._endUpdateCallback();
-            }
-        },
-
-        render: function() {
-            this._systemManager.render();
-        },
-
-        onBeginUpdate: function(callback) {
-            this._beginUpdateCallback = callback;
-            return this;
-        },
-
-        onEndUpdate: function(callback) {
-            this._endUpdateCallback = callback;
-            return this;
-        },
-
-        onBeginStep: function(callback) {
-            this._beginStepCallback = callback;
-            return this;
-        },
-
-        onEndStep: function(callback) {
-            this._endStepCallback = callback;
-            return this;
-        }
+    cog.extend(cog, {
+        ArrayWrapper: ArrayWrapper,
+        SetWrapper: SetWrapper
     });
 
     /**
-     * EntityManager
-     *
-     * @param director
-     * @constructor
+     * _mask
+     *  Creates a bit mask from the arguments array.
+     * @returns {number}
+     * @private
      */
 
-    var EntityManager = Construct.extend('cog.EntityManager', {
-
-        properties: {
-            director: { get: function() { return this._director; } },
-            valid: { get: function() { return (this._director !== undefined); } }
-        },
-
-        init: function(director) {
-            this._director = director;
-            this._entities = [];
-            this._entityId = 1;
-        },
-
-        destroy: function() {
-            this.removeAll();
-            this._director = undefined;
-        },
-
-        add: function(tag) {
-            var entity = new Entity(this, this._entityId++, tag);
-            this._entities.push(entity);
-            this._director.events.emit('entity added', entity);
-            return entity;
-        },
-
-        all: function() {
-            var i = 0, n = this._entities.length, ret = [];
-            for (; i < n; ++i) {
-                ret.push(this._entities[i]);
+    function _mask() {
+        var arg, ret = 0, i = 0, n = arguments.length;
+        for(; i < n; ++i) {
+            if ((arg = arguments[i]) && arg.category) {
+                ret |= arg.category;
             }
-            return ret;
-        },
-
-        withTag: function(tag) {
-            var entity, i = 0, n = this._entities.length, ret = [];
-            if (tag) {
-                for (; i < n; ++i) {
-                    entity = this._entities[i];
-                    if (entity.tag === tag) {
-                        ret.push(entity);
-                    }
-                }
-            }
-            return ret;
-        },
-
-        withComponents: function() {
-            var entity,
-                inputMask = _mask.apply(_mask, arguments),
-                i = 0, n = this._entities.length, ret = [];
-            for (; i < n; ++i) {
-                entity = this._entities[i];
-                if ((inputMask & entity.mask) === inputMask) {
-                    ret.push(entity);
-                }
-            }
-            return ret;
-        },
-
-        remove: function(entity) {
-            var index = this._entities.indexOf(entity);
-            if (index > -1) {
-                this._entities.splice(index, 1);
-                this._director.events.emit('entity removed', entity);
-                entity.destroy(true);
-            }
-            return this;
-        },
-
-        removeAll: function() {
-            var entity, i = this._entities.length - 1;
-            for (; i > -1; --i) {
-                entity = this._entities.splice(i, 1)[0];
-                this._director.events.emit('entity removed', entity);
-                entity.destroy(true);
-            }
-            return this;
-        },
-
-        removeWithTag: function(tag) {
-            var entity, i = this._entities.length - 1;
-            for (; i > -1; --i) {
-                if (this._entities[i].tag === tag) {
-                    entity = this._entities.splice(i, 1)[0];
-                    this._director.events.emit('entity removed', entity);
-                    entity.destroy(true);
-                }
-            }
-            return this;
-        },
-
-        removeWithComponents: function() {
-            var entity, i = this._entities.length - 1,
-                inputMask = _mask.apply(_mask, arguments);
-            for (; i > -1; --i) {
-                entity = this._entities[i];
-                if ((inputMask & entity.mask) === inputMask) {
-                    entity = this._entities.splice(i, 1)[0];
-                    this._director.events.emit('entity removed', entity);
-                    entity.destroy(true);
-                }
-            }
-            return this;
         }
-    });
-
-    /**
-     * SystemManager
-     *
-     * @param director
-     * @constructor
-     */
-
-    var SystemManager = Construct.extend('cog.SystemManager', {
-
-        properties: {
-            director: { get: function() { return this._director; } },
-            valid: { get: function() { return (this._director !== undefined); } }
-        },
-
-        init: function(director) {
-            this._systems = {};
-            this._systemOrder = [];
-            this._director = director;
-        },
-
-        destroy: function() {
-            this.removeAll();
-            this._director = undefined;
-        },
-
-        add: function(System) {
-            if (!System || !System.systemId) {
-                return undefined;
-            }
-
-            var systemId = System.systemId,
-                system = this._systems[systemId];
-
-            if (!system) {
-                system = new System(this);
-                this._systems[systemId] = system;
-                this._systemOrder.push(system);
-                this._director.events.registerContext(system);
-                system.configure(this._director.entities, this._director.events, this._director.config)
-            }
-            return system;
-        },
-
-        get: function(System) {
-            var systemId = System.systemId;
-            return this._systems[systemId];
-        },
-
-        remove: function(System) {
-            var index, systemId, system;
-
-            if (System instanceof cog.System) {
-                system = System;
-                System = system.constructor;
-            }
-
-            if (!System || !System.systemId) {
-                return this;
-            }
-
-            systemId = System.systemId;
-
-            if (!system) {
-                system = this._systems[systemId];
-            }
-
-            if (system) {
-                index = this._systemOrder.indexOf(system);
-
-                this._director.events.unregisterContext(system);
-                this._systemOrder.splice(index, 1);
-                this._systems[systemId] = undefined;
-
-                system.destroy(true);
-            }
-
-            return this;
-        },
-
-        removeAll: function() {
-            var index, systemId, system;
-            for (systemId in this._systems) {
-                if (this._systems.hasOwnProperty(systemId)) {
-                    system = this._systems[systemId];
-                    if (system) {
-                        index = this._systemOrder.indexOf(system);
-
-                        this._director.events.unregisterContext(system);
-                        this._systemOrder.splice(index, 1);
-                        this._systems[systemId] = undefined;
-
-                        system.destroy(true);
-                    }
-                }
-            }
-            return this;
-        },
-
-        update: function(dt) {
-            var i = 0,
-                n = this._systemOrder.length,
-                systems = this._systemOrder,
-                entities = this._director.entities,
-                events = this._director.events;
-            for (; i < n; ++i) {
-                systems[i].update(entities, events, dt);
-            }
-            return this;
-        },
-
-        render: function() {
-            var i = 0,
-                n = this._systemOrder.length,
-                systems = this._systemOrder,
-                entities = this._director.entities;
-            for (; i < n; ++i) {
-                systems[i].render(entities);
-            }
-            return this;
-        }
-    });
-
-    /**
-     * EventManager
-     *
-     * @param director
-     * @constructor
-     */
-
-    var _eventRegEx = /.* event$/;
-
-    var EventManager = Construct.extend('cog.SystemManager', {
-
-        properties: {
-            director: { get: function() { return this._director; } },
-            valid: { get: function() { return (this._director !== undefined); } }
-        },
-
-        init: function(director) {
-            this._director = director;
-            this._eventContexts = {};
-            this._eventCallbacks = {};
-        },
-
-        destroy:  function() {
-            this.unregisterAll();
-            this._director = undefined;
-        },
-
-        emit: function(eventName) {
-            var i, n, args,
-                contexts = this._eventContexts[eventName],
-                callbacks = this._eventCallbacks[eventName];
-            if (contexts && callbacks) {
-                args = slice.call(arguments, 1);
-                for (i = 0, n = callbacks.length; i < n; ++i) {
-                    callbacks[i].apply(contexts[i], args);
-                }
-            }
-            return this;
-        },
-
-        register: function(eventName, context, callback) {
-            if (!isObject(context) || !isFunction(callback)) {
-                return this;
-            }
-            var contexts = this._eventContexts[eventName],
-                callbacks = this._eventCallbacks[eventName];
-
-            if (contexts === undefined || callbacks === undefined) {
-                contexts = this._eventContexts[eventName] = [];
-                callbacks = this._eventCallbacks[eventName] = [];
-            }
-            contexts.push(context);
-            callbacks.push(callback);
-            return this;
-        },
-
-        registerContext: function(context) {
-            var key, prop;
-            for (key in context) {
-                //noinspection JSUnfilteredForInLoop
-                if ((prop = context[key]) && isFunction(prop) && _eventRegEx.test(key)) {
-                    //noinspection JSUnfilteredForInLoop
-                    this.register(key.substring(0, key.length-6), context, prop);
-                }
-            }
-            return this;
-        },
-
-        unregister: function(eventName, context) {
-            var i, contexts = this._eventContexts[eventName],
-                callbacks = this._eventCallbacks[eventName];
-            if (contexts && callbacks) {
-                for (i = contexts.length - 1; i >= 0; --i) {
-                    if (contexts[i] === context) {
-                        contexts.splice(i, 1);
-                        callbacks.splice(i, 1);
-                    }
-                }
-            }
-            return this;
-        },
-
-        unregisterContext: function(context) {
-            for (var event in this._eventContexts) {
-                if (this._eventContexts.hasOwnProperty(event)) {
-                    this.unregister(event, context);
-                }
-            }
-            return this;
-        },
-
-        unregisterEvent: function(eventName) {
-            var contexts = this._eventContexts[eventName],
-                callbacks = this._eventCallbacks[eventName];
-            if (contexts && callbacks) {
-                this._eventContexts[eventName].length = 0;
-                this._eventCallbacks[eventName].length = 0;
-            }
-            return this;
-        },
-
-        unregisterAll: function() {
-            for (var event in this._eventContexts) {
-                if (this._eventContexts.hasOwnProperty(event)) {
-                    this.unregisterEvent(event);
-                }
-            }
-            return this;
-        }
-    });
-
-    // ------------------------------------------
-    // Core Objects
+        return ret;
+    }
 
     /**
      * Entity
@@ -1195,7 +715,7 @@
      * @constructor
      */
 
-    var Entity = Construct.extend('cog.Entity', {
+    var Entity = cog.Construct.extend('cog.Entity', {
 
         properties: {
             manager: { get: function() { return this._manager; } },
@@ -1330,8 +850,15 @@
         }
     });
 
-    // ------------------------------------------
-    // Extensible Objects
+    cog.extend(cog, {
+        Entity: Entity
+    });
+
+    function assertLimit(num, limit, msg) {
+        if (num > limit) {
+            throw msg;
+        }
+    }
 
     /**
      * Component
@@ -1343,7 +870,7 @@
 
     var componentCount = 0;
 
-    var Component = Construct.extend('cog.Component', {
+    var Component = cog.Construct.extend('cog.Component', {
 
         properties: {
             category: { get: function() { return this._category; } },
@@ -1351,9 +878,7 @@
         },
 
         setup: function() {
-            if (componentCount > 64) {
-                throw 'Exceeded 64 Component types.';
-            }
+            assertLimit(componentCount, 64, 'Exceeded 64 Component types.');
             this._category= (componentCount === 0) ? 0 : 1 << (componentCount-1);
             componentCount++;
         }
@@ -1368,7 +893,7 @@
         init: function(entity, props) {
             this._entity = entity;
             this._listeners = {};
-            extend(this, props);
+            this.set(props);
         },
 
         set: function(props) {
@@ -1476,6 +1001,10 @@
         }
     });
 
+    cog.extend(cog, {
+        Component: Component
+    });
+
     /**
      * System
      *
@@ -1485,7 +1014,7 @@
 
     var systemCount = 0;
 
-    var System = Construct.extend('cog.System', {
+    var System = cog.Construct.extend('cog.System', {
 
         properties: {
             systemId: { get: function() { return this._systemId; } },
@@ -1496,7 +1025,7 @@
             this._systemId = (systemCount-1);
             systemCount++;
         }
-        
+
     }, {
 
         properties: {
@@ -1515,12 +1044,16 @@
             this._manager = undefined;
         },
 
-        configure: function(entityManager, eventManager) {},
+        configure: function(entityManager, eventManager, config) {},
 
         update: function(entityManager, eventManager, dt) {},
 
         render: function(entityManager) {}
 
+    });
+
+    cog.extend(cog, {
+        System: System
     });
 
     /**
@@ -1530,7 +1063,7 @@
      * @constructor
      */
 
-    var Factory = System.extend('cog.Factory', {
+    var Factory = cog.System.extend('cog.Factory', {
 
         entityTag: null,
 
@@ -1541,7 +1074,7 @@
             this._super(manager);
             this._entities = [];
 
-            if (isString(this.entityTag)) {
+            if (cog.isString(this.entityTag)) {
                 var self = this;
                 this['spawn ' + this.entityTag + ' event'] = function() {
                     self.spawn.apply(self, arguments);
@@ -1560,7 +1093,7 @@
                 if (components.hasOwnProperty(key)) {
                     component = components[key];
                     componentOptions = (options && options[key]) ? options[key] : {};
-                    defaults(componentOptions, component.defaults);
+                    cog.defaults(componentOptions, component.defaults);
                     entity.add(component.constructor, componentOptions);
                 }
             }
@@ -1578,50 +1111,526 @@
         }
     });
 
-    // ------------------------------------------
-    // Emit API
-
-    root.cog = extend(cog, {
-
-        // Util
-        extend: extend,
-        defaults: defaults,
-        type: type,
-        isArray: isArray,
-        isBoolean: isBoolean,
-        isDate: isDate,
-        isFunction: isFunction,
-        isNumber: isNumber,
-        isObject: isObject,
-        isPlainObject: isPlainObject,
-        isRegExp: isRegExp,
-        isString: isString,
-
-        // Main
-        createDirector: Director.create,
-
-        // Base
-        Construct: Construct,
-        ArrayWrapper: ArrayWrapper,
-        SetWrapper: SetWrapper,
-
-        // Managers
-        Director: Director,
-        EntityManager: EntityManager,
-        SystemManager: SystemManager,
-        EventManager: EventManager,
-
-        // Core
-        Entity: Entity,
-        Component: Component,
-        System: System,
-
-        // Helpers
+    cog.extend(cog, {
         Factory: Factory
     });
 
+    /**
+     * EntityManager
+     *
+     * @param director
+     * @constructor
+     */
+
+    var EntityManager = cog.Construct.extend('cog.EntityManager', {
+
+        properties: {
+            director: { get: function() { return this._director; } },
+            valid: { get: function() { return (this._director !== undefined); } }
+        },
+
+        init: function(director) {
+            this._director = director;
+            this._entities = [];
+            this._entityId = 1;
+        },
+
+        destroy: function() {
+            this.removeAll();
+            this._director = undefined;
+        },
+
+        add: function(tag) {
+            var entity = new Entity(this, this._entityId++, tag);
+            this._entities.push(entity);
+            this._director.events.emit('entity added', entity);
+            return entity;
+        },
+
+        all: function() {
+            var i = 0, n = this._entities.length, ret = [];
+            for (; i < n; ++i) {
+                ret.push(this._entities[i]);
+            }
+            return ret;
+        },
+
+        withTag: function(tag) {
+            var entity, i = 0, n = this._entities.length, ret = [];
+            if (tag) {
+                for (; i < n; ++i) {
+                    entity = this._entities[i];
+                    if (entity.tag === tag) {
+                        ret.push(entity);
+                    }
+                }
+            }
+            return ret;
+        },
+
+        withComponents: function() {
+            var entity,
+                inputMask = _mask.apply(_mask, arguments),
+                i = 0, n = this._entities.length, ret = [];
+            for (; i < n; ++i) {
+                entity = this._entities[i];
+                if ((inputMask & entity.mask) === inputMask) {
+                    ret.push(entity);
+                }
+            }
+            return ret;
+        },
+
+        remove: function(entity) {
+            var index = this._entities.indexOf(entity);
+            if (index > -1) {
+                this._entities.splice(index, 1);
+                this._director.events.emit('entity removed', entity);
+                entity.destroy(true);
+            }
+            return this;
+        },
+
+        removeAll: function() {
+            var entity, i = this._entities.length - 1;
+            for (; i > -1; --i) {
+                entity = this._entities.splice(i, 1)[0];
+                this._director.events.emit('entity removed', entity);
+                entity.destroy(true);
+            }
+            return this;
+        },
+
+        removeWithTag: function(tag) {
+            var entity, i = this._entities.length - 1;
+            for (; i > -1; --i) {
+                if (this._entities[i].tag === tag) {
+                    entity = this._entities.splice(i, 1)[0];
+                    this._director.events.emit('entity removed', entity);
+                    entity.destroy(true);
+                }
+            }
+            return this;
+        },
+
+        removeWithComponents: function() {
+            var entity, i = this._entities.length - 1,
+                inputMask = _mask.apply(_mask, arguments);
+            for (; i > -1; --i) {
+                entity = this._entities[i];
+                if ((inputMask & entity.mask) === inputMask) {
+                    entity = this._entities.splice(i, 1)[0];
+                    this._director.events.emit('entity removed', entity);
+                    entity.destroy(true);
+                }
+            }
+            return this;
+        }
+    });
+
+    cog.extend(cog, {
+        EntityManager: EntityManager
+    });
+
+    /**
+     * EventManager
+     *
+     * @param director
+     * @constructor
+     */
+
+    var _eventRegEx = /.* event$/;
+
+    var EventManager = cog.Construct.extend('cog.SystemManager', {
+
+        properties: {
+            director: { get: function() { return this._director; } },
+            valid: { get: function() { return (this._director !== undefined); } }
+        },
+
+        init: function(director) {
+            this._director = director;
+            this._eventContexts = {};
+            this._eventCallbacks = {};
+        },
+
+        destroy:  function() {
+            this.unregisterAll();
+            this._director = undefined;
+        },
+
+        emit: function(eventName) {
+            var i, n, args,
+                contexts = this._eventContexts[eventName],
+                callbacks = this._eventCallbacks[eventName];
+            if (contexts && callbacks) {
+                args = slice.call(arguments, 1);
+                for (i = 0, n = callbacks.length; i < n; ++i) {
+                    callbacks[i].apply(contexts[i], args);
+                }
+            }
+            return this;
+        },
+
+        register: function(eventName, context, callback) {
+            if (!cog.isObject(context) || !cog.isFunction(callback)) {
+                return this;
+            }
+            var contexts = this._eventContexts[eventName],
+                callbacks = this._eventCallbacks[eventName];
+
+            if (contexts === undefined || callbacks === undefined) {
+                contexts = this._eventContexts[eventName] = [];
+                callbacks = this._eventCallbacks[eventName] = [];
+            }
+            contexts.push(context);
+            callbacks.push(callback);
+            return this;
+        },
+
+        registerContext: function(context) {
+            var key, prop;
+            for (key in context) {
+                //noinspection JSUnfilteredForInLoop
+                if ((prop = context[key]) && cog.isFunction(prop) && _eventRegEx.test(key)) {
+                    //noinspection JSUnfilteredForInLoop
+                    this.register(key.substring(0, key.length-6), context, prop);
+                }
+            }
+            return this;
+        },
+
+        unregister: function(eventName, context) {
+            var i, contexts = this._eventContexts[eventName],
+                callbacks = this._eventCallbacks[eventName];
+            if (contexts && callbacks) {
+                for (i = contexts.length - 1; i >= 0; --i) {
+                    if (contexts[i] === context) {
+                        contexts.splice(i, 1);
+                        callbacks.splice(i, 1);
+                    }
+                }
+            }
+            return this;
+        },
+
+        unregisterContext: function(context) {
+            for (var event in this._eventContexts) {
+                if (this._eventContexts.hasOwnProperty(event)) {
+                    this.unregister(event, context);
+                }
+            }
+            return this;
+        },
+
+        unregisterEvent: function(eventName) {
+            var contexts = this._eventContexts[eventName],
+                callbacks = this._eventCallbacks[eventName];
+            if (contexts && callbacks) {
+                this._eventContexts[eventName].length = 0;
+                this._eventCallbacks[eventName].length = 0;
+            }
+            return this;
+        },
+
+        unregisterAll: function() {
+            for (var event in this._eventContexts) {
+                if (this._eventContexts.hasOwnProperty(event)) {
+                    this.unregisterEvent(event);
+                }
+            }
+            return this;
+        }
+    });
+
+    cog.extend(cog, {
+        EventManager: EventManager
+    });
+
+    /**
+     * SystemManager
+     *
+     * @param director
+     * @constructor
+     */
+
+    var SystemManager = cog.Construct.extend('cog.SystemManager', {
+
+        properties: {
+            director: { get: function() { return this._director; } },
+            valid: { get: function() { return (this._director !== undefined); } }
+        },
+
+        init: function(director) {
+            this._systems = {};
+            this._systemOrder = [];
+            this._director = director;
+        },
+
+        destroy: function() {
+            this.removeAll();
+            this._director = undefined;
+        },
+
+        add: function(System) {
+            if (!System || !System.systemId) {
+                return undefined;
+            }
+
+            var systemId = System.systemId,
+                system = this._systems[systemId];
+
+            if (!system) {
+                system = new System(this);
+                this._systems[systemId] = system;
+                this._systemOrder.push(system);
+                this._director.events.registerContext(system);
+                system.configure(this._director.entities, this._director.events, this._director.config)
+            }
+            return system;
+        },
+
+        get: function(System) {
+            var systemId = System.systemId;
+            return this._systems[systemId];
+        },
+
+        remove: function(System) {
+            var index, systemId, system;
+
+            if (System instanceof cog.System) {
+                system = System;
+                System = system.constructor;
+            }
+
+            if (!System || !System.systemId) {
+                return this;
+            }
+
+            systemId = System.systemId;
+
+            if (!system) {
+                system = this._systems[systemId];
+            }
+
+            if (system) {
+                index = this._systemOrder.indexOf(system);
+
+                this._director.events.unregisterContext(system);
+                this._systemOrder.splice(index, 1);
+                this._systems[systemId] = undefined;
+
+                system.destroy(true);
+            }
+
+            return this;
+        },
+
+        removeAll: function() {
+            var index, systemId, system;
+            for (systemId in this._systems) {
+                if (this._systems.hasOwnProperty(systemId)) {
+                    system = this._systems[systemId];
+                    if (system) {
+                        index = this._systemOrder.indexOf(system);
+
+                        this._director.events.unregisterContext(system);
+                        this._systemOrder.splice(index, 1);
+                        this._systems[systemId] = undefined;
+
+                        system.destroy(true);
+                    }
+                }
+            }
+            return this;
+        },
+
+        update: function(dt) {
+            var i = 0,
+                n = this._systemOrder.length,
+                systems = this._systemOrder,
+                entities = this._director.entities,
+                events = this._director.events;
+            for (; i < n; ++i) {
+                systems[i].update(entities, events, dt);
+            }
+            return this;
+        },
+
+        render: function() {
+            var i = 0,
+                n = this._systemOrder.length,
+                systems = this._systemOrder,
+                entities = this._director.entities;
+            for (; i < n; ++i) {
+                systems[i].render(entities);
+            }
+            return this;
+        }
+    });
+
+    cog.extend(cog, {
+        SystemManager: SystemManager
+    });
+
+
+    // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
+    // http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
+
+    // requestAnimationFrame polyfill by Erik Möller. fixes from Paul Irish and Tino Zijdel
+
+    // MIT license
+
+    (function() {
+        var lastTime = 0;
+        var vendors = ['webkit', 'moz'];
+        for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+            window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+            window.cancelAnimationFrame =
+                window[vendors[x]+'CancelAnimationFrame'] || window[vendors[x]+'CancelRequestAnimationFrame'];
+        }
+
+        if (!window.requestAnimationFrame)
+            window.requestAnimationFrame = function(callback, element) {
+                var currTime = new Date().getTime();
+                var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+                var id = window.setTimeout(function() { callback(currTime + timeToCall); },
+                    timeToCall);
+                lastTime = currTime + timeToCall;
+                return id;
+            };
+
+        if (!window.cancelAnimationFrame)
+            window.cancelAnimationFrame = function(id) {
+                clearTimeout(id);
+        };
+    }());
+
+
+    /**
+     * Director
+     * @constructor
+     */
+
+    var Director = cog.Construct.extend('cog.Director', {
+        create: function(config) {
+            return new Director(config);
+        }
+    }, {
+
+        properties: {
+            config: { get: function() { return this._config; } },
+            events: { get: function() { return this._eventManager; } },
+            entities: { get: function() { return this._entityManager; } },
+            systems: { get: function() { return this._systemManager; } },
+            valid: { get: function() {
+                return (this._entityManager !== undefined &&
+                    this._systemManager !== undefined &&
+                    this._eventManager !== undefined);
+            }}
+        },
+
+        init: function(config) {
+            this._config = config;
+            this._eventManager = new EventManager(this);
+            this._entityManager = new EntityManager(this);
+            this._systemManager = new SystemManager(this);
+            this._beginUpdateCallback = null;
+            this._animationFrame = null;
+            this._lastFrame = 0;
+        },
+
+        destroy: function() {
+            this.stop();
+            this._entityManager.destroy();
+            this._eventManager.destroy();
+            this._systemManager.destroy();
+            this._entityManager = undefined;
+            this._systemManager = undefined;
+            this._eventManager = undefined;
+            this._beginUpdateCallback = undefined;
+            this._endUpdateCallback = undefined;
+        },
+
+        start:function() {
+            if (!this._animationFrame) {
+                this._lastFrame = 0;
+                this._animationFrame = requestAnimationFrame(this.step.bind(this));
+            }
+        },
+
+        stop: function() {
+            if (this._animationFrame) {
+                cancelAnimationFrame(this._animationFrame);
+                this._animationFrame = null;
+            }
+        },
+
+        step: function(timestamp) {
+            var lastFrame = this._lastFrame,
+                dt = (lastFrame !== 0) ? timestamp - lastFrame : 16;
+
+            if (this._beginStepCallback) {
+                this._beginStepCallback();
+            }
+
+            this.update(dt);
+            this.render();
+
+            if (this._endStepCallback) {
+                this._endStepCallback();
+            }
+
+            if (this._animationFrame) {
+                this._lastFrame = timestamp;
+                this._animationFrame = requestAnimationFrame(this.step.bind(this));
+            }
+        },
+
+        update: function(dt) {
+            if (this._beginUpdateCallback) {
+                this._beginUpdateCallback();
+            }
+            this._systemManager.update(dt);
+            if (this._endUpdateCallback) {
+                this._endUpdateCallback();
+            }
+        },
+
+        render: function() {
+            this._systemManager.render();
+        },
+
+        onBeginUpdate: function(callback) {
+            this._beginUpdateCallback = callback;
+            return this;
+        },
+
+        onEndUpdate: function(callback) {
+            this._endUpdateCallback = callback;
+            return this;
+        },
+
+        onBeginStep: function(callback) {
+            this._beginStepCallback = callback;
+            return this;
+        },
+
+        onEndStep: function(callback) {
+            this._endStepCallback = callback;
+            return this;
+        }
+    });
+
+    cog.extend(cog, {
+        Director: Director,
+        createDirector: Director.create
+    });
+
     if (typeof define === "function" && define.amd) {
-        define(function() { return cog; });
+        define('cog', [],function() { return cog; });
     }
+
+    root.cog = cog;
 
 }).call(this);

@@ -1,0 +1,9 @@
+//      Cog.js @VERSION
+//      http://www.github.com/archcomet/cogjs
+//      (c) 2013-2014 Michael Good
+//      Cog may be freely distributed under the MIT license.
+//      @DATE
+
+(function() {
+
+    var root = this;
