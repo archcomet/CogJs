@@ -184,4 +184,13 @@ define([
         ok(keys.indexOf('y') > -1, 'Has y');
         ok(keys.indexOf('z') > -1, 'Has z');
     });
+
+    test('Keys from component with no properties', function() {
+
+        var TestComponent = Component.extend({}, {});
+        var comp = new TestComponent();
+        var keys = comp.keys();
+
+        strictEqual(keys.length, 0, 'Has correct length');
+    });
 });

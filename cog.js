@@ -1381,6 +1381,9 @@
 
             for (key in this.properties) {
                 if (this.properties.hasOwnProperty(key)) {
+                    if (key === 'entity' || key === 'valid') {
+                        continue;
+                    }
                     if (keys.indexOf(key) > -1) {
                         continue;
                     }
