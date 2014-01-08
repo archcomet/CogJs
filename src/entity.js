@@ -86,6 +86,17 @@ define([
             return this._components[category];
         },
 
+        all: function() {
+            var key, component, components = [];
+            for (key in this._components) {
+                if (this._components.hasOwnProperty(key)) {
+                    component = this._components[key];
+                    components.push(component);
+                }
+            }
+            return components;
+        },
+
         remove: function(Component) {
             if (Component instanceof cog.Component) {
                 Component = Component.constructor;

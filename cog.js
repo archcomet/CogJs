@@ -1,4 +1,4 @@
-//      Cog.js 1.3.1pre 2014-01-04T22:13:59.475Z
+//      Cog.js 1.3.1pre 2014-01-08T05:33:49.336Z
 //      http://www.github.com/archcomet/cogjs
 //      (c) 2013-2014 Michael Good
 //      Cog.js may be freely distributed under the MIT license.
@@ -474,6 +474,28 @@
         isRegExp: isRegExp,
         isString: isString,
         Construct: Construct
+    });
+
+
+    var debug = {
+
+        enable: function() {
+            this._enabled = true;
+        },
+
+        disable: function() {
+            this._enabled = false;
+        },
+
+        log: function(msg) {
+            if (this._enabled) {
+                console.log(msg);
+            }
+        }
+    };
+
+    cog.extend({
+        debug: debug
     });
 
     /**
@@ -1014,6 +1036,17 @@
             }
             var category = Component.category;
             return this._components[category];
+        },
+
+        all: function() {
+            var key, component, components = [];
+            for (key in this._components) {
+                if (this._components.hasOwnProperty(key)) {
+                    component = this._components[key];
+                    components.push(component);
+                }
+            }
+            return components;
         },
 
         remove: function(Component) {
@@ -1730,6 +1763,14 @@
             window.cancelAnimationFrame = function(id) {
                 clearTimeout(id);
         };
+
+        if (!window.performance) {
+            window.performance = {
+                now: function() {
+                    return Date().now();
+                }
+            }
+        }
     }());
 
 
@@ -1744,6 +1785,12 @@
         }
     }, {
 
+        defaults: {
+            _targetDt: 1000 / 60,
+            _accumulator: 0,
+            _lastFrame: 0
+        },
+
         properties: {
             config: { get: function() { return this._config; } },
             events: { get: function() { return this._eventManager; } },
@@ -1757,13 +1804,14 @@
         },
 
         init: function(config) {
-            this._config = config;
+            this._config = config || {};
             this._eventManager = new EventManager(this);
             this._entityManager = new EntityManager(this);
             this._systemManager = new SystemManager(this);
             this._beginUpdateCallback = null;
             this._animationFrame = null;
-            this._lastFrame = 0;
+
+            this._fixedDt = this._config.fixedDt || false;
         },
 
         destroy: function() {
@@ -1780,7 +1828,7 @@
 
         start:function() {
             if (!this._animationFrame) {
-                this._lastFrame = 0;
+                this._lastFrame = performance.now();
                 this._animationFrame = requestAnimationFrame(this.step.bind(this));
             }
         },
@@ -1793,14 +1841,27 @@
         },
 
         step: function(timestamp) {
-            var lastFrame = this._lastFrame,
-                dt = (lastFrame !== 0) ? timestamp - lastFrame : 16;
+            var targetDt = this._targetDt,
+                lastFrame = this._lastFrame,
+                accumulator = this._accumulator,
+                dt =  timestamp - lastFrame;
+
+            
 
             if (this._beginStepCallback) {
                 this._beginStepCallback();
             }
 
-            this.update(dt);
+            if (this._fixedDt) {
+                accumulator += dt;
+                while (accumulator > targetDt) {
+                    this.update(targetDt);
+                    accumulator -= targetDt;
+                }
+                this._accumulator = accumulator;
+            } else {
+                this.update(dt);
+            }
             this.render();
 
             if (this._endStepCallback) {
@@ -1817,6 +1878,9 @@
             if (this._beginUpdateCallback) {
                 this._beginUpdateCallback();
             }
+
+            
+
             this._systemManager.update(dt);
             if (this._endUpdateCallback) {
                 this._endUpdateCallback();
@@ -1824,7 +1888,11 @@
         },
 
         render: function() {
+            
+
             this._systemManager.render();
+
+            
         },
 
         onBeginUpdate: function(callback) {

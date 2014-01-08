@@ -111,6 +111,22 @@ define([
         strictEqual(entity.get(Position), undefined, 'After remove: Get Position returns undefined');
     });
 
+    test('All gets all components', function() {
+
+        var dir = cog.createDirector(),
+            entity = dir.entities.add('TestEntity');
+
+        var position = entity.add(Position),
+            movement = entity.add(Movement),
+            size = entity.add(Size);
+
+        var components = entity.all();
+
+        ok(components.indexOf(position) > -1, 'Has position');
+        ok(components.indexOf(movement) > -1, 'Has movement');
+        ok(components.indexOf(size) > -1, 'Has size');
+
+    });
     test('Add no-op if not passed Component type', function() {
 
         var dir = cog.createDirector(),

@@ -16,6 +16,12 @@ define([
         }
     }, {
 
+        defaults: {
+            _targetDt: 1000 / 60,
+            _accumulator: 0,
+            _lastFrame: 0
+        },
+
         properties: {
             config: { get: function() { return this._config; } },
             events: { get: function() { return this._eventManager; } },
@@ -29,13 +35,14 @@ define([
         },
 
         init: function(config) {
-            this._config = config;
+            this._config = config || {};
             this._eventManager = new EventManager(this);
             this._entityManager = new EntityManager(this);
             this._systemManager = new SystemManager(this);
             this._beginUpdateCallback = null;
             this._animationFrame = null;
-            this._lastFrame = 0;
+
+            this._fixedDt = this._config.fixedDt || false;
         },
 
         destroy: function() {
@@ -52,7 +59,7 @@ define([
 
         start:function() {
             if (!this._animationFrame) {
-                this._lastFrame = 0;
+                this._lastFrame = performance.now();
                 this._animationFrame = requestAnimationFrame(this.step.bind(this));
             }
         },
@@ -65,14 +72,29 @@ define([
         },
 
         step: function(timestamp) {
-            var lastFrame = this._lastFrame,
-                dt = (lastFrame !== 0) ? timestamp - lastFrame : 16;
+            var targetDt = this._targetDt,
+                lastFrame = this._lastFrame,
+                accumulator = this._accumulator,
+                dt =  timestamp - lastFrame;
+
+            /* ExcludeStart */
+            cog.debug.log('step dt: ' + dt + ' accumulator: ' +accumulator);
+            /* ExcludeEnd */
 
             if (this._beginStepCallback) {
                 this._beginStepCallback();
             }
 
-            this.update(dt);
+            if (this._fixedDt) {
+                accumulator += dt;
+                while (accumulator > targetDt) {
+                    this.update(targetDt);
+                    accumulator -= targetDt;
+                }
+                this._accumulator = accumulator;
+            } else {
+                this.update(dt);
+            }
             this.render();
 
             if (this._endStepCallback) {
@@ -89,6 +111,11 @@ define([
             if (this._beginUpdateCallback) {
                 this._beginUpdateCallback();
             }
+
+            /* ExcludeStart */
+            cog.debug.log('update dt: ' + dt);
+            /* ExcludeEnd */
+
             this._systemManager.update(dt);
             if (this._endUpdateCallback) {
                 this._endUpdateCallback();
@@ -96,7 +123,16 @@ define([
         },
 
         render: function() {
+            /* ExcludeStart */
+            var start = performance.now();
+            /* ExcludeEnd */
+
             this._systemManager.render();
+
+            /* ExcludeStart */
+            var end = performance.now();
+            cog.debug.log('render dt: ' + (end-start));
+            /* ExcludeEnd */
         },
 
         onBeginUpdate: function(callback) {

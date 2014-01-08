@@ -102,4 +102,60 @@ define([
         dir.start();
     });
 
+    asyncTest('director.start runs using a variable dt by default', function() {
+        var updateCount = 0,
+            hasVariableDt = false;
+
+        var dir = cog.createDirector();
+
+        var TestSystem = System.extend({
+            update: function(entities, events, dt) {
+                if (dt !== dir._targetDt) {
+                    hasVariableDt = true;
+                }
+
+                updateCount++;
+                if (updateCount >= 10) {
+                    ok(hasVariableDt, 'Dt is varied');
+                    dir.stop();
+                    cog.debug.disable();
+                    start();
+                }
+            }
+        });
+
+        cog.debug.enable();
+        dir.systems.add(TestSystem);
+        dir.start();
+    });
+
+    asyncTest('director.start using a fixed dt by config', function() {
+        var updateCount = 0,
+            hasFixedDt = true;
+
+        var dir = cog.createDirector({
+            fixedDt: true
+        });
+
+        var TestSystem = System.extend({
+            update: function(entities, events, dt) {
+                if (dt !== dir._targetDt) {
+                    hasFixedDt = false;
+                }
+
+                updateCount++;
+                if (updateCount >= 10) {
+                    ok(hasFixedDt, 'Dt is fixed');
+                    dir.stop();
+                    cog.debug.disable();
+                    start();
+                }
+            }
+        });
+
+        cog.debug.enable();
+        dir.systems.add(TestSystem);
+        dir.start();
+    });
+
 });

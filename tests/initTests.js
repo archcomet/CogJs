@@ -4,6 +4,7 @@
         var tests = [
             'unitTests/coreTests.js',
             'unitTests/constructTests.js',
+            'unitTests/debugTests.js',
             'unitTests/directorTests.js',
             'unitTests/entityTests.js',
             'unitTests/componentTests.js',

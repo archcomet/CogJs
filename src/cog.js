@@ -1,5 +1,6 @@
 define([
     './core',
+    './utils/debug',
     './utils/collections',
     './utils/random',
     './entity',

@@ -30,5 +30,13 @@ define(function() {
             window.cancelAnimationFrame = function(id) {
                 clearTimeout(id);
         };
+
+        if (!window.performance) {
+            window.performance = {
+                now: function() {
+                    return Date().now();
+                }
+            }
+        }
     }());
 });
