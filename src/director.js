@@ -35,14 +35,14 @@ define([
         },
 
         init: function(config) {
-            this._config = config || {};
+            this._config = config;
             this._eventManager = new EventManager(this);
             this._entityManager = new EntityManager(this);
             this._systemManager = new SystemManager(this);
             this._beginUpdateCallback = null;
             this._animationFrame = null;
 
-            this._fixedDt = this._config.fixedDt || false;
+            this._fixedDt = config && cog.isBoolean(config.fixedDt) ? config.fixedDt : false;
         },
 
         destroy: function() {
