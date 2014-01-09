@@ -1,4 +1,4 @@
-//      Cog.js - Entity Component System framework v1.3.1pre 2014-01-09T00:16:18.026Z
+//      Cog.js - Entity Component System framework v1.3.1pre 2014-01-09T01:34:12.583Z
 //      http://www.github.com/archcomet/cogjs
 //      (c) 2013-2014 Michael Good
 //      Cog.js may be freely distributed under the MIT license.
@@ -1767,7 +1767,7 @@
         if (!window.performance) {
             window.performance = {
                 now: function() {
-                    return Date().now();
+                    return Date.now();
                 }
             }
         }
@@ -1828,7 +1828,7 @@
 
         start:function() {
             if (!this._animationFrame) {
-                this._lastFrame = performance.now();
+                this._lastFrame = 0;
                 this._animationFrame = requestAnimationFrame(this.step.bind(this));
             }
         },
@@ -1844,7 +1844,7 @@
             var targetDt = this._targetDt,
                 lastFrame = this._lastFrame,
                 accumulator = this._accumulator,
-                dt =  timestamp - lastFrame;
+                dt =  lastFrame === 0 ? targetDt : timestamp - lastFrame;
 
             
 

@@ -59,7 +59,7 @@ define([
 
         start:function() {
             if (!this._animationFrame) {
-                this._lastFrame = performance.now();
+                this._lastFrame = 0;
                 this._animationFrame = requestAnimationFrame(this.step.bind(this));
             }
         },
@@ -75,7 +75,7 @@ define([
             var targetDt = this._targetDt,
                 lastFrame = this._lastFrame,
                 accumulator = this._accumulator,
-                dt =  timestamp - lastFrame;
+                dt =  lastFrame === 0 ? targetDt : timestamp - lastFrame;
 
             /* ExcludeStart */
             cog.debug.log('step dt: ' + dt + ' accumulator: ' +accumulator);

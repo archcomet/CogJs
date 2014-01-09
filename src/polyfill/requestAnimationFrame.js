@@ -34,7 +34,7 @@ define(function() {
         if (!window.performance) {
             window.performance = {
                 now: function() {
-                    return Date().now();
+                    return Date.now();
                 }
             }
         }
