@@ -1,4 +1,4 @@
-//      Cog.js 1.3.1pre 2014-01-08T05:33:49.336Z
+//      Cog.js - Entity Component System framework v1.3.1pre 2014-01-09T00:16:18.026Z
 //      http://www.github.com/archcomet/cogjs
 //      (c) 2013-2014 Michael Good
 //      Cog.js may be freely distributed under the MIT license.
@@ -1804,14 +1804,14 @@
         },
 
         init: function(config) {
-            this._config = config || {};
+            this._config = config;
             this._eventManager = new EventManager(this);
             this._entityManager = new EntityManager(this);
             this._systemManager = new SystemManager(this);
             this._beginUpdateCallback = null;
             this._animationFrame = null;
 
-            this._fixedDt = this._config.fixedDt || false;
+            this._fixedDt = config && cog.isBoolean(config.fixedDt) ? config.fixedDt : false;
         },
 
         destroy: function() {
@@ -1928,4 +1928,4 @@
 
     this.cog = cog;
 
-}).call(this);
+}).call(this); // window
