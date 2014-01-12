@@ -3,29 +3,45 @@ define([
     './var/slice',
     './var/toString'
 ], function(hasOwn, slice, toString) {
+
     /**
-     * cog
-     *  Safe object to hang the API off of
-     * @returns {cog}
+     *  @module cog
+     *  @namespace
      */
 
     var cog = function() {
         return !(this instanceof cog) ? new cog() : this;
     };
 
+    /**
+     * @name VERSION
+     * @summary The current version of cog.
+     *
+     * @const
+     * @memberof cog
+     *
+     * @type {string}
+     */
+
     cog.VERSION = '@VERSION';
 
-
-    // ------------------------------------------
-    // Utility functions
-
     /**
-     * extend function
-     * based on jQuery extend:
-     *  http://api.jquery.com/jQuery.extend/
-     *  https://github.com/jquery/jquery/blob/master/src/core.js
+     * @name extend
+     * @summary Merges objects, overwriting existing properties.
+     * @desc Merge contents of two or more objects into the first one.
+     * Source properties will replace target properties.
+     *  based on jQuery extend().
      *
-     * @returns {*|{}}
+     * @see http://api.jquery.com/jQuery.extend/
+     * @see https://github.com/jquery/jquery/blob/master/src/core.js
+     *
+     * @static
+     * @method
+     * @memberof cog
+     *
+     * @param {object} [target] - Target object
+     * @param {...object} [source] - Source object(s).
+     * @returns {object}
      */
 
     cog.extend = function extend() {
@@ -84,34 +100,53 @@ define([
         }
 
         return target;
-    }
+    };
 
     /**
-     * defaults
-     *  fill given objects with properties
-     * @param obj
-     * @returns {*}
+     * @name defaults
+     * @summary Merges objects, keeping existing properties.
+     * @desc Merge contents of two or more objects into the first one.
+     * Source properties will not replace target properties.
+     *  based on underscore defaults().
+     *
+     * @see http://underscorejs.org/#defaults
+     *
+     * @static
+     * @method
+     * @memberof cog
+     *
+     * @param {object} [target] - Target object
+     * @param {...object} [source] - Source object(s).
+     * @returns {object}
      */
 
-    function defaults(obj) {
+    function defaults(target, source) {
         slice.call(arguments, 1).forEach(function(source) {
             if (source) {
                 for (var key in source) {
                     //noinspection JSUnfilteredForInLoop
-                    if (obj[key] === undefined) {
+                    if (target[key] === undefined) {
                         //noinspection JSUnfilteredForInLoop
-                        obj[key] = source[key];
+                        target[key] = source[key];
                     }
                 }
             }
         });
-        return obj;
+        return target;
     }
 
     /**
-     * type
-     *  Safely check typeof object.
-     * @param obj
+     * @name type
+     * @summary Safely check object type.
+     * @desc based on jquery type().
+     *
+     * @see http://api.jquery.com/jquery.type/
+     *
+     * @static
+     * @method
+     * @memberof cog
+     *
+     * @param {*} obj - Test object.
      * @returns {string}
      */
 
@@ -124,8 +159,14 @@ define([
     }
 
     /**
-     * isArray
-     * @param obj
+     * @name isArray
+     * @summary Returns true if object is an Array.
+     *
+     * @static
+     * @method
+     * @memberof cog
+     *
+     * @param {*} obj - Test object.
      * @returns {boolean}
      */
 
@@ -134,8 +175,14 @@ define([
     }
 
     /**
-     * isDate
-     * @param obj
+     * @name isDate
+     * @summary Returns true if object is a Date.
+     *
+     * @static
+     * @method
+     * @memberof cog
+     *
+     * @param {*} obj - Test object.
      * @returns {boolean}
      */
 
@@ -144,8 +191,14 @@ define([
     }
 
     /**
-     * isBoolean
-     * @param obj
+     * @name isBoolean
+     * @summary Returns true if object is a boolean.
+     *
+     * @static
+     * @method
+     * @memberof cog
+     *
+     * @param {*} obj - Test object.
      * @returns {boolean}
      */
 
@@ -154,8 +207,14 @@ define([
     }
 
     /**
-     * isFunction
-     * @param obj
+     * @name isFunction
+     * @summary Returns true if object is a function.
+     *
+     * @static
+     * @method
+     * @memberof cog
+     *
+     * @param {*} obj - Test object.
      * @returns {boolean}
      */
 
@@ -164,8 +223,14 @@ define([
     }
 
     /**
-     * isNumber
-     * @param obj
+     * @name isNumber
+     * @summary Returns true if object is a number.
+     *
+     * @static
+     * @method
+     * @memberof cog
+     *
+     * @param {*} obj - Test object.
      * @returns {boolean}
      */
 
@@ -174,8 +239,14 @@ define([
     }
 
     /**
-     * isObject
-     * @param obj
+     * @name isObject
+     * @summary Returns true if object is an object.
+     *
+     * @static
+     * @method
+     * @memberof cog
+     *
+     * @param {*} obj - Test object.
      * @returns {boolean}
      */
 
@@ -184,14 +255,23 @@ define([
     }
 
     /**
-     * isPlainObject
+     * @name isPlainObject
+     * @summary Returns true if object is a plain object.
+     * @desc based on jquery isPlainObject().
+     *
      *  false if:
      *   - not an object
      *   - an element object
      *   - a window object
      *   - an instance of a constructor
      *
-     * @param obj
+     * @see http://api.jquery.com/jQuery.isPlainObject/
+     *
+     * @static
+     * @method
+     * @memberof cog
+     *
+     * @param {*} obj - Test object.
      * @returns {boolean}
      */
 
@@ -210,8 +290,14 @@ define([
     }
 
     /**
-     * isRegExp
-     * @param obj
+     * @name isRegExp
+     * @summary Returns true if object is an RegExp.
+     *
+     * @static
+     * @method
+     * @memberof cog
+     *
+     * @param {*} obj - Test object.
      * @returns {boolean}
      */
 
@@ -220,8 +306,14 @@ define([
     }
 
     /**
-     * isString
-     * @param obj
+     * @name isString
+     * @summary Returns true if object is a String.
+     *
+     * @static
+     * @method
+     * @memberof cog
+     *
+     * @param {*} obj - Test object.
      * @returns {boolean}
      */
 
@@ -230,8 +322,14 @@ define([
     }
 
     /**
-     * isWindow
-     * @param obj
+     * @name isWindow
+     * @summary Returns true if object is a window.
+     *
+     * @static
+     * @method
+     * @memberof cog
+     *
+     * @param {*} obj - Test object.
      * @returns {boolean}
      */
 
@@ -338,14 +436,24 @@ define([
         }
     }
 
-    // ------------------------------------------
-    // Core Objects
-
     /**
-     * Construct
-     *  Base object used by cog for inheritance
-     *  No implementation for instances, but provides interface for destroy function.
-     * @constructor
+     * @class Construct
+     * @classdesc Construct is a base class for javascript inheritance. All cog classes derive from this object.
+     *
+     * When a Construct instance is created, the init method will be called with any arguments passed to the Constructor.
+     *
+     * Derived classes can be created using the extend method.
+     * Instances can be created using the new keyword or the create method.
+     * Access to overridden methods has been provided by this._super()
+     *
+     * Based on Simple Javascript inheritance by John Resig.
+     *
+     * @see http://ejohn.org/blog/simple-javascript-inheritance/
+     *
+     * @abstract
+     * @memberof cog
+     *
+     * @returns {instance}
      */
 
     var Construct = function() {
@@ -355,21 +463,116 @@ define([
         return this;
     };
 
+    /**
+     * @name create
+     * @summary Creates a new instance of the constructor.
+     * @desc The create method creates a new instance of the class.
+     * Arguments passed to create will passed to the constructor function.
+     *
+     * @static
+     * @method
+     * @memberof cog.Construct
+     *
+     * @returns {instance}
+     */
+
     Construct.create = function() {
         var args = slice.call(arguments);
         args.splice(0, 0, this);
         return new (Function.prototype.bind.apply(this, args));
     };
 
-    Construct.prototype.destroy = function() {};
+    /**
+     * @name init
+     * @summary Initialize the class
+     * @desc Called by the Constructor on create.
+     *
+     * @instance
+     * @abstract
+     * @method
+     * @memberof cog.Construct
+     */
+
+    Construct.prototype.init = function() {};
 
     /**
-     * Construct Extend
-     *  Extends the constructor and returns a new Constructor.
+     * @name destroy
+     * @summary Destroys the instance of the constructor.
+     * @desc Destroy is a virtual function. The base implementation does nothing.
+     * Override this function if clean up is needed when the object is destroyed.
      *
-     * @param [fullName] - Optional param, if provided will tag Constructor to may identification easier.
-     * @param [staticProps] - Optional param, if provided will extend the Constructor.
-     * @param [instanceProps] - Optional param, if provided will extend the Constructor.prototype.
+     * @abstract
+     * @instance
+     * @method
+     * @memberof cog.Construct
+     */
+
+    Construct.prototype.destroy = function() {};
+
+
+    /**
+     * @name Props Definition
+     * @summary A props definition object used by cog.Construct.extend
+     *
+     * @desc The props definition is a descriptor object that defines new properties/functions for the target object,
+     * which is either a Constructor or the Constructor's prototype.
+     *
+     * @example
+     *  {
+     *      defaults: {
+     *          foo: 42
+     *      },
+     *      properties: {
+     *          bar: {
+     *              value: 84,
+     *              writable: true
+     *          }
+     *      },
+     *      doSomething: function() { ... }
+     *  }
+     * @see {@link cog.Construct.extend}
+     * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty
+     *
+     * @typedef {Object} props
+     * @property {boolean} [dirtyOnChange=false] - If set to true, default auto-properties will set dirty=true on change.
+     * @property {Object} defaults - A object whose enumerable properties constitute values for properties.
+     * @property {Object} properties - An object whose enumerable properties constitute property descriptors.
+     * @property {...function} ...function - All enumerable functions will be merged into the target object.
+     */
+
+
+    /**
+     * @name extend
+     * @summary Extends the constructor and returns a new Constructor.
+     * @desc The extend is used to derive objects from a class.
+     *
+     * @static
+     * @method
+     * @memberof cog.Construct
+     *
+     * @example <caption>.extend(instanceProps)</caption>
+     *  var Derived = cog.Construct.extend({
+     *      instanceMethod: function() {...} // 'this' is the instance
+     *  });
+     * @example <caption>.extend(fullName, instanceProps)</caption>
+     *  var Derived = cog.Construct.extend('DerivedClass', {
+     *      instanceMethod: function() {...} // 'this' is the instance
+     *  });
+     * @example <caption>.extend(staticProps, instanceProps)</caption>
+     *  var Derived = cog.Construct.extend({
+     *      staticMethod: function() {...} // 'this' is the Constructor
+     *  }, {
+     *      instanceMethod: function() {...} // 'this' is the instance
+     *  });
+     * @example <caption>.extend(fullName, staticProps, instanceProps)</caption>
+     *  var Derived = cog.Construct.extend('DervedClass', {
+     *      staticMethod: function() {...} // 'this' is the Constructor
+     *  }, {
+     *      instanceMethod: function() {...} // 'this' is the instance
+     *  });
+     * @param {string} [fullName] - Tags the Constructor to make identification easier.
+     * @param {props} [staticProps] - Static props are merged into returned the Constructor object.
+     * @param {props} [instanceProps] - Instances props are merged into the returned Constructor.prototype object.
      * @returns {Function}
      */
 
@@ -402,7 +605,7 @@ define([
             if (!(this instanceof Constructor)) {
                 throw 'Constructor called without new keyword';
             }
-            if (!initializing && this.init) {
+            if (!initializing) {
                 this.init.apply(this, arguments);
             }
         }
@@ -413,12 +616,30 @@ define([
         _inherit(Constructor, {}, superPrototype.constructor);
         _inherit(Constructor, superPrototype.constructor, staticProps);
 
+        /**
+         * @name fullName
+         * @summary Gets fullName of Constructor.
+         *
+         * @static
+         * @memberof cog.Construct
+         * @type {String}
+         */
+
         Object.defineProperty(Constructor, 'fullName', {
             value: fullName,
             writable: false,
             configurable: true,
             enumerable: false
         });
+
+        /**
+         * @name dirty
+         * @summary True if an auto-property has been changed.
+         *
+         * @instance
+         * @memberof cog.Construct
+         * @type {boolean}
+         */
 
         if (Constructor.dirtyOnChange) {
             Object.defineProperty(Constructor.prototype, 'dirty', {

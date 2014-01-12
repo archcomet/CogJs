@@ -97,30 +97,31 @@ define([
         var dir = cog.createDirector(),
             entity = dir.entities.add('TestEntity');
 
-        var position = entity.add(Position, { x:10, y:42 });
+        var position = entity.components.assign(Position, { x:10, y:42 });
         ok(position instanceof Position, 'Created: Position');
         strictEqual(position.x, 10, 'Created: Correct x');
         strictEqual(position.y, 42, 'Created: Correct y');
 
-        var retPosition = entity.get(Position);
-        ok(entity.has(Position), 'After add: Has a Position');
+        var retPosition = entity.components(Position);
+        ok(entity.components.has(Position), 'After add: Has a Position');
         strictEqual(retPosition, position, 'After add: Get Position returns object');
 
-        entity.remove(Position);
-        ok(!entity.has(Position), 'After remove: Has no Position');
-        strictEqual(entity.get(Position), undefined, 'After remove: Get Position returns undefined');
+        entity.components.remove(Position);
+        ok(!entity.components.has(Position), 'After remove: Has no Position');
+        strictEqual(entity.components(Position), undefined, 'After remove: Get Position returns undefined');
     });
 
-    test('All gets all components', function() {
+
+    test('Components w/ no parameters gets all components', function() {
 
         var dir = cog.createDirector(),
             entity = dir.entities.add('TestEntity');
 
-        var position = entity.add(Position),
-            movement = entity.add(Movement),
-            size = entity.add(Size);
+        var position = entity.components.assign(Position),
+            movement = entity.components.assign(Movement),
+            size = entity.components.assign(Size);
 
-        var components = entity.all();
+        var components = entity.components();
 
         ok(components.indexOf(position) > -1, 'Has position');
         ok(components.indexOf(movement) > -1, 'Has movement');
@@ -132,8 +133,8 @@ define([
         var dir = cog.createDirector(),
             entity = dir.entities.add('TestEntity');
 
-        var ret = entity.add({});
-        strictEqual(ret, undefined, 'Return value is undefined');
+        var ret = entity.components.assign({});
+        strictEqual(ret, null, 'Return value is undefined');
     });
 
     test('Add sets Component', function() {
@@ -141,8 +142,8 @@ define([
         var dir = cog.createDirector(),
             entity = dir.entities.add('TestEntity');
 
-        var position = entity.add(Position, { x:10, y:42 });
-        var position2 = entity.add(Position, { x: 42, y: 10 });
+        var position = entity.components.assign(Position, { x:10, y:42 });
+        var position2 = entity.components.assign(Position, { x: 42, y: 10 });
 
         strictEqual(position, position2, 'Same object');
         strictEqual(position.x, 42, 'Updated x');
@@ -153,11 +154,11 @@ define([
         var dir = cog.createDirector(),
             entity = dir.entities.add('TestEntity');
 
-        var position = entity.add(Position, { x:10, y:42 });
+        var position = entity.components.assign(Position, { x:10, y:42 });
 
-        var comp = entity.get('invalid');
+        var comp = entity.components('invalid');
 
-        strictEqual(comp, undefined, 'returned undefined');
+        strictEqual(comp, null, 'returned undefined');
     });
 
     test('WithComponents matching', function() {
@@ -169,16 +170,16 @@ define([
             entity2 = entities.add(),
             entity3 = entities.add();
 
-        entity1.add(Position);
-        entity2.add(Position);
-        entity2.add(Movement);
-        entity3.add(Position);
-        entity3.add(Movement);
-        entity3.add(Size);
+        entity1.components.assign(Position);
+        entity2.components.assign(Position);
+        entity2.components.assign(Movement);
+        entity3.components.assign(Position);
+        entity3.components.assign(Movement);
+        entity3.components.assign(Size);
 
-        ok(entity1.has(Position), 'Match 1');
-        ok(entity2.has(Position, Movement), 'Match 2');
-        ok(entity3.has(Position, Movement, Size), 'Match 3');
+        ok(entity1.components.has(Position), 'Match 1');
+        ok(entity2.components.has(Position, Movement), 'Match 2');
+        ok(entity3.components.has(Position, Movement, Size), 'Match 3');
 
         var match0 = entities.withComponents(),
             match1 = entities.withComponents(Position),
@@ -212,28 +213,28 @@ define([
             moveCat = Movement.category,
             sizeCat = Size.category;
 
-        var position = entity.add(Position);
-        strictEqual(entity.mask, posCat, 'After add 1: Mask correct');
+        var position = entity.components.assign(Position);
+        strictEqual(entity.components.mask(), posCat, 'After add 1: Mask correct');
         strictEqual(position.entity, entity, 'After add 1: Entity correct');
 
-        var movement = entity.add(Movement);
-        strictEqual(entity.mask, posCat | moveCat, 'After add 2: Mask correct');
+        var movement = entity.components.assign(Movement);
+        strictEqual(entity.components.mask(), posCat | moveCat, 'After add 2: Mask correct');
         strictEqual(movement.entity, entity, 'After add 2: Entity correct');
 
-        var size = entity.add(Size);
-        strictEqual(entity.mask, posCat | moveCat | sizeCat, 'After add 3: Mask correct');
+        var size = entity.components.assign(Size);
+        strictEqual(entity.components.mask(), posCat | moveCat | sizeCat, 'After add 3: Mask correct');
         strictEqual(size.entity, entity, 'After add 3: Entity correct');
 
-        entity.remove(Position);
-        strictEqual(entity.mask, moveCat | sizeCat, 'After remove 1: Mask correct');
+        entity.components.remove(Position);
+        strictEqual(entity.components.mask(), moveCat | sizeCat, 'After remove 1: Mask correct');
         strictEqual(position.entity, undefined, 'After remove 1: Entity undefined');
 
-        entity.remove(Movement);
-        strictEqual(entity.mask, sizeCat, 'After remove 2: Mask correct');
+        entity.components.remove(Movement);
+        strictEqual(entity.components.mask(), sizeCat, 'After remove 2: Mask correct');
         strictEqual(movement.entity, undefined, 'After remove 2: Entity undefined');
 
-        entity.remove(Size);
-        strictEqual(entity.mask, 0, 'After remove 3: Mask correct');
+        entity.components.remove(Size);
+        strictEqual(entity.components.mask(), 0, 'After remove 3: Mask correct');
         strictEqual(size.entity, undefined, 'After remove 3: Entity undefined');
     });
 
@@ -243,13 +244,13 @@ define([
             entities = dir.entities,
             entity = entities.add();
 
-        entity.add(Position);
-        entity.add(Movement);
-        entity.add(Size);
-        ok(entity.has(Position, Movement, Size), 'Before RemoveAll: Contains Components');
+        entity.components.assign(Position);
+        entity.components.assign(Movement);
+        entity.components.assign(Size);
+        ok(entity.components.has(Position, Movement, Size), 'Before RemoveAll: Contains Components');
 
-        entity.removeAll();
-        strictEqual(entity.mask, 0, 'After RemoveAll: Has no Components');
+        entity.components.removeAll();
+        strictEqual(entity.components.mask(), 0, 'After RemoveAll: Has no Components');
     });
 
     test('Destroy removes all Components', function() {
@@ -258,13 +259,13 @@ define([
             entities = dir.entities,
             entity = entities.add();
 
-        entity.add(Position);
-        entity.add(Movement);
-        entity.add(Size);
-        ok(entity.has(Position, Movement, Size), 'Before RemoveAll: Contains Components');
+        entity.components.assign(Position);
+        entity.components.assign(Movement);
+        entity.components.assign(Size);
+        ok(entity.components.has(Position, Movement, Size), 'Before RemoveAll: Contains Components');
 
         entity.destroy();
-        strictEqual(entity.mask, 0, 'After Destroy: Has no Components');
+        strictEqual(entity.components.mask(), 0, 'After Destroy: Has no Components');
     });
 
     test('Add/Remove Entity emits correct event', function() {
@@ -378,7 +379,7 @@ define([
         events.register('entity removed', testListener, testListener.destroyedCallback);
 
         var entity = entities.add();
-        entity.add(TestComponent);
+        entity.components.assign(TestComponent);
 
         strictEqual(testListener.createdArgs[0], entity, 'Entity passed via created event');
 
@@ -407,16 +408,16 @@ define([
             }
         };
 
-        events.register('component added', testListener, testListener.createdCallback);
+        events.register('component assigned', testListener, testListener.createdCallback);
         events.register('component removed', testListener, testListener.destroyedCallback);
 
         var entity = entities.add('test.Entity'),
-            comp = entity.add(TestComponent);
+            comp = entity.components.assign(TestComponent);
 
         strictEqual(testListener.createdArgs[0], comp, 'Component passed via created event');
         strictEqual(testListener.createdArgs[1], entity, 'Entity passed via created event');
 
-        entity.remove(TestComponent);
+        entity.components.remove(TestComponent);
         strictEqual(testListener.destroyedArgs[0], comp, 'Component passed via destroy event');
         strictEqual(testListener.destroyedArgs[1], entity, 'Entity passed via destroy event');
     });
@@ -426,7 +427,7 @@ define([
             entities = dir.entities,
             events = dir.events;
 
-        var TestComponent = Component.extend('test.Named', {});
+        var TestComponent = Component.extend({ eventTarget: 'test.Named' }, {});
 
         var testListener = {
             createdArgs: [],
@@ -441,16 +442,16 @@ define([
             }
         };
 
-        events.register('test.Named added', testListener, testListener.createdCallback);
+        events.register('test.Named assigned', testListener, testListener.createdCallback);
         events.register('test.Named removed', testListener, testListener.destroyedCallback);
 
         var entity = entities.add('test.Entity'),
-            comp = entity.add(TestComponent);
+            comp = entity.components.assign(TestComponent);
 
         strictEqual(testListener.createdArgs[0], comp, 'Component passed via created event');
         strictEqual(testListener.createdArgs[1], entity, 'Entity passed via created event');
 
-        entity.remove(TestComponent);
+        entity.components.remove(TestComponent);
         strictEqual(testListener.destroyedArgs[0], comp, 'Component passed via destroy event');
         strictEqual(testListener.destroyedArgs[1], entity, 'Entity passed via destroy event');
     });
@@ -460,14 +461,14 @@ define([
             entities = dir.entities,
             entity = entities.add('test.Clone');
 
-        entity.add(Position, {x:42, y:31});
-        entity.add(Movement, {dx:1.0, dy:0.4});
-        entity.add(Size, {width:22, height:10});
+        entity.components.assign(Position, {x:42, y:31});
+        entity.components.assign(Movement, {dx:1.0, dy:0.4});
+        entity.components.assign(Size, {width:22, height:10});
 
         var entity2 = entity.clone(),
-            position = entity2.get(Position),
-            movement = entity2.get(Movement),
-            size = entity2.get(Size);
+            position = entity2.components(Position),
+            movement = entity2.components(Movement),
+            size = entity2.components(Size);
 
         ok(entity2 instanceof Entity, 'Is an Entity');
         strictEqual(entity2.id, 2, 'Has expected id');

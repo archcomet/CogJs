@@ -14,6 +14,8 @@ define([
 
     var Component = cog.Construct.extend('cog.Component', {
 
+        eventTarget: 'component',
+
         properties: {
             category: { get: function() { return this._category; } },
             count: { get: function() { return componentCount - 1; } }
@@ -134,8 +136,8 @@ define([
         },
 
         destroy: function(managed) {
-            if (!managed && this._entity && this._entity.remove) {
-                this._entity.remove(this);
+            if (!managed && this._entity && this._entity.components) {
+                this._entity.components.remove(this);
                 return;
             }
             this.off();

@@ -28,15 +28,15 @@ define([
            entity = entities.add();
 
         var TestComponent = Component.extend({}),
-            comp = entity.add(TestComponent);
+            comp = entity.components.assign(TestComponent);
 
         strictEqual(comp.entity, entity, 'Has correct entity ref');
-        strictEqual(entity.get(TestComponent), comp, 'Has correct component ref');
+        strictEqual(entity.components(TestComponent), comp, 'Has correct component ref');
 
         comp.destroy();
 
         strictEqual(comp.entity, undefined, 'Has no entity ref');
-        strictEqual(entity.get(TestComponent), undefined, 'Has no component ref');
+        strictEqual(entity.components(TestComponent), undefined, 'Has no component ref');
     });
 
     test('Component assigned unique category bit', function() {

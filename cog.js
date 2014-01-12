@@ -1,4 +1,4 @@
-//      Cog.js - Entity Component System framework v1.3.1pre 2014-01-09T01:34:12.583Z
+//      Cog.js - Entity Component System framework v1.3.1pre 2014-01-12T04:08:01.632Z
 //      http://www.github.com/archcomet/cogjs
 //      (c) 2013-2014 Michael Good
 //      Cog.js may be freely distributed under the MIT license.
@@ -12,29 +12,45 @@
     var toString = Object.prototype.toString;
 
 
+
     /**
-     * cog
-     *  Safe object to hang the API off of
-     * @returns {cog}
+     *  @module cog
+     *  @namespace
      */
 
     var cog = function() {
         return !(this instanceof cog) ? new cog() : this;
     };
 
+    /**
+     * @name VERSION
+     * @summary The current version of cog.
+     *
+     * @const
+     * @memberof cog
+     *
+     * @type {string}
+     */
+
     cog.VERSION = '1.3.1pre';
 
-
-    // ------------------------------------------
-    // Utility functions
-
     /**
-     * extend function
-     * based on jQuery extend:
-     *  http://api.jquery.com/jQuery.extend/
-     *  https://github.com/jquery/jquery/blob/master/src/core.js
+     * @name extend
+     * @summary Merges objects, overwriting existing properties.
+     * @desc Merge contents of two or more objects into the first one.
+     * Source properties will replace target properties.
+     *  based on jQuery extend().
      *
-     * @returns {*|{}}
+     * @see http://api.jquery.com/jQuery.extend/
+     * @see https://github.com/jquery/jquery/blob/master/src/core.js
+     *
+     * @static
+     * @method
+     * @memberof cog
+     *
+     * @param {object} [target] - Target object
+     * @param {...object} [source] - Source object(s).
+     * @returns {object}
      */
 
     cog.extend = function extend() {
@@ -93,34 +109,53 @@
         }
 
         return target;
-    }
+    };
 
     /**
-     * defaults
-     *  fill given objects with properties
-     * @param obj
-     * @returns {*}
+     * @name defaults
+     * @summary Merges objects, keeping existing properties.
+     * @desc Merge contents of two or more objects into the first one.
+     * Source properties will not replace target properties.
+     *  based on underscore defaults().
+     *
+     * @see http://underscorejs.org/#defaults
+     *
+     * @static
+     * @method
+     * @memberof cog
+     *
+     * @param {object} [target] - Target object
+     * @param {...object} [source] - Source object(s).
+     * @returns {object}
      */
 
-    function defaults(obj) {
+    function defaults(target, source) {
         slice.call(arguments, 1).forEach(function(source) {
             if (source) {
                 for (var key in source) {
                     //noinspection JSUnfilteredForInLoop
-                    if (obj[key] === undefined) {
+                    if (target[key] === undefined) {
                         //noinspection JSUnfilteredForInLoop
-                        obj[key] = source[key];
+                        target[key] = source[key];
                     }
                 }
             }
         });
-        return obj;
+        return target;
     }
 
     /**
-     * type
-     *  Safely check typeof object.
-     * @param obj
+     * @name type
+     * @summary Safely check object type.
+     * @desc based on jquery type().
+     *
+     * @see http://api.jquery.com/jquery.type/
+     *
+     * @static
+     * @method
+     * @memberof cog
+     *
+     * @param {*} obj - Test object.
      * @returns {string}
      */
 
@@ -133,8 +168,14 @@
     }
 
     /**
-     * isArray
-     * @param obj
+     * @name isArray
+     * @summary Returns true if object is an Array.
+     *
+     * @static
+     * @method
+     * @memberof cog
+     *
+     * @param {*} obj - Test object.
      * @returns {boolean}
      */
 
@@ -143,8 +184,14 @@
     }
 
     /**
-     * isDate
-     * @param obj
+     * @name isDate
+     * @summary Returns true if object is a Date.
+     *
+     * @static
+     * @method
+     * @memberof cog
+     *
+     * @param {*} obj - Test object.
      * @returns {boolean}
      */
 
@@ -153,8 +200,14 @@
     }
 
     /**
-     * isBoolean
-     * @param obj
+     * @name isBoolean
+     * @summary Returns true if object is a boolean.
+     *
+     * @static
+     * @method
+     * @memberof cog
+     *
+     * @param {*} obj - Test object.
      * @returns {boolean}
      */
 
@@ -163,8 +216,14 @@
     }
 
     /**
-     * isFunction
-     * @param obj
+     * @name isFunction
+     * @summary Returns true if object is a function.
+     *
+     * @static
+     * @method
+     * @memberof cog
+     *
+     * @param {*} obj - Test object.
      * @returns {boolean}
      */
 
@@ -173,8 +232,14 @@
     }
 
     /**
-     * isNumber
-     * @param obj
+     * @name isNumber
+     * @summary Returns true if object is a number.
+     *
+     * @static
+     * @method
+     * @memberof cog
+     *
+     * @param {*} obj - Test object.
      * @returns {boolean}
      */
 
@@ -183,8 +248,14 @@
     }
 
     /**
-     * isObject
-     * @param obj
+     * @name isObject
+     * @summary Returns true if object is an object.
+     *
+     * @static
+     * @method
+     * @memberof cog
+     *
+     * @param {*} obj - Test object.
      * @returns {boolean}
      */
 
@@ -193,14 +264,23 @@
     }
 
     /**
-     * isPlainObject
+     * @name isPlainObject
+     * @summary Returns true if object is a plain object.
+     * @desc based on jquery isPlainObject().
+     *
      *  false if:
      *   - not an object
      *   - an element object
      *   - a window object
      *   - an instance of a constructor
      *
-     * @param obj
+     * @see http://api.jquery.com/jQuery.isPlainObject/
+     *
+     * @static
+     * @method
+     * @memberof cog
+     *
+     * @param {*} obj - Test object.
      * @returns {boolean}
      */
 
@@ -219,8 +299,14 @@
     }
 
     /**
-     * isRegExp
-     * @param obj
+     * @name isRegExp
+     * @summary Returns true if object is an RegExp.
+     *
+     * @static
+     * @method
+     * @memberof cog
+     *
+     * @param {*} obj - Test object.
      * @returns {boolean}
      */
 
@@ -229,8 +315,14 @@
     }
 
     /**
-     * isString
-     * @param obj
+     * @name isString
+     * @summary Returns true if object is a String.
+     *
+     * @static
+     * @method
+     * @memberof cog
+     *
+     * @param {*} obj - Test object.
      * @returns {boolean}
      */
 
@@ -239,8 +331,14 @@
     }
 
     /**
-     * isWindow
-     * @param obj
+     * @name isWindow
+     * @summary Returns true if object is a window.
+     *
+     * @static
+     * @method
+     * @memberof cog
+     *
+     * @param {*} obj - Test object.
      * @returns {boolean}
      */
 
@@ -347,14 +445,24 @@
         }
     }
 
-    // ------------------------------------------
-    // Core Objects
-
     /**
-     * Construct
-     *  Base object used by cog for inheritance
-     *  No implementation for instances, but provides interface for destroy function.
-     * @constructor
+     * @class Construct
+     * @classdesc Construct is a base class for javascript inheritance. All cog classes derive from this object.
+     *
+     * When a Construct instance is created, the init method will be called with any arguments passed to the Constructor.
+     *
+     * Derived classes can be created using the extend method.
+     * Instances can be created using the new keyword or the create method.
+     * Access to overridden methods has been provided by this._super()
+     *
+     * Based on Simple Javascript inheritance by John Resig.
+     *
+     * @see http://ejohn.org/blog/simple-javascript-inheritance/
+     *
+     * @abstract
+     * @memberof cog
+     *
+     * @returns {instance}
      */
 
     var Construct = function() {
@@ -364,21 +472,116 @@
         return this;
     };
 
+    /**
+     * @name create
+     * @summary Creates a new instance of the constructor.
+     * @desc The create method creates a new instance of the class.
+     * Arguments passed to create will passed to the constructor function.
+     *
+     * @static
+     * @method
+     * @memberof cog.Construct
+     *
+     * @returns {instance}
+     */
+
     Construct.create = function() {
         var args = slice.call(arguments);
         args.splice(0, 0, this);
         return new (Function.prototype.bind.apply(this, args));
     };
 
-    Construct.prototype.destroy = function() {};
+    /**
+     * @name init
+     * @summary Initialize the class
+     * @desc Called by the Constructor on create.
+     *
+     * @instance
+     * @abstract
+     * @method
+     * @memberof cog.Construct
+     */
+
+    Construct.prototype.init = function() {};
 
     /**
-     * Construct Extend
-     *  Extends the constructor and returns a new Constructor.
+     * @name destroy
+     * @summary Destroys the instance of the constructor.
+     * @desc Destroy is a virtual function. The base implementation does nothing.
+     * Override this function if clean up is needed when the object is destroyed.
      *
-     * @param [fullName] - Optional param, if provided will tag Constructor to may identification easier.
-     * @param [staticProps] - Optional param, if provided will extend the Constructor.
-     * @param [instanceProps] - Optional param, if provided will extend the Constructor.prototype.
+     * @abstract
+     * @instance
+     * @method
+     * @memberof cog.Construct
+     */
+
+    Construct.prototype.destroy = function() {};
+
+
+    /**
+     * @name Props Definition
+     * @summary A props definition object used by cog.Construct.extend
+     *
+     * @desc The props definition is a descriptor object that defines new properties/functions for the target object,
+     * which is either a Constructor or the Constructor's prototype.
+     *
+     * @example
+     *  {
+     *      defaults: {
+     *          foo: 42
+     *      },
+     *      properties: {
+     *          bar: {
+     *              value: 84,
+     *              writable: true
+     *          }
+     *      },
+     *      doSomething: function() { ... }
+     *  }
+     * @see {@link cog.Construct.extend}
+     * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty
+     *
+     * @typedef {Object} props
+     * @property {boolean} [dirtyOnChange=false] - If set to true, default auto-properties will set dirty=true on change.
+     * @property {Object} defaults - A object whose enumerable properties constitute values for properties.
+     * @property {Object} properties - An object whose enumerable properties constitute property descriptors.
+     * @property {...function} ...function - All enumerable functions will be merged into the target object.
+     */
+
+
+    /**
+     * @name extend
+     * @summary Extends the constructor and returns a new Constructor.
+     * @desc The extend is used to derive objects from a class.
+     *
+     * @static
+     * @method
+     * @memberof cog.Construct
+     *
+     * @example <caption>.extend(instanceProps)</caption>
+     *  var Derived = cog.Construct.extend({
+     *      instanceMethod: function() {...} // 'this' is the instance
+     *  });
+     * @example <caption>.extend(fullName, instanceProps)</caption>
+     *  var Derived = cog.Construct.extend('DerivedClass', {
+     *      instanceMethod: function() {...} // 'this' is the instance
+     *  });
+     * @example <caption>.extend(staticProps, instanceProps)</caption>
+     *  var Derived = cog.Construct.extend({
+     *      staticMethod: function() {...} // 'this' is the Constructor
+     *  }, {
+     *      instanceMethod: function() {...} // 'this' is the instance
+     *  });
+     * @example <caption>.extend(fullName, staticProps, instanceProps)</caption>
+     *  var Derived = cog.Construct.extend('DervedClass', {
+     *      staticMethod: function() {...} // 'this' is the Constructor
+     *  }, {
+     *      instanceMethod: function() {...} // 'this' is the instance
+     *  });
+     * @param {string} [fullName] - Tags the Constructor to make identification easier.
+     * @param {props} [staticProps] - Static props are merged into returned the Constructor object.
+     * @param {props} [instanceProps] - Instances props are merged into the returned Constructor.prototype object.
      * @returns {Function}
      */
 
@@ -411,7 +614,7 @@
             if (!(this instanceof Constructor)) {
                 throw 'Constructor called without new keyword';
             }
-            if (!initializing && this.init) {
+            if (!initializing) {
                 this.init.apply(this, arguments);
             }
         }
@@ -422,12 +625,30 @@
         _inherit(Constructor, {}, superPrototype.constructor);
         _inherit(Constructor, superPrototype.constructor, staticProps);
 
+        /**
+         * @name fullName
+         * @summary Gets fullName of Constructor.
+         *
+         * @static
+         * @memberof cog.Construct
+         * @type {String}
+         */
+
         Object.defineProperty(Constructor, 'fullName', {
             value: fullName,
             writable: false,
             configurable: true,
             enumerable: false
         });
+
+        /**
+         * @name dirty
+         * @summary True if an auto-property has been changed.
+         *
+         * @instance
+         * @memberof cog.Construct
+         * @type {boolean}
+         */
 
         if (Constructor.dirtyOnChange) {
             Object.defineProperty(Constructor.prototype, 'dirty', {
@@ -954,125 +1175,181 @@
         return ret;
     }
 
+
     /**
-     * Entity
+     * @class Entity
+     * @classdesc Entity Object
      *
-     * @param manager
-     * @param id
-     * @param [tag]
+     * @augments Construct
+     * @memberof cog
+     *
+     * @param {EntityManager} manager - EntityManager that created the Entity
+     * @param {number} id - Unique numeric Id assigned by the EntityManager
+     * @param {string} [tag] - Entity Tag
      * @constructor
      */
 
     var Entity = cog.Construct.extend('cog.Entity', {
 
+        components: null,
+        _manager: null,
+        _tag: null,
+
         properties: {
+
+            /**
+             * @member manager
+             * @summary Gets the EntityManager
+             *
+             * @readonly
+             * @instance
+             * @memberof cog.Entity
+             *
+             * @type {EntityManager}
+             */
+
             manager: { get: function() { return this._manager; } },
+
+            /**
+             * @member id
+             * @summary Gets the entity id
+             *
+             * @readonly
+             * @instance
+             * @memberof cog.Entity
+             *
+             * @type {number}
+             */
+
             id: { get: function() { return this._id } },
+
+            /**
+             * @member tag
+             * @summary Gets the entity tag
+             *
+             * @readonly
+             * @instance
+             * @memberof cog.Entity
+             *
+             * @type {string}
+             */
+
             tag: { get: function() { return this._tag } },
+
+            /**
+             * @member valid
+             * @summary True after the Entity is initialized. False once destroyed.
+             *
+             * @readonly
+             * @instance
+             * @memberof cog.Entity
+             *
+             * @type {boolean}
+             */
+
             valid: { get: function() { return (this._manager && this._id) ? true : false; } },
-            mask: { get: function() { return this._componentMask; } },
+
+            /**
+             * @member parent
+             * @summary Gets the the Entity's parent.
+             *
+             * @readonly
+             * @instance
+             * @memberof cog.Entity
+             *
+             * @type {Entity}
+             */
+
             parent: { get: function() { return this._parent; } },
+
+            /**
+             * @member children
+             * @summary Gets an array of the Entity's children.
+             *
+             * @readonly
+             * @instance
+             * @memberof cog.Entity
+             *
+             * @type {Array}
+             */
+
             children: { get: function() { return this._children.slice(0); } }
         },
+
+
+        /**
+         * @name init
+         * @summary Initializes the Entity
+         *
+         * @instance
+         * @method
+         * @memberof cog.Entity
+         *
+         * @param {EntityManager} [manager] - EntityManager that created the Entity.
+         * @param {number} [id] - Id assigned by the EntityManager.
+         * @param {string} [tag] - Entity Tag.
+         */
 
         init: function(manager, id, tag) {
             this._manager = manager;
             this._id = id;
             this._tag = tag || null;
             this._components = {};
-            this._componentMask = 0;
             this._parent = null;
             this._children = [];
+            this.components = componentApi.make(this);
         },
+
+        /**
+         * @name destroy
+         * @summary Destroy the Entity.
+         * @desc Destroys the instance of the Entity
+         *
+         * @instance
+         * @method
+         * @memberof cog.Entity
+         */
 
         destroy: function(managed) {
             if (this._manager && !managed) {
                 this._manager.remove(this);
                 return;
             }
-            this.removeAll();
+            this.components.removeAll();
             this._manager = undefined;
             this._id = undefined;
             this._tag = undefined;
             this._children = undefined;
         },
 
+        /**
+         * @name clone
+         * @summary Clones the Entity.
+         * @desc Creates a new instance of the Entity. Components and enumerable properties are copied to the new Entity.
+         *
+         * @instance
+         * @method
+         * @memberof cog.Entity
+         *
+         * @example
+         * // Creates a clone of the entity.
+         * var clonedEntity = entity.clone();
+         * @returns {Entity}
+         */
+
         clone: function() {
-            var key, component, clone = this._manager.add(this._tag);
-            for (key in this._components) {
-                if (this._components.hasOwnProperty(key)) {
-                    component = this._components[key];
-                    clone.add(component.constructor, component.serialize());
+            var key,
+                component,
+                components = this.components._components,
+                clone = this._manager.add(this._tag);
+
+            for (key in components) {
+                if (components.hasOwnProperty(key)) {
+                    component = components[key];
+                    clone.components.assign(component.constructor, component.serialize());
                 }
             }
             return clone;
-        },
-
-        add: function(Component, options) {
-            if (!Component || !Component.category) {
-                return undefined;
-            }
-            var component, category = Component.category;
-            if ((category & this._componentMask) === category) {
-                component = this._components[category];
-                component.set(options);
-            } else {
-                component = this._components[category] = new Component(this, options);
-                this._componentMask |= category;
-                var event = Component.fullName ? Component.fullName + ' added' : 'component added';
-                this._manager.director.events.emit(event, component, this);
-            }
-            return component;
-        },
-
-        has: function(Component) {
-            var inputMask = _mask.apply(_mask, arguments);
-            return inputMask !== 0 && (inputMask & this._componentMask) === inputMask;
-        },
-
-        get: function(Component) {
-            if (!Component || !Component.category) {
-                return undefined;
-            }
-            var category = Component.category;
-            return this._components[category];
-        },
-
-        all: function() {
-            var key, component, components = [];
-            for (key in this._components) {
-                if (this._components.hasOwnProperty(key)) {
-                    component = this._components[key];
-                    components.push(component);
-                }
-            }
-            return components;
-        },
-
-        remove: function(Component) {
-            if (Component instanceof cog.Component) {
-                Component = Component.constructor;
-            }
-            var component, category = Component.category;
-            if ((category & this._componentMask) === category) {
-                component = this._components[category];
-                this._componentMask &= ~(category);
-                this._components[category] = undefined;
-                var event = Component.fullName ? Component.fullName + ' removed' : 'component removed';
-                this._manager.director.events.emit(event, component, this);
-                component.destroy(true);
-            }
-            return this;
-        },
-
-        removeAll: function() {
-            var key;
-            for (key in this._components) {
-                if (this._components.hasOwnProperty(key)) {
-                    this.remove(this._components[key]);
-                }
-            }
-            return this;
         },
 
         addChild: function(entity) {
@@ -1109,8 +1386,163 @@
         }
     });
 
+
+    var componentApi = {
+
+        /**
+         * @summary Adds a Component to the Entity.
+         * @desc This method creates a Component and assigns it to the Entity.
+         *
+         * @instance
+         * @memberof cog.Entity
+         *
+         * @example
+         *  var PositionComponent = cog.Component.extend({...});
+         *  ...
+         *  // Create an entity and add a PositionComponent
+         *  var entity = director.entities.add('exampleEntity');
+         *  var component = entity.add(PositionComponent, { x: 0, y: 100 });
+         * @param {Component} Component - Constructor function for the entity.
+         * @param {Object} [options] - Component Options to be passed to the Component Constructor.
+         * @returns {Component}
+         */
+
+        assign: function (Component, options) {
+            if (!Component || !Component.category) {
+                return null;
+            }
+            var component, category = Component.category;
+            if ((category & this._componentMask) === category) {
+                component = this._components[category];
+                component.set(options);
+            } else {
+                component = this._components[category] = new Component(this._entity, options);
+                this._componentMask |= category;
+                this._eventManager.emit(Component.eventTarget + ' assigned', component, this._entity);
+            }
+            return component;
+        },
+
+        /**
+         *
+         * @param {Component} Component
+         */
+
+        remove: function (Component) {
+            if (Component instanceof cog.Component) {
+                Component = Component.constructor;
+            }
+            var component, category = Component.category;
+            if ((category & this._componentMask) === category) {
+                component = this._components[category];
+                this._componentMask &= ~(category);
+                this._components[category] = undefined;
+                this._eventManager.emit(Component.eventTarget + ' removed', component, this._entity);
+                component.destroy(true);
+            }
+            return this;
+        },
+
+        removeAll: function() {
+            var key;
+            for (key in this._components) {
+                if (this._components.hasOwnProperty(key)) {
+                    this.remove(this._components[key]);
+                }
+            }
+            return this;
+        },
+
+        /**
+         * @function has
+         * @summary Checks if the entity contains one or more matching Components
+         *
+         * @instance
+         * @memberof cog.Entity
+         *
+         * @param {...Component} Component - 1...N Component Constructor(s) to match the components against.
+         * @returns {boolean}
+         */
+
+        has: function(Component) {
+            var inputMask = _mask.apply(_mask, arguments);
+            return inputMask !== 0 && (inputMask & this._componentMask) === inputMask;
+        },
+
+        /**
+         * @name components.mask
+         * @summary Gets current component mask
+         *
+         * @instance
+         * @method
+         * @memberof cog.Entity
+         *
+         * @returns {number}
+         */
+
+        mask: function() {
+            return this._componentMask;
+        },
+
+        /* initial mask value */
+        _entity: null,
+        _components: null,
+        _componentMask: 0,
+        _eventManager: null,
+
+        /* Wrap storage in a componentAPI  */
+        make: function (entity) {
+
+            /**
+             * @name components
+             * @summary Gets component(s) from the entity
+             * @desc The components method gets a component or an array of components.
+             * If a Component constructor is passed to the function, this method will find and return the matching component.
+             * If no arguments are passed, this method will create an array containing all of the components on the entity.
+             *
+             * @instance
+             * @method
+             * @memberof cog.Entity
+             *
+             * @param {Component} [Component] - If passed, components will get the matching component.
+             * @returns {instance|Array} - The component that matches the Constructor or an Array of all components
+             */
+
+            function components(Component) {
+                var key, array, storage = components._components;
+
+                if (Component) {
+                    return Component.category ? storage[Component.category] : null;
+                }
+
+                // Get All Components
+                array = [];
+                for (key in storage) {
+                    if (storage.hasOwnProperty(key)) {
+                        array.push(storage[key]);
+                    }
+                }
+                return array;
+            }
+
+            components._componentMask = this._componentMask;
+            components._components = entity._components;
+            components._eventManager = entity.manager.director.events;
+            components._entity = entity;
+            components.has = this.has;
+            components.mask = this.mask;
+            components.assign = this.assign;
+            components.remove = this.remove;
+            components.removeAll = this.removeAll;
+
+            return components;
+        }
+    };
+
+
     cog.extend({
-        Entity: Entity
+        Entity: Entity,
+        entityComponents: componentApi
     });
 
     function assertLimit(num, limit, msg) {
@@ -1130,6 +1562,8 @@
     var componentCount = 0;
 
     var Component = cog.Construct.extend('cog.Component', {
+
+        eventTarget: 'component',
 
         properties: {
             category: { get: function() { return this._category; } },
@@ -1251,8 +1685,8 @@
         },
 
         destroy: function(managed) {
-            if (!managed && this._entity && this._entity.remove) {
-                this._entity.remove(this);
+            if (!managed && this._entity && this._entity.components) {
+                this._entity.components.remove(this);
                 return;
             }
             this.off();
@@ -1353,7 +1787,7 @@
                     component = components[key];
                     componentOptions = (options && options[key]) ? options[key] : {};
                     cog.defaults(componentOptions, component.defaults);
-                    entity.add(component.constructor, componentOptions);
+                    entity.components.assign(component.constructor, componentOptions);
                 }
             }
 
@@ -1433,7 +1867,7 @@
                 i = 0, n = this._entities.length, ret = [];
             for (; i < n; ++i) {
                 entity = this._entities[i];
-                if ((inputMask & entity.mask) === inputMask) {
+                if ((inputMask & entity.components._componentMask) === inputMask) {
                     ret.push(entity);
                 }
             }
@@ -1477,7 +1911,7 @@
                 inputMask = _mask.apply(_mask, arguments);
             for (; i > -1; --i) {
                 entity = this._entities[i];
-                if ((inputMask & entity.mask) === inputMask) {
+                if ((inputMask & entity.components._componentMask) === inputMask) {
                     entity = this._entities.splice(i, 1)[0];
                     this._director.events.emit('entity removed', entity);
                     entity.destroy(true);
@@ -1774,9 +2208,18 @@
     }());
 
 
+
     /**
-     * Director
-     * @constructor
+     * @class Director
+     * @classdesc The Director represents an instance of cog.
+     * This class creates an EntityManager, SystemManager, and EventManager.
+     * The Director also manages the timer, calling update/render on each step.
+     *
+     * @augments Construct
+     * @memberof cog
+     *
+     * @param [config] {config} Optional configuration for the director and systems.
+     * @returns {instance}
      */
 
     var Director = cog.Construct.extend('cog.Director', {
@@ -1792,16 +2235,87 @@
         },
 
         properties: {
+
+            /**
+             * @member config
+             * @summary Gets the configuration passed to the Director during initialization.
+             *
+             * @readonly
+             * @instance
+             * @memberof cog.Director
+             *
+             * @type {config}
+             */
+
             config: { get: function() { return this._config; } },
+
+            /**
+             * @member events
+             * @summary Gets the EventManager created during initialization.
+             *
+             * @readonly
+             * @instance
+             * @memberof cog.Director
+             *
+             * @type {EventManager}
+             */
+
             events: { get: function() { return this._eventManager; } },
+
+            /**
+             * @member entities
+             * @summary Gets the EntityManager created during initialization.
+             *
+             * @readonly
+             * @instance
+             * @memberof cog.Director
+             *
+             * @type {EntityManager}
+             */
+
             entities: { get: function() { return this._entityManager; } },
+
+            /**
+             * @member systems
+             * @summary Gets the SystemManager created during initialization.
+             *
+             * @readonly
+             * @instance
+             * @memberof cog.Director
+             *
+             * @type {SystemManager}
+             */
+
             systems: { get: function() { return this._systemManager; } },
+
+            /**
+             * @member valid
+             * @summary True after the Director is initialized. False once destroyed.
+             *
+             * @readonly
+             * @instance
+             * @memberof cog.Director
+             *
+             * @type {boolean}
+             */
+
             valid: { get: function() {
                 return (this._entityManager !== undefined &&
                     this._systemManager !== undefined &&
                     this._eventManager !== undefined);
             }}
         },
+
+        /**
+         * @name init
+         * @summary Initializes the director
+         *
+         * @instance
+         * @method
+         * @memberof cog.Director
+         *
+         * @param {config} [config] Configuration options.
+         */
 
         init: function(config) {
             this._config = config;
@@ -1813,6 +2327,16 @@
 
             this._fixedDt = config && cog.isBoolean(config.fixedDt) ? config.fixedDt : false;
         },
+
+        /**
+         * @name destroy
+         * @summary Destroy the director.
+         * @desc Destroys the instance of the director and cleans up the attached managers
+         *
+         * @instance
+         * @method
+         * @memberof cog.Director
+         */
 
         destroy: function() {
             this.stop();
@@ -1826,6 +2350,16 @@
             this._endUpdateCallback = undefined;
         },
 
+        /**
+         * @name start
+         * @desc Starts the Director's timer.
+         * Schedules the step function via requestAnimationFrame
+         *
+         * @instance
+         * @method
+         * @memberof cog.Director
+         */
+
         start:function() {
             if (!this._animationFrame) {
                 this._lastFrame = 0;
@@ -1833,12 +2367,36 @@
             }
         },
 
+        /**
+         * @name stop
+         * @desc Stops the Director's timer.
+         * Un-schedules the step function via cancelAnimationFrame
+         *
+         * @instance
+         * @method
+         * @memberof cog.Director
+         */
+
         stop: function() {
             if (this._animationFrame) {
                 cancelAnimationFrame(this._animationFrame);
                 this._animationFrame = null;
             }
         },
+
+        /**
+         * @name step
+         * @desc Steps the attached Systems
+         * On step, systems are updated, then rendered.
+         * If fixedDt is enabled, update may be called multiple times per step.
+         * Render will only be called once.
+         *
+         * @method
+         * @event
+         * @memberof cog.Director
+         *
+         * @param {number} timestamp Timestamp passed by requestAnimationFrame
+         */
 
         step: function(timestamp) {
             var targetDt = this._targetDt,
@@ -1874,6 +2432,17 @@
             }
         },
 
+        /**
+         * @name update
+         * @desc Updates the attached Systems
+         *
+         * @method
+         * @event
+         * @memberof cog.Director
+         *
+         * @param {number} dt Number of milliseconds passed since last update.
+         */
+
         update: function(dt) {
             if (this._beginUpdateCallback) {
                 this._beginUpdateCallback();
@@ -1887,6 +2456,15 @@
             }
         },
 
+        /**
+         * @name render
+         * @desc Renders the attached Systems
+         *
+         * @method
+         * @event
+         * @memberof cog.Director
+         */
+
         render: function() {
             
 
@@ -1895,20 +2473,68 @@
             
         },
 
+        /**
+         * @name onBeginUpdate
+         * @desc Set a callback on the beginning of the update event.
+         *
+         * @instance
+         * @method
+         * @memberof cog.Director
+         *
+         * @param {callback} callback
+         * @returns {this}
+         */
+
         onBeginUpdate: function(callback) {
             this._beginUpdateCallback = callback;
             return this;
         },
+
+        /**
+         * @name onEndUpdate
+         * @desc Set a callback on the ending of the update event.
+         *
+         * @instance
+         * @method
+         * @memberof cog.Director
+         *
+         * @param {callback} callback
+         * @returns {this}
+         */
 
         onEndUpdate: function(callback) {
             this._endUpdateCallback = callback;
             return this;
         },
 
+        /**
+         * @name onBeginStep
+         * @desc Set a callback on the beginning of the step event.
+         *
+         * @instance
+         * @method
+         * @memberof cog.Director
+         *
+         * @param {callback} callback
+         * @returns {this}
+         */
+
         onBeginStep: function(callback) {
             this._beginStepCallback = callback;
             return this;
         },
+
+        /**
+         * @name onEndStep
+         * @desc Set a callback on the ending of the step event.
+         *
+         * @instance
+         * @method
+         * @memberof cog.Director
+         *
+         * @param {callback} callback
+         * @returns {this}
+         */
 
         onEndStep: function(callback) {
             this._endStepCallback = callback;

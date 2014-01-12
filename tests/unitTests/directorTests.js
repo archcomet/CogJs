@@ -81,7 +81,7 @@ define([
                 updateCount++;
                 times.push(dt);
 
-                if (updateCount >= 3) {
+                if (updateCount === 3) {
 
                     ok(true, 'Ran 3 steps');
                     strictEqual(entities, dir.entities, 'Passed EntityManager');
@@ -115,7 +115,7 @@ define([
                 }
 
                 updateCount++;
-                if (updateCount >= 10) {
+                if (updateCount === 10) {
                     ok(hasVariableDt, 'Dt is varied');
                     dir.stop();
                     cog.debug.disable();
@@ -144,7 +144,7 @@ define([
                 }
 
                 updateCount++;
-                if (updateCount >= 10) {
+                if (updateCount === 10) {
                     ok(hasFixedDt, 'Dt is fixed');
                     dir.stop();
                     cog.debug.disable();

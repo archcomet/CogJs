@@ -50,13 +50,13 @@ define([
         ok(testFactory instanceof Factory, 'Is a Factory');
         ok(testFactory instanceof TestFactory, 'Is a TestFactory');
         ok(testEntity1 instanceof Entity, 'Is an Entity');
-        ok(testEntity1.has(Position, Movement, Size), 'Has Components');
-        strictEqual(testEntity1.get(Position).x, 0, 'Position x correct');
-        strictEqual(testEntity1.get(Position).y, 0, 'Position x correct');
-        strictEqual(testEntity1.get(Movement).dx, 10, 'Movement dx correct');
-        strictEqual(testEntity1.get(Movement).dy, 15, 'Movement dy correct');
-        strictEqual(testEntity1.get(Size).width, 200, 'Size width correct');
-        strictEqual(testEntity1.get(Size).height, 22, 'Size height correct');
+        ok(testEntity1.components.has(Position, Movement, Size), 'Has Components');
+        strictEqual(testEntity1.components(Position).x, 0, 'Position x correct');
+        strictEqual(testEntity1.components(Position).y, 0, 'Position x correct');
+        strictEqual(testEntity1.components(Movement).dx, 10, 'Movement dx correct');
+        strictEqual(testEntity1.components(Movement).dy, 15, 'Movement dy correct');
+        strictEqual(testEntity1.components(Size).width, 200, 'Size width correct');
+        strictEqual(testEntity1.components(Size).height, 22, 'Size height correct');
 
         var testEntity2 = testFactory.spawn({
             position: {
@@ -67,12 +67,12 @@ define([
             }
         });
 
-        strictEqual(testEntity2.get(Position).x, 10, 'Position x correct');
-        strictEqual(testEntity2.get(Position).y, 30, 'Position x correct');
-        strictEqual(testEntity2.get(Movement).dx, 10, 'Movement dx correct');
-        strictEqual(testEntity2.get(Movement).dy, 15, 'Movement dy correct');
-        strictEqual(testEntity2.get(Size).width, 200, 'Size width correct');
-        strictEqual(testEntity2.get(Size).height, 33, 'Size height correct');
+        strictEqual(testEntity2.components(Position).x, 10, 'Position x correct');
+        strictEqual(testEntity2.components(Position).y, 30, 'Position x correct');
+        strictEqual(testEntity2.components(Movement).dx, 10, 'Movement dx correct');
+        strictEqual(testEntity2.components(Movement).dy, 15, 'Movement dy correct');
+        strictEqual(testEntity2.components(Size).width, 200, 'Size width correct');
+        strictEqual(testEntity2.components(Size).height, 33, 'Size height correct');
 
         testFactory.despawn(testEntity1);
         testFactory.despawn(testEntity2);
@@ -99,12 +99,12 @@ define([
         });
 
         var entity = entities.withTag('TestObj')[0];
-        strictEqual(entity.get(Position).x, 10, 'Position x correct');
-        strictEqual(entity.get(Position).y, 30, 'Position x correct');
-        strictEqual(entity.get(Movement).dx, 10, 'Movement dx correct');
-        strictEqual(entity.get(Movement).dy, 15, 'Movement dy correct');
-        strictEqual(entity.get(Size).width, 200, 'Size width correct');
-        strictEqual(entity.get(Size).height, 33, 'Size height correct');
+        strictEqual(entity.components(Position).x, 10, 'Position x correct');
+        strictEqual(entity.components(Position).y, 30, 'Position x correct');
+        strictEqual(entity.components(Movement).dx, 10, 'Movement dx correct');
+        strictEqual(entity.components(Movement).dy, 15, 'Movement dy correct');
+        strictEqual(entity.components(Size).width, 200, 'Size width correct');
+        strictEqual(entity.components(Size).height, 33, 'Size height correct');
     });
 
 });

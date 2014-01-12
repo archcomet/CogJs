@@ -62,7 +62,7 @@ define([
                 i = 0, n = this._entities.length, ret = [];
             for (; i < n; ++i) {
                 entity = this._entities[i];
-                if ((inputMask & entity.mask) === inputMask) {
+                if ((inputMask & entity.components._componentMask) === inputMask) {
                     ret.push(entity);
                 }
             }
@@ -106,7 +106,7 @@ define([
                 inputMask = _mask.apply(_mask, arguments);
             for (; i > -1; --i) {
                 entity = this._entities[i];
-                if ((inputMask & entity.mask) === inputMask) {
+                if ((inputMask & entity.components._componentMask) === inputMask) {
                     entity = this._entities.splice(i, 1)[0];
                     this._director.events.emit('entity removed', entity);
                     entity.destroy(true);

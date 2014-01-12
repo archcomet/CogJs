@@ -1,5 +1,6 @@
 define([
-    './core'
+    './core',
+    './system'
 ], function(cog) {
     /**
      * Factory
@@ -39,7 +40,7 @@ define([
                     component = components[key];
                     componentOptions = (options && options[key]) ? options[key] : {};
                     cog.defaults(componentOptions, component.defaults);
-                    entity.add(component.constructor, componentOptions);
+                    entity.components.assign(component.constructor, componentOptions);
                 }
             }
 
