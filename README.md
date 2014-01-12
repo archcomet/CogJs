@@ -1,4 +1,4 @@
-# CogJs - Entity Component System (ECS) for ECMAScript5
+# CogJs - Entity Component System
 
 CogJs is an entity-component system framework for making web-based games and real time simulations.
 
@@ -13,6 +13,15 @@ The primary design goals of this project are:
 * Performance
 
 Additional documentation will soon follow :)
+
+Compatibility
+-----------------
+* Chrome 19+
+* Firefox 4+
+* Internet Explorer 9+
+* Safari 6+
+* iOS 6+
+* Android (Not yet tested)
 
 What is Entity Component System?
 ---------------------------------
