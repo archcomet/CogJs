@@ -1,24 +1,22 @@
 {
-	"plugins"   : ["plugins/markdown"],
-
-	"templates" : {
-		"cleverLinks"     : false,
-		"monospaceLinks"  : false,
-		"default"         : {
-			"outputSourceFiles" : true
-		},
-		"systemName"      : "CogJs",
-		"footer"          : "",
-		"copyright"       : "CogJs Copyright © 2013-2014 Michael Good.",
-		"navType"         : "vertical",
-		"theme"           : "spacelab",
-		"linenums"        : false,
-		"collapseSymbols" : false,
-		"inverseNav"      : true
-	},
-
-	"markdown"  : {
-		"parser"   : "gfm",
-		"hardwrap" : true
-	}
+    "plugins"   : ["plugins/markdown"],
+    "templates" : {
+        "cleverLinks"     : false,
+        "monospaceLinks"  : false,
+        "default"         : {
+            "outputSourceFiles" : true
+        },
+        "systemName"      : "CogJs",
+        "footer"          : "",
+        "copyright"       : "CogJs Copyright © 2013-2014 Michael Good.",
+        "navType"         : "vertical",
+        "theme"           : "spacelab",
+        "linenums"        : false,
+        "collapseSymbols" : false,
+        "inverseNav"      : true
+    },
+    "markdown"  : {
+        "parser"   : "gfm",
+        "hardwrap" : true
+    }
 }
