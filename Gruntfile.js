@@ -3,6 +3,16 @@ module.exports = function(grunt) {
     // Project configuration.
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
+        jsdoc: {
+            docstrap: {
+                src: ['src/**.js', 'README.md'],
+                options: {
+                    destination: 'docs',
+                    template: 'node_modules/grunt-jsdoc/node_modules/ink-docstrap/template',
+                    configure: 'jsdoc.conf.json'
+                }
+            }
+        },
         uglify: {
             all: {
                 files: {
@@ -31,6 +41,7 @@ module.exports = function(grunt) {
 
     // Load plugins
     grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-jsdoc');
 
     // Load tasks
     grunt.loadTasks('build/tasks');
@@ -39,6 +50,6 @@ module.exports = function(grunt) {
     grunt.registerTask('dev', ['build']);
 
     // Register default build
-    grunt.registerTask('default', ['dev', 'uglify']);
+    grunt.registerTask('default', ['dev', 'uglify', 'jsdoc:docstrap']);
 
 };
