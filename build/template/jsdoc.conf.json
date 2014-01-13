@@ -10,10 +10,10 @@
         "footer"          : "",
         "copyright"       : "CogJs Copyright © 2013-2014 Michael Good.",
         "navType"         : "vertical",
-        "theme"           : "spacelab",
+        "theme"           : "flatly",
         "linenums"        : false,
         "collapseSymbols" : false,
-        "inverseNav"      : true
+        "inverseNav"      : false
     },
     "markdown"  : {
         "parser"   : "gfm",

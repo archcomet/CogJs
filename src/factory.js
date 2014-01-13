@@ -2,10 +2,16 @@ define([
     './core',
     './system'
 ], function(cog) {
+
     /**
-     * Factory
+     * An abstract system class.
      *
-     * @param manager
+     * @class
+     * @abstract
+     * @memberof cog
+     * @augments cog.System
+     *
+     * @param {systemManager} manager - SystemManager that created the Entity
      * @constructor
      */
 

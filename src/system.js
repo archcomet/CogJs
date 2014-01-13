@@ -1,14 +1,19 @@
 define([
     './core'
 ], function(cog) {
-    /**
-     * System
-     *
-     * @param manager
-     * @constructor
-     */
 
     var systemCount = 0;
+
+    /**
+     * A system for creating entities.
+     *
+     * @class
+     * @memberof cog
+     * @augments cog.System
+     *
+     * @param {systemManager} manager - SystemManager that created the Entity
+     * @constructor
+     */
 
     var System = cog.Construct.extend('cog.System', {
 

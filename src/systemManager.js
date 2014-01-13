@@ -1,10 +1,15 @@
 define([
     './core'
 ], function(cog) {
+
     /**
-     * SystemManager
+     * A manager for systems.
      *
-     * @param director
+     * @class
+     * @memberof cog
+     * @augments cog.Construct
+     *
+     * @param {director} director - A director
      * @constructor
      */
 

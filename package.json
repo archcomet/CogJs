@@ -19,6 +19,7 @@
   "devDependencies": {
     "grunt": "~0.4.2",
     "grunt-contrib-uglify": "~0.2.7",
-    "requirejs": "~2.1.9"
+    "requirejs": "~2.1.9",
+    "grunt-contrib-clean": "~0.5.0"
   }
 }

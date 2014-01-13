@@ -2,14 +2,19 @@ define([
     './core',
     './var/slice'
 ], function(cog, slice) {
-    /**
-     * EventManager
-     *
-     * @param director
-     * @constructor
-     */
 
     var _eventRegEx = /.* event$/;
+
+    /**
+     * A manager for events.
+     *
+     * @class
+     * @memberof cog
+     * @augments cog.Construct
+     *
+     * @param {director} director - A director
+     * @constructor
+     */
 
     var EventManager = cog.Construct.extend('cog.SystemManager', {
 

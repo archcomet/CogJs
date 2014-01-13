@@ -7,16 +7,15 @@ define([
 ], function(cog, EventManager, EntityManager, SystemManager) {
 
     /**
-     * @class Director
-     * @classdesc The Director represents an instance of cog.
+     * The Director represents an instance of cog.
      * This class creates an EntityManager, SystemManager, and EventManager.
      * The Director also manages the timer, calling update/render on each step.
      *
-     * @augments Construct
+     * @class
      * @memberof cog
+     * @augments cog.Construct
      *
      * @param [config] {config} Optional configuration for the director and systems.
-     * @returns {instance}
      */
 
     var Director = cog.Construct.extend('cog.Director', {
@@ -24,6 +23,11 @@ define([
             return new Director(config);
         }
     }, {
+
+        _entityManager: null,
+        _eventManager: null,
+        _systemManager: null,
+        _animationFrame: null,
 
         defaults: {
             _targetDt: 1000 / 60,
@@ -34,21 +38,19 @@ define([
         properties: {
 
             /**
-             * @member config
-             * @summary Gets the configuration passed to the Director during initialization.
+             * Gets the configuration passed to the Director during initialization.
              *
              * @readonly
              * @instance
              * @memberof cog.Director
              *
-             * @type {config}
+             * @type {object}
              */
 
             config: { get: function() { return this._config; } },
 
             /**
-             * @member events
-             * @summary Gets the EventManager created during initialization.
+             * Gets the EventManager created during initialization.
              *
              * @readonly
              * @instance

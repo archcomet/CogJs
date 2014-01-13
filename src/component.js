@@ -2,15 +2,20 @@ define([
     './core',
     './asserts/limit'
 ], function(cog, assertLimit) {
-    /**
-     * Component
-     *
-     * @param entity
-     * @param options
-     * @constructor
-     */
 
     var componentCount = 0;
+
+    /**
+     * A component class.
+     *
+     * @class
+     * @memberof cog
+     * @augments cog.Construct
+     *
+     * @param {entity} entity - Entity that created the component
+     * @param {props} props - Options for the component
+     * @constructor
+     */
 
     var Component = cog.Construct.extend('cog.Component', {
 

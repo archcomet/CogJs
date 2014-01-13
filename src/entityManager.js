@@ -3,10 +3,15 @@ define([
     './entity',
     './utils/_mask'
 ], function(cog, Entity, _mask) {
+
     /**
-     * EntityManager
+     * A manager for entities.
      *
-     * @param director
+     * @class
+     * @memberof cog
+     * @augments cog.Construct
+     *
+     * @param {director} director - A director
      * @constructor
      */
 

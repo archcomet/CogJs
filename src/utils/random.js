@@ -4,6 +4,8 @@ define([
 
     /**
      * Seed-able random number generator based on ARC4
+     * @namespace rand
+     * @memberof cog
      */
 
     var rand = (function() {
@@ -106,11 +108,12 @@ define([
          * seed(*) sets a seed
          * seed() gets the last seed
          *
-         * Input can be any type, including strings, numbers, objects, or properties
-         * For best results use strings or numbers
+         * Input can be a strings or a number.
          *
-         * @param [seed]
-         * @return {*}
+         * @memberof cog.rand
+         *
+         * @param {string|number} [seed] - An object to seed the RNG.
+         * @return {string|number} - The current seed.
          */
 
         function seed(seed) {
@@ -120,26 +123,32 @@ define([
                 _gen.i = 0;
                 _gen.j = 0;
                 lastSeed = seed;
-                return undefined;
+                return seed;
             }
             return lastSeed;
         }
 
         /**
          * Seeds generator with output from Math.random()
+         *
+         * @memberof cog.rand
+         * @return {string|number} - The current seed.
          */
 
         function seedRand() {
-            seed(Math.random());
+            return seed(Math.random());
         }
 
         /**
          * Seeds generator with output from Date.now()
          * Default seed is initialized with this.
+         *
+         * @memberof cog.rand
+         * @return {string|number} - The current seed.
          */
 
         function seedTime() {
-            seed(Date.now());
+            return seed(Date.now());
         }
 
         /**
@@ -150,7 +159,9 @@ define([
          *
          * arc4rand255()    output is 0<= x < 256
          *
-         * @returns {number}
+         * @memberof cog.rand
+         *
+         * @returns {number} - A random integer between 0 and 255
          */
 
         function arc4rand255() {
@@ -164,9 +175,11 @@ define([
          * arc4rand(N)      output is 0 <= x < N
          * arc4rand(N, M)   output is N <= x < M
          *
-         * @param [N]
-         * @param [M]
-         * @return {number}
+         * @memberof cog.rand
+         *
+         * @param {number} [N] - The max value if N is the sole argument or the min value if N and M are passed.
+         * @param {number} [M] - The max value.
+         * @return {number}  - A random double.
          */
 
         function arc4rand(N, M) {
@@ -190,9 +203,11 @@ define([
          * arc4randInt(N)       output is 0 <= x <= N
          * arc4randInt(N, M)    output is N <= x <= M
          *
-         * @param [N]
-         * @param [M]
-         * @return {number}
+         * @memberof cog.rand
+         *
+         * @param {number} [N] - The max value if N is the sole argument or the min value if N and M are passed.
+         * @param {number} [M] - The max value.
+         * @return {number} - A random integer.
          */
 
         function arc4randInt(N, M) {

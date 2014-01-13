@@ -2,6 +2,7 @@ define([
     '../core',
     '../var/slice'
 ], function(cog, slice) {
+
     /**
      * ArrayWrapper
      *

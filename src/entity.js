@@ -4,11 +4,11 @@ define([
 ], function(cog, _mask) {
 
     /**
-     * @class Entity
-     * @classdesc Entity Object
+     * Entity provides identity to all game objects.
      *
-     * @augments Construct
+     * @class
      * @memberof cog
+     * @augments cog.Construct
      *
      * @param {EntityManager} manager - EntityManager that created the Entity
      * @param {number} id - Unique numeric Id assigned by the EntityManager
@@ -25,8 +25,7 @@ define([
         properties: {
 
             /**
-             * @member manager
-             * @summary Gets the EntityManager
+             * Gets the EntityManager
              *
              * @readonly
              * @instance
@@ -38,8 +37,7 @@ define([
             manager: { get: function() { return this._manager; } },
 
             /**
-             * @member id
-             * @summary Gets the entity id
+             * Gets the entity id
              *
              * @readonly
              * @instance
@@ -90,8 +88,7 @@ define([
             parent: { get: function() { return this._parent; } },
 
             /**
-             * @member children
-             * @summary Gets an array of the Entity's children.
+             * Gets an array of the Entity's children.
              *
              * @readonly
              * @instance
@@ -103,10 +100,8 @@ define([
             children: { get: function() { return this._children.slice(0); } }
         },
 
-
         /**
-         * @name init
-         * @summary Initializes the Entity
+         * Initializes the Entity
          *
          * @instance
          * @method
@@ -124,13 +119,20 @@ define([
             this._components = {};
             this._parent = null;
             this._children = [];
-            this.components = componentApi.make(this);
+
+            /**
+             * @name components
+             * @memberof cog.Entity
+             * @instance
+             *
+             * @type {cog.Entity~components}
+             */
+
+            this.components = components.make(this);
         },
 
         /**
-         * @name destroy
-         * @summary Destroy the Entity.
-         * @desc Destroys the instance of the Entity
+         * Destroys the instance of the Entity
          *
          * @instance
          * @method
@@ -150,18 +152,17 @@ define([
         },
 
         /**
-         * @name clone
-         * @summary Clones the Entity.
-         * @desc Creates a new instance of the Entity. Components and enumerable properties are copied to the new Entity.
+         * Creates a new instance of the Entity. Components and enumerable properties are copied to the new Entity.
          *
          * @instance
          * @method
          * @memberof cog.Entity
          *
+         * @returns {Entity}
+         *
          * @example
          * // Creates a clone of the entity.
          * var clonedEntity = entity.clone();
-         * @returns {Entity}
          */
 
         clone: function() {
@@ -179,6 +180,17 @@ define([
             return clone;
         },
 
+        /**
+         * Adds a child to the entity.
+         *
+         * @instance
+         * @method
+         * @memberof cog.Entity
+         *
+         * @param {entity} entity - The entity to be added
+         * @returns {this}
+         */
+
         addChild: function(entity) {
             if (entity.parent) {
                 entity.parent.removeChild(entity);
@@ -189,6 +201,17 @@ define([
             this._manager.director.events.emit('entity addChild', this, entity);
             return this;
         },
+
+        /**
+         * Removes a child from the entity.
+         *
+         * @instance
+         * @method
+         * @memberof cog.Entity
+         *
+         * @param {entity} entity - The entity to be removed
+         * @returns {this}
+         */
 
         removeChild: function(entity) {
             var index;
@@ -203,6 +226,16 @@ define([
             return this;
         },
 
+        /**
+         * Removes all children.
+         *
+         * @instance
+         * @method
+         * @memberof cog.Entity
+         *
+         * @returns {this}
+         */
+
         removeAllChildren: function() {
             var children = this._children,
                 n = children.length - 1;
@@ -213,15 +246,16 @@ define([
         }
     });
 
+    /**
+     * @mixin
+     * @inner
+     * @memberof cog.Entity
+     */
 
-    var componentApi = {
+    var components = {
 
         /**
-         * @summary Adds a Component to the Entity.
-         * @desc This method creates a Component and assigns it to the Entity.
-         *
          * @instance
-         * @memberof cog.Entity
          *
          * @example
          *  var PositionComponent = cog.Component.extend({...});
@@ -231,7 +265,7 @@ define([
          *  var component = entity.add(PositionComponent, { x: 0, y: 100 });
          * @param {Component} Component - Constructor function for the entity.
          * @param {Object} [options] - Component Options to be passed to the Component Constructor.
-         * @returns {Component}
+         * @returns {component}
          */
 
         assign: function (Component, options) {
@@ -251,7 +285,7 @@ define([
         },
 
         /**
-         *
+         * @instance
          * @param {Component} Component
          */
 
@@ -270,6 +304,11 @@ define([
             return this;
         },
 
+        /**
+         * @instance
+         * @returns {*}
+         */
+
         removeAll: function() {
             var key;
             for (key in this._components) {
@@ -281,11 +320,9 @@ define([
         },
 
         /**
-         * @function has
-         * @summary Checks if the entity contains one or more matching Components
+         * Checks if the entity contains one or more matching Components
          *
          * @instance
-         * @memberof cog.Entity
          *
          * @param {...Component} Component - 1...N Component Constructor(s) to match the components against.
          * @returns {boolean}
@@ -294,21 +331,6 @@ define([
         has: function(Component) {
             var inputMask = _mask.apply(_mask, arguments);
             return inputMask !== 0 && (inputMask & this._componentMask) === inputMask;
-        },
-
-        /**
-         * @name components.mask
-         * @summary Gets current component mask
-         *
-         * @instance
-         * @method
-         * @memberof cog.Entity
-         *
-         * @returns {number}
-         */
-
-        mask: function() {
-            return this._componentMask;
         },
 
         /* initial mask value */
@@ -321,7 +343,6 @@ define([
         make: function (entity) {
 
             /**
-             * @name components
              * @summary Gets component(s) from the entity
              * @desc The components method gets a component or an array of components.
              * If a Component constructor is passed to the function, this method will find and return the matching component.
@@ -332,7 +353,7 @@ define([
              * @memberof cog.Entity
              *
              * @param {Component} [Component] - If passed, components will get the matching component.
-             * @returns {instance|Array} - The component that matches the Constructor or an Array of all components
+             * @returns {component|Array} - The component that matches the Constructor or an Array of all components
              */
 
             function components(Component) {
@@ -362,14 +383,29 @@ define([
             components.remove = this.remove;
             components.removeAll = this.removeAll;
 
+            Object.defineProperties(components, {
+
+                /**
+                 * Gets current component mask
+                 * @alias mask
+                 * @instance
+                 * @memberof cog.Entity~components
+                 * @type {number}
+                 */
+
+                mask: {
+                    get: function() {
+                        return this._componentMask;
+                    }
+                }
+            });
+
             return components;
         }
     };
 
-
     cog.extend({
-        Entity: Entity,
-        entityComponents: componentApi
+        Entity: Entity
     });
 
     return Entity;
