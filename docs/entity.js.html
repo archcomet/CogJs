@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>CogJs Source: entity.js</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link type="text/css" rel="stylesheet" href="styles/sunlight.default.css">
+
+	
+	<link type="text/css" rel="stylesheet" href="styles/site.flatly.css">
+	
+	<link type="text/css" rel="stylesheet" href="styles/custom.css">
+</head>
+
+<body>
+<div class="container-fluid">
+	<div class="navbar navbar-fixed-top ">
+		<div class="navbar-inner">
+			<a class="brand" href="index.html">CogJs</a>
+			<ul class="nav">
+				
+				<li class="dropdown">
+					<a href="namespaces.list.html" class="dropdown-toggle" data-toggle="dropdown">Namespaces<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="cog.html">cog</a>
+						</li>
+						
+						<li>
+							<a href="cog.debug.html">debug</a>
+						</li>
+						
+						<li>
+							<a href="cog.rand.html">rand</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+				<li class="dropdown">
+					<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="cog.Component.html">Component</a>
+						</li>
+						
+						<li>
+							<a href="cog.Construct.html">Construct</a>
+						</li>
+						
+						<li>
+							<a href="cog.Director.html">Director</a>
+						</li>
+						
+						<li>
+							<a href="cog.Entity.html">Entity</a>
+						</li>
+						
+						<li>
+							<a href="cog.EntityManager.html">EntityManager</a>
+						</li>
+						
+						<li>
+							<a href="cog.EventManager.html">EventManager</a>
+						</li>
+						
+						<li>
+							<a href="cog.Factory.html">Factory</a>
+						</li>
+						
+						<li>
+							<a href="cog.System.html">System</a>
+						</li>
+						
+						<li>
+							<a href="cog.SystemManager.html">SystemManager</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+				<li class="dropdown">
+					<a href="mixins.list.html" class="dropdown-toggle" data-toggle="dropdown">Mixins<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="cog.Entity-components.html">components</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+				<li class="dropdown">
+					<a href="events.list.html" class="dropdown-toggle" data-toggle="dropdown">Events<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="cog.Director.html#event:render">render</a>
+						</li>
+						
+						<li>
+							<a href="cog.Director.html#event:step">step</a>
+						</li>
+						
+						<li>
+							<a href="cog.Director.html#event:update">update</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+			</ul>
+		</div>
+	</div>
+
+	<div class="row-fluid">
+
+		
+			<div class="span12">
+				
+				<div id="main">
+					
+
+
+		<h1 class="page-title">Source: entity.js</h1>
+    
+    <section>
+        <article>
+            <pre class="sunlight-highlight-javascript ">define([
+    './core',
+    './utils/_mask'
+], function(cog, _mask) {
+
+    /**
+     * Entity provides identity to all game objects.
+     *
+     * @class
+     * @memberof cog
+     * @augments cog.Construct
+     *
+     * @param {EntityManager} manager - EntityManager that created the Entity
+     * @param {number} id - Unique numeric Id assigned by the EntityManager
+     * @param {string} [tag] - Entity Tag
+     * @constructor
+     */
+
+    var Entity = cog.Construct.extend('cog.Entity', {
+
+        components: null,
+        _manager: null,
+        _tag: null,
+
+        properties: {
+
+            /**
+             * Gets the EntityManager
+             *
+             * @readonly
+             * @instance
+             * @memberof cog.Entity
+             *
+             * @type {EntityManager}
+             */
+
+            manager: { get: function() { return this._manager; } },
+
+            /**
+             * Gets the entity id
+             *
+             * @readonly
+             * @instance
+             * @memberof cog.Entity
+             *
+             * @type {number}
+             */
+
+            id: { get: function() { return this._id } },
+
+            /**
+             * @member tag
+             * @summary Gets the entity tag
+             *
+             * @readonly
+             * @instance
+             * @memberof cog.Entity
+             *
+             * @type {string}
+             */
+
+            tag: { get: function() { return this._tag } },
+
+            /**
+             * @member valid
+             * @summary True after the Entity is initialized. False once destroyed.
+             *
+             * @readonly
+             * @instance
+             * @memberof cog.Entity
+             *
+             * @type {boolean}
+             */
+
+            valid: { get: function() { return (this._manager && this._id) ? true : false; } },
+
+            /**
+             * @member parent
+             * @summary Gets the the Entity's parent.
+             *
+             * @readonly
+             * @instance
+             * @memberof cog.Entity
+             *
+             * @type {Entity}
+             */
+
+            parent: { get: function() { return this._parent; } },
+
+            /**
+             * Gets an array of the Entity's children.
+             *
+             * @readonly
+             * @instance
+             * @memberof cog.Entity
+             *
+             * @type {Array}
+             */
+
+            children: { get: function() { return this._children.slice(0); } }
+        },
+
+        /**
+         * Initializes the Entity
+         *
+         * @instance
+         * @method
+         * @memberof cog.Entity
+         *
+         * @param {EntityManager} [manager] - EntityManager that created the Entity.
+         * @param {number} [id] - Id assigned by the EntityManager.
+         * @param {string} [tag] - Entity Tag.
+         */
+
+        init: function(manager, id, tag) {
+            this._manager = manager;
+            this._id = id;
+            this._tag = tag || null;
+            this._components = {};
+            this._parent = null;
+            this._children = [];
+
+            /**
+             * @name components
+             * @memberof cog.Entity
+             * @instance
+             *
+             * @type {cog.Entity~components}
+             */
+
+            this.components = components.make(this);
+        },
+
+        /**
+         * Destroys the instance of the Entity
+         *
+         * @instance
+         * @method
+         * @memberof cog.Entity
+         */
+
+        destroy: function(managed) {
+            if (this._manager && !managed) {
+                this._manager.remove(this);
+                return;
+            }
+            this.components.removeAll();
+            this._manager = undefined;
+            this._id = undefined;
+            this._tag = undefined;
+            this._children = undefined;
+        },
+
+        /**
+         * Creates a new instance of the Entity. Components and enumerable properties are copied to the new Entity.
+         *
+         * @instance
+         * @method
+         * @memberof cog.Entity
+         *
+         * @returns {Entity}
+         *
+         * @example
+         * // Creates a clone of the entity.
+         * var clonedEntity = entity.clone();
+         */
+
+        clone: function() {
+            var key,
+                component,
+                components = this.components._components,
+                clone = this._manager.add(this._tag);
+
+            for (key in components) {
+                if (components.hasOwnProperty(key)) {
+                    component = components[key];
+                    clone.components.assign(component.constructor, component.serialize());
+                }
+            }
+            return clone;
+        },
+
+        /**
+         * Adds a child to the entity.
+         *
+         * @instance
+         * @method
+         * @memberof cog.Entity
+         *
+         * @param {entity} entity - The entity to be added
+         * @returns {this}
+         */
+
+        addChild: function(entity) {
+            if (entity.parent) {
+                entity.parent.removeChild(entity);
+            }
+
+            entity._parent = this;
+            this._children.push(entity);
+            this._manager.director.events.emit('entity addChild', this, entity);
+            return this;
+        },
+
+        /**
+         * Removes a child from the entity.
+         *
+         * @instance
+         * @method
+         * @memberof cog.Entity
+         *
+         * @param {entity} entity - The entity to be removed
+         * @returns {this}
+         */
+
+        removeChild: function(entity) {
+            var index;
+            if (entity.parent === this) {
+                entity._parent = null;
+                index = this._children.indexOf(entity);
+                if (index > -1) {
+                    this._children.splice(index, 1);
+                    this._manager.director.events.emit('entity removeChild', this, entity);
+                }
+            }
+            return this;
+        },
+
+        /**
+         * Removes all children.
+         *
+         * @instance
+         * @method
+         * @memberof cog.Entity
+         *
+         * @returns {this}
+         */
+
+        removeAllChildren: function() {
+            var children = this._children,
+                n = children.length - 1;
+            for (; n >= 0; --n) {
+                this.removeChild(children[n]);
+            }
+            return this;
+        }
+    });
+
+    /**
+     * @mixin
+     * @inner
+     * @memberof cog.Entity
+     */
+
+    var components = {
+
+        /**
+         * @instance
+         *
+         * @example
+         *  var PositionComponent = cog.Component.extend({...});
+         *  ...
+         *  // Create an entity and add a PositionComponent
+         *  var entity = director.entities.add('exampleEntity');
+         *  var component = entity.add(PositionComponent, { x: 0, y: 100 });
+         * @param {Component} Component - Constructor function for the entity.
+         * @param {Object} [options] - Component Options to be passed to the Component Constructor.
+         * @returns {component}
+         */
+
+        assign: function (Component, options) {
+            if (!Component || !Component.category) {
+                return null;
+            }
+            var component, category = Component.category;
+            if ((category & this._componentMask) === category) {
+                component = this._components[category];
+                component.set(options);
+            } else {
+                component = this._components[category] = new Component(this._entity, options);
+                this._componentMask |= category;
+                this._eventManager.emit(Component.eventTarget + ' assigned', component, this._entity);
+            }
+            return component;
+        },
+
+        /**
+         * @instance
+         * @param {Component} Component
+         */
+
+        remove: function (Component) {
+            if (Component instanceof cog.Component) {
+                Component = Component.constructor;
+            }
+            var component, category = Component.category;
+            if ((category & this._componentMask) === category) {
+                component = this._components[category];
+                this._componentMask &= ~(category);
+                this._components[category] = undefined;
+                this._eventManager.emit(Component.eventTarget + ' removed', component, this._entity);
+                component.destroy(true);
+            }
+            return this;
+        },
+
+        /**
+         * @instance
+         * @returns {*}
+         */
+
+        removeAll: function() {
+            var key;
+            for (key in this._components) {
+                if (this._components.hasOwnProperty(key)) {
+                    this.remove(this._components[key]);
+                }
+            }
+            return this;
+        },
+
+        /**
+         * Checks if the entity contains one or more matching Components
+         *
+         * @instance
+         *
+         * @param {...Component} Component - 1...N Component Constructor(s) to match the components against.
+         * @returns {boolean}
+         */
+
+        has: function(Component) {
+            var inputMask = _mask.apply(_mask, arguments);
+            return inputMask !== 0 && (inputMask & this._componentMask) === inputMask;
+        },
+
+        /* initial mask value */
+        _entity: null,
+        _components: null,
+        _componentMask: 0,
+        _eventManager: null,
+
+        /* Wrap storage in a componentAPI  */
+        make: function (entity) {
+
+            /**
+             * @summary Gets component(s) from the entity
+             * @desc The components method gets a component or an array of components.
+             * If a Component constructor is passed to the function, this method will find and return the matching component.
+             * If no arguments are passed, this method will create an array containing all of the components on the entity.
+             *
+             * @instance
+             * @method
+             * @memberof cog.Entity
+             *
+             * @param {Component} [Component] - If passed, components will get the matching component.
+             * @returns {component|Array} - The component that matches the Constructor or an Array of all components
+             */
+
+            function components(Component) {
+                var key, array, storage = components._components;
+
+                if (Component) {
+                    return Component.category ? storage[Component.category] : null;
+                }
+
+                // Get All Components
+                array = [];
+                for (key in storage) {
+                    if (storage.hasOwnProperty(key)) {
+                        array.push(storage[key]);
+                    }
+                }
+                return array;
+            }
+
+            components._componentMask = this._componentMask;
+            components._components = entity._components;
+            components._eventManager = entity.manager.director.events;
+            components._entity = entity;
+            components.has = this.has;
+            components.mask = this.mask;
+            components.assign = this.assign;
+            components.remove = this.remove;
+            components.removeAll = this.removeAll;
+
+            Object.defineProperties(components, {
+
+                /**
+                 * Gets current component mask
+                 * @alias mask
+                 * @instance
+                 * @memberof cog.Entity~components
+                 * @type {number}
+                 */
+
+                mask: {
+                    get: function() {
+                        return this._componentMask;
+                    }
+                }
+            });
+
+            return components;
+        }
+    };
+
+    cog.extend({
+        Entity: Entity
+    });
+
+    return Entity;
+});</pre>
+        </article>
+    </section>
+
+
+
+
+
+				</div>
+
+				<div class="clearfix"></div>
+				<footer>
+					
+					
+		<span class="copyright">
+		CogJs Copyright © 2013-2014 Michael Good.
+		</span>
+					<br />
+					
+		<span class="jsdoc-message">
+		Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a>
+		on Sun Jan 12 2014 19:46:35 GMT-0800 (PST) using the <a href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
+		</span>
+				</footer>
+			</div>
+
+			
+			<br clear="both">
+		</div>
+
+	</div>
+	<script src="scripts/sunlight.js"></script>
+	<script src="scripts/sunlight.javascript.js"></script>
+	<script src="scripts/sunlight-plugin.doclinks.js"></script>
+	<script src="scripts/sunlight-plugin.linenumbers.js"></script>
+	<script src="scripts/sunlight-plugin.menu.js"></script>
+	<script src="scripts/jquery.min.js"></script>
+	<script src="scripts/jquery.scrollTo.js"></script>
+	<script src="scripts/jquery.localScroll.js"></script>
+	<script src="scripts/bootstrap-dropdown.js"></script>
+	<script src="scripts/toc.js"></script>
+
+
+	<script>  Sunlight.highlightAll({lineNumbers:false,  showMenu: true, enableDoclinks :true}); </script>
+
+	<script>
+		$( function () {
+			$( "#toc" ).toc( {
+				selectors   : "h1,h2,h3,h4",
+				showAndHide : false,
+				scrollTo    : 60
+			} );
+			$( "#toc>ul" ).addClass( "nav nav-pills nav-stacked" );
+			$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+
+		} );
+	</script>
+
+	
+
+</body>
+</html>

@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>CogJs Source: systemManager.js</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link type="text/css" rel="stylesheet" href="styles/sunlight.default.css">
+
+	
+	<link type="text/css" rel="stylesheet" href="styles/site.flatly.css">
+	
+	<link type="text/css" rel="stylesheet" href="styles/custom.css">
+</head>
+
+<body>
+<div class="container-fluid">
+	<div class="navbar navbar-fixed-top ">
+		<div class="navbar-inner">
+			<a class="brand" href="index.html">CogJs</a>
+			<ul class="nav">
+				
+				<li class="dropdown">
+					<a href="namespaces.list.html" class="dropdown-toggle" data-toggle="dropdown">Namespaces<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="cog.html">cog</a>
+						</li>
+						
+						<li>
+							<a href="cog.debug.html">debug</a>
+						</li>
+						
+						<li>
+							<a href="cog.rand.html">rand</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+				<li class="dropdown">
+					<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="cog.Component.html">Component</a>
+						</li>
+						
+						<li>
+							<a href="cog.Construct.html">Construct</a>
+						</li>
+						
+						<li>
+							<a href="cog.Director.html">Director</a>
+						</li>
+						
+						<li>
+							<a href="cog.Entity.html">Entity</a>
+						</li>
+						
+						<li>
+							<a href="cog.EntityManager.html">EntityManager</a>
+						</li>
+						
+						<li>
+							<a href="cog.EventManager.html">EventManager</a>
+						</li>
+						
+						<li>
+							<a href="cog.Factory.html">Factory</a>
+						</li>
+						
+						<li>
+							<a href="cog.System.html">System</a>
+						</li>
+						
+						<li>
+							<a href="cog.SystemManager.html">SystemManager</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+				<li class="dropdown">
+					<a href="mixins.list.html" class="dropdown-toggle" data-toggle="dropdown">Mixins<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="cog.Entity-components.html">components</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+				<li class="dropdown">
+					<a href="events.list.html" class="dropdown-toggle" data-toggle="dropdown">Events<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="cog.Director.html#event:render">render</a>
+						</li>
+						
+						<li>
+							<a href="cog.Director.html#event:step">step</a>
+						</li>
+						
+						<li>
+							<a href="cog.Director.html#event:update">update</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+			</ul>
+		</div>
+	</div>
+
+	<div class="row-fluid">
+
+		
+			<div class="span12">
+				
+				<div id="main">
+					
+
+
+		<h1 class="page-title">Source: systemManager.js</h1>
+    
+    <section>
+        <article>
+            <pre class="sunlight-highlight-javascript ">define([
+    './core'
+], function(cog) {
+
+    /**
+     * A manager for systems.
+     *
+     * @class
+     * @memberof cog
+     * @augments cog.Construct
+     *
+     * @param {director} director - A director
+     * @constructor
+     */
+
+    var SystemManager = cog.Construct.extend('cog.SystemManager', {
+
+        properties: {
+            director: { get: function() { return this._director; } },
+            valid: { get: function() { return (this._director !== undefined); } }
+        },
+
+        init: function(director) {
+            this._systems = {};
+            this._systemOrder = [];
+            this._director = director;
+        },
+
+        destroy: function() {
+            this.removeAll();
+            this._director = undefined;
+        },
+
+        add: function(System) {
+            if (!System || !System.systemId) {
+                return undefined;
+            }
+
+            var systemId = System.systemId,
+                system = this._systems[systemId];
+
+            if (!system) {
+                system = new System(this);
+                this._systems[systemId] = system;
+                this._systemOrder.push(system);
+                this._director.events.registerContext(system);
+                system.configure(this._director.entities, this._director.events, this._director.config)
+            }
+            return system;
+        },
+
+        get: function(System) {
+            var systemId = System.systemId;
+            return this._systems[systemId];
+        },
+
+        remove: function(System) {
+            var index, systemId, system;
+
+            if (System instanceof cog.System) {
+                system = System;
+                System = system.constructor;
+            }
+
+            if (!System || !System.systemId) {
+                return this;
+            }
+
+            systemId = System.systemId;
+
+            if (!system) {
+                system = this._systems[systemId];
+            }
+
+            if (system) {
+                index = this._systemOrder.indexOf(system);
+
+                this._director.events.unregisterContext(system);
+                this._systemOrder.splice(index, 1);
+                this._systems[systemId] = undefined;
+
+                system.destroy(true);
+            }
+
+            return this;
+        },
+
+        removeAll: function() {
+            var index, systemId, system;
+            for (systemId in this._systems) {
+                if (this._systems.hasOwnProperty(systemId)) {
+                    system = this._systems[systemId];
+                    if (system) {
+                        index = this._systemOrder.indexOf(system);
+
+                        this._director.events.unregisterContext(system);
+                        this._systemOrder.splice(index, 1);
+                        this._systems[systemId] = undefined;
+
+                        system.destroy(true);
+                    }
+                }
+            }
+            return this;
+        },
+
+        update: function(dt) {
+            var i = 0,
+                n = this._systemOrder.length,
+                systems = this._systemOrder,
+                entities = this._director.entities,
+                events = this._director.events;
+            for (; i &lt; n; ++i) {
+                systems[i].update(entities, events, dt);
+            }
+            return this;
+        },
+
+        render: function() {
+            var i = 0,
+                n = this._systemOrder.length,
+                systems = this._systemOrder,
+                entities = this._director.entities;
+            for (; i &lt; n; ++i) {
+                systems[i].render(entities);
+            }
+            return this;
+        }
+    });
+
+    cog.extend({
+        SystemManager: SystemManager
+    });
+
+    return SystemManager;
+});</pre>
+        </article>
+    </section>
+
+
+
+
+
+				</div>
+
+				<div class="clearfix"></div>
+				<footer>
+					
+					
+		<span class="copyright">
+		CogJs Copyright © 2013-2014 Michael Good.
+		</span>
+					<br />
+					
+		<span class="jsdoc-message">
+		Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a>
+		on Sun Jan 12 2014 19:46:35 GMT-0800 (PST) using the <a href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
+		</span>
+				</footer>
+			</div>
+
+			
+			<br clear="both">
+		</div>
+
+	</div>
+	<script src="scripts/sunlight.js"></script>
+	<script src="scripts/sunlight.javascript.js"></script>
+	<script src="scripts/sunlight-plugin.doclinks.js"></script>
+	<script src="scripts/sunlight-plugin.linenumbers.js"></script>
+	<script src="scripts/sunlight-plugin.menu.js"></script>
+	<script src="scripts/jquery.min.js"></script>
+	<script src="scripts/jquery.scrollTo.js"></script>
+	<script src="scripts/jquery.localScroll.js"></script>
+	<script src="scripts/bootstrap-dropdown.js"></script>
+	<script src="scripts/toc.js"></script>
+
+
+	<script>  Sunlight.highlightAll({lineNumbers:false,  showMenu: true, enableDoclinks :true}); </script>
+
+	<script>
+		$( function () {
+			$( "#toc" ).toc( {
+				selectors   : "h1,h2,h3,h4",
+				showAndHide : false,
+				scrollTo    : 60
+			} );
+			$( "#toc>ul" ).addClass( "nav nav-pills nav-stacked" );
+			$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+
+		} );
+	</script>
+
+	
+
+</body>
+</html>
