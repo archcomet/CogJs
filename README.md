@@ -12,6 +12,9 @@ The primary design goals of this project are:
 * Portability
 * Performance
 
+Repository: [https://github.com/archcomet/CogJs](https://github.com/archcomet/CogJs)
+Documentation: [http://archcomet.github.io/CogJs/docs](http://archcomet.github.io/CogJs/docs)
+
 Additional documentation will soon follow :)
 
 Compatibility
