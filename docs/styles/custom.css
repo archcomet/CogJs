@@ -1,0 +1,34 @@
+.itemBox {
+    background-color: #fcfcfc;
+    border: 1px solid #2c3e50;
+    border-radius: 5px;
+    padding: 10px 17px;
+    margin-bottom: 20px;
+}
+
+.name {
+    font-weight: bold;
+}
+
+.code-caption {
+    font-weight: bolder;
+    margin-bottom: 0;
+}
+
+.sunlight-menu {
+    display: none;
+}
+
+.sunlight-container {
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+code {
+    background-color: transparent;
+}
+
+tbody {
+    background-color: white;
+}
+
