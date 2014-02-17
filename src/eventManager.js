@@ -16,7 +16,7 @@ define([
      * @constructor
      */
 
-    var EventManager = cog.Construct.extend('cog.SystemManager', {
+    var EventManager = cog.Construct.extend('cog.EventManager', {
 
         properties: {
             director: { get: function() { return this._director; } },

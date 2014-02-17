@@ -424,6 +424,8 @@ define([
 
     cog.Construct.prototype.destroy = function() {};
 
+    var constructs = {};
+
     /**
      * Extends the Constructor
      * @memberof cog.Construct
@@ -508,6 +510,13 @@ define([
 
         if (Constructor.setup) {
             Constructor.setup();
+        }
+
+        if (cog.isString(fullName)) {
+            if (constructs[fullName]) {
+                console.warn('Construct ' + fullName + ' re-declared.');
+            }
+            constructs[fullName] = Constructor;
         }
 
         return Constructor;

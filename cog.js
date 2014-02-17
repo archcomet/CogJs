@@ -1,4 +1,4 @@
-//      Cog.js - Entity Component System framework v0.3.2 2014-02-17T01:56:10.149Z
+//      Cog.js - Entity Component System framework v0.3.2 2014-02-17T02:15:36.181Z
 //      http://www.github.com/archcomet/cogjs
 //      (c) 2013-2014 Michael Good
 //      Cog.js may be freely distributed under the MIT license.
@@ -433,6 +433,8 @@
 
     cog.Construct.prototype.destroy = function() {};
 
+    var constructs = {};
+
     /**
      * Extends the Constructor
      * @memberof cog.Construct
@@ -517,6 +519,13 @@
 
         if (Constructor.setup) {
             Constructor.setup();
+        }
+
+        if (cog.isString(fullName)) {
+            if (constructs[fullName]) {
+                console.warn('Construct ' + fullName + ' re-declared.');
+            }
+            constructs[fullName] = Constructor;
         }
 
         return Constructor;
@@ -1861,7 +1870,7 @@
      * @constructor
      */
 
-    var EventManager = cog.Construct.extend('cog.SystemManager', {
+    var EventManager = cog.Construct.extend('cog.EventManager', {
 
         properties: {
             director: { get: function() { return this._director; } },

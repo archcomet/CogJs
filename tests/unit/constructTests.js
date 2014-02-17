@@ -55,7 +55,7 @@ define([
     test('Construct with fullName and instanceProps', function() {
         var initArgs = [], fooCalled = false;
 
-        var Derived = Construct.extend('test.Derived', {
+        var Derived = Construct.extend('test.Derived1', {
             init: function() {
                 initArgs = arguments;
             },
@@ -76,7 +76,7 @@ define([
         strictEqual(initArgs[0], 1, 'First arg');
         strictEqual(initArgs[1], 2, 'Second arg');
         strictEqual(fooCalled, true, 'Foo called');
-        strictEqual(Derived.fullName, 'test.Derived', 'Has correct name');
+        strictEqual(Derived.fullName, 'test.Derived1', 'Has correct name');
     });
 
     test('Construct with staticProps and instanceProps', function() {
@@ -118,7 +118,7 @@ define([
     test('Construct with fullName, staticProps, and instanceProps', function() {
         var initArgs = [], setupCalled = false, fooCalled = false;
 
-        var Derived = Construct.extend('test.Derived', {
+        var Derived = Construct.extend('test.Derived2', {
             setup: function() {
                 setupCalled = true;
             },
@@ -148,7 +148,7 @@ define([
         strictEqual(setupCalled, true, 'Setup called');
         strictEqual(Derived.obj.val, 13, 'Extends constructor');
         strictEqual(instance.obj.val, 42, 'Extends prototype');
-        strictEqual(Derived.fullName, 'test.Derived', 'Has correct name');
+        strictEqual(Derived.fullName, 'test.Derived2', 'Has correct name');
     });
 
     test('_super for static functions', function() {
@@ -331,5 +331,12 @@ define([
         strictEqual(d1.x, 22, 'D1 property has changed');
         strictEqual(d2.x, 0, 'D2 property has not changed');
 
+    });
+
+    test('Re-declare with same fullName warns', function() {
+
+        var Derived1 = Construct.extend('test.Derived', {});
+        var Derived2 = Construct.extend('test.Derived', {});
+        notStrictEqual(Derived1, Derived2);
     });
 });
