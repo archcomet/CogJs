@@ -107,4 +107,28 @@ define([
         strictEqual(entity.components(Size).height, 33, 'Size height correct');
     });
 
+    test('Destroy entity from factory via event', function() {
+
+        var dir = cog.createDirector(),
+            events = dir.events,
+            entities = dir.entities;
+
+        dir.systems.add(TestFactory);
+
+        events.emit('spawn TestObj', {
+            position: {
+                x: 10, y:30
+            },
+            size: {
+                height: 33
+            }
+        });
+
+        var entity = entities.withTag('TestObj')[0];
+        events.emit('despawn TestObj', entity);
+
+
+        strictEqual(entity.valid, false, 'Entity no longer valid');
+    });
+
 });

@@ -1,4 +1,4 @@
-//      Cog.js - Entity Component System framework v1.3.1pre 2014-01-13T04:56:53.078Z
+//      Cog.js - Entity Component System framework v0.3.2 2014-02-17T01:56:10.149Z
 //      http://www.github.com/archcomet/cogjs
 //      (c) 2013-2014 Michael Good
 //      Cog.js may be freely distributed under the MIT license.
@@ -29,7 +29,7 @@
      * @const
      */
 
-    cog.VERSION = '1.3.1pre';
+    cog.VERSION = '0.3.2';
 
     // ------------------------------------------
     // Public Utilities
@@ -1685,7 +1685,10 @@
                 var self = this;
                 this['spawn ' + this.entityTag + ' event'] = function() {
                     self.spawn.apply(self, arguments);
-                }
+                };
+                this['despawn ' + this.entityTag + ' event'] = function() {
+                    self.despawn.apply(self, arguments);
+                };
             }
         },
 

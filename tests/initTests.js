@@ -2,25 +2,25 @@
 
     window.loadTests = function() {
         var tests = [
-            'unitTests/coreTests.js',
-            'unitTests/constructTests.js',
-            'unitTests/debugTests.js',
-            'unitTests/directorTests.js',
-            'unitTests/entityTests.js',
-            'unitTests/componentTests.js',
-            'unitTests/systemTests.js',
-            'unitTests/eventTests.js',
-            'unitTests/factoryTests.js',
-            'unitTests/utilityTests.js',
-            'unitTests/randomTests.js',
-            'unitTests/arrayWrapperTests.js',
-            'unitTests/setWrapperTests.js'
+            'unit/coreTests.js',
+            'unit/constructTests.js',
+            'unit/debugTests.js',
+            'unit/directorTests.js',
+            'unit/entityTests.js',
+            'unit/componentTests.js',
+            'unit/systemTests.js',
+            'unit/eventTests.js',
+            'unit/factoryTests.js',
+            'unit/utilityTests.js',
+            'unit/randomTests.js',
+            'unit/arrayWrapperTests.js',
+            'unit/setWrapperTests.js'
         ];
 
         requirejs.config({
             baseUrl: './',
             paths: {
-                unitTests: './unitTests'
+                unit: './unit'
             }
         });
 
