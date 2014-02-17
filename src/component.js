@@ -43,6 +43,10 @@ define([
             this._entity = entity;
             this._listeners = {};
             this.set(props);
+            this.configure(props);
+        },
+
+        configure: function(props) {
         },
 
         set: function(props) {

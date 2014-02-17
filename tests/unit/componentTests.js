@@ -282,4 +282,17 @@ define([
 
         strictEqual(keys.length, 0, 'Has correct length');
     });
+
+    test('Components fire a configure event on init', function() {
+
+        var configureArg = null;
+        var TestComponent = Component.extend({
+            configure: function(props) {
+                configureArg = props;
+            }
+        });
+
+        var comp = new TestComponent({}, { foo: 'test prop' });
+        strictEqual(configureArg.foo, 'test prop', 'Configure triggered and passed props');
+    });
 });
