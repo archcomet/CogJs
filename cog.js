@@ -1,4 +1,4 @@
-//      Cog.js - Entity Component System framework v0.3.2 2014-02-17T02:23:34.104Z
+//      Cog.js - Entity Component System framework v0.3.2 2014-02-18T15:59:33.651Z
 //      http://www.github.com/archcomet/cogjs
 //      (c) 2013-2014 Michael Good
 //      Cog.js may be freely distributed under the MIT license.
@@ -321,6 +321,8 @@
     //noinspection JSValidateTypes
     var fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
 
+    var base = { _super: function(){} };
+
     function _inherit(target, base, source) {
         for (var key in source) {
             //noinspection JSUnfilteredForInLoop
@@ -434,6 +436,7 @@
     cog.Construct.prototype.destroy = function() {};
 
     var constructs = {};
+
 
     /**
      * Extends the Constructor
@@ -1029,6 +1032,174 @@
         rand: rand
     });
 
+    
+
+    /**
+     * Node
+     *
+     * @class
+     * @memberof cog
+     * @augments cog.Construct
+     *
+     * @constructor
+     */
+
+    var Node = cog.Construct.extend('cog.Node', {
+
+        defaults: {
+
+            /**
+             * @member _parent
+             * @summary Private storage
+             *
+             * @private
+             * @instance
+             * @memberof cog.Node
+             *
+             * @type {cog.Node}
+             */
+
+            _parent: null,
+
+            /**
+             * @member _children
+             * @summary Private storage
+             *
+             * @private
+             * @instance
+             * @memberof cog.Node
+             *
+             * @type {cog.Node[]}
+             */
+
+            _children: null
+        },
+
+        properties: {
+
+            /**
+             * @member parent
+             * @summary Gets the the Node's parent.
+             *
+             * @readonly
+             * @instance
+             * @memberof cog.Node
+             *
+             * @type {cog.Node}
+             */
+
+            parent: { get: function() { return this._parent; } },
+
+            /**
+             * Gets an array of the Node's children.
+             *
+             * @readonly
+             * @instance
+             * @memberof cog.Node
+             *
+             * @type {cog.Node[]}
+             */
+
+            children: { get: function() { return this._children.slice(0); } }
+
+        },
+
+        /**
+         * Initializes the node
+         *
+         * @instance
+         * @method
+         * @memberof cog.Node
+         *
+         */
+
+        init: function() {
+            this._parent = null;
+            this._children = [];
+        },
+
+        /**
+         * Destroys the node node
+         *
+         * @instance
+         * @method
+         * @memberof cog.Node
+         *
+         */
+
+        destroy: function() {
+            //todo remove all
+            this._children = undefined;
+        },
+
+        /**
+         * Adds a child to the node.
+         *
+         * @instance
+         * @method
+         * @memberof cog.Node
+         *
+         * @param {cog.Node} node - The node to be added
+         * @returns {this}
+         */
+
+        addChild: function(node) {
+            if (node.parent) {
+                node.parent.removeChild(node);
+            }
+
+            node._parent = this;
+            this._children.push(node);
+            this._manager.director.events.emit('node addChild', this, node);
+            return this;
+        },
+
+        /**
+         * Removes a child from the node.
+         *
+         * @instance
+         * @method
+         * @memberof cog.Node
+         *
+         * @param {cog.Node} node - The node to be removed
+         * @returns {this}
+         */
+
+        removeChild: function(node) {
+            var index;
+            if (node.parent === this) {
+                node._parent = null;
+                index = this._children.indexOf(node);
+                if (index > -1) {
+                    this._children.splice(index, 1);
+                    this._manager.director.events.emit('node removeChild', this, node);
+                }
+            }
+            return this;
+        },
+
+        /**
+         * Removes all children.
+         *
+         * @instance
+         * @method
+         * @memberof cog.Node
+         *
+         * @returns {this}
+         */
+
+        removeAllChildren: function() {
+            var children = this._children,
+                n = children.length - 1;
+            for (; n >= 0; --n) {
+                this.removeChild(children[n]);
+            }
+            return this;
+        }
+    });
+
+    cog.Node = Node;
+
     /**
      * _mask
      *  Creates a bit mask from the arguments array.
@@ -1052,7 +1223,7 @@
      *
      * @class
      * @memberof cog
-     * @augments cog.Construct
+     * @augments cog.Node
      *
      * @param {EntityManager} manager - EntityManager that created the Entity
      * @param {number} id - Unique numeric Id assigned by the EntityManager
@@ -1060,7 +1231,7 @@
      * @constructor
      */
 
-    var Entity = cog.Construct.extend('cog.Entity', {
+    var Entity = Node.extend('cog.Entity', {
 
         components: null,
         _manager: null,
@@ -1116,32 +1287,7 @@
              * @type {boolean}
              */
 
-            valid: { get: function() { return (this._manager && this._id) ? true : false; } },
-
-            /**
-             * @member parent
-             * @summary Gets the the Entity's parent.
-             *
-             * @readonly
-             * @instance
-             * @memberof cog.Entity
-             *
-             * @type {Entity}
-             */
-
-            parent: { get: function() { return this._parent; } },
-
-            /**
-             * Gets an array of the Entity's children.
-             *
-             * @readonly
-             * @instance
-             * @memberof cog.Entity
-             *
-             * @type {Array}
-             */
-
-            children: { get: function() { return this._children.slice(0); } }
+            valid: { get: function() { return (this._manager && this._id) ? true : false; } }
         },
 
         /**
@@ -1157,12 +1303,11 @@
          */
 
         init: function(manager, id, tag) {
+            this._super();
             this._manager = manager;
             this._id = id;
             this._tag = tag || null;
             this._components = {};
-            this._parent = null;
-            this._children = [];
 
             /**
              * @name components
@@ -1184,6 +1329,7 @@
          */
 
         destroy: function(managed) {
+            this._super();
             if (this._manager && !managed) {
                 this._manager.remove(this);
                 return;
@@ -1192,7 +1338,6 @@
             this._manager = undefined;
             this._id = undefined;
             this._tag = undefined;
-            this._children = undefined;
         },
 
         /**
@@ -1222,72 +1367,8 @@
                 }
             }
             return clone;
-        },
-
-        /**
-         * Adds a child to the entity.
-         *
-         * @instance
-         * @method
-         * @memberof cog.Entity
-         *
-         * @param {entity} entity - The entity to be added
-         * @returns {this}
-         */
-
-        addChild: function(entity) {
-            if (entity.parent) {
-                entity.parent.removeChild(entity);
-            }
-
-            entity._parent = this;
-            this._children.push(entity);
-            this._manager.director.events.emit('entity addChild', this, entity);
-            return this;
-        },
-
-        /**
-         * Removes a child from the entity.
-         *
-         * @instance
-         * @method
-         * @memberof cog.Entity
-         *
-         * @param {entity} entity - The entity to be removed
-         * @returns {this}
-         */
-
-        removeChild: function(entity) {
-            var index;
-            if (entity.parent === this) {
-                entity._parent = null;
-                index = this._children.indexOf(entity);
-                if (index > -1) {
-                    this._children.splice(index, 1);
-                    this._manager.director.events.emit('entity removeChild', this, entity);
-                }
-            }
-            return this;
-        },
-
-        /**
-         * Removes all children.
-         *
-         * @instance
-         * @method
-         * @memberof cog.Entity
-         *
-         * @returns {this}
-         */
-
-        removeAllChildren: function() {
-            var children = this._children,
-                n = children.length - 1;
-            for (; n >= 0; --n) {
-                this.removeChild(children[n]);
-            }
-            return this;
         }
+
     });
 
     /**

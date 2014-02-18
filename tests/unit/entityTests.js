@@ -527,7 +527,7 @@ define([
             }
         };
 
-        events.register('entity addChild', testListener, testListener.addedCallback);
+        events.register('node addChild', testListener, testListener.addedCallback);
 
         var parent = entities.add('test.Parent'),
             child1 = entities.add('test.Child'),
@@ -585,7 +585,7 @@ define([
             }
         };
 
-        events.register('entity removeChild', testListener, testListener.removeCallback);
+        events.register('node removeChild', testListener, testListener.removeCallback);
 
         var parent = entities.add('test.Parent'),
             child1 = entities.add('test.Child'),
@@ -615,7 +615,7 @@ define([
             }
         };
 
-        events.register('entity removeChild', testListener, testListener.removeCallback);
+        events.register('node removeChild', testListener, testListener.removeCallback);
 
         var parent = entities.add('test.Parent'),
             child1 = entities.add('test.Child'),

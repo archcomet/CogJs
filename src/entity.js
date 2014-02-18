@@ -1,14 +1,15 @@
 define([
     './core',
+    './node',
     './utils/_mask'
-], function(cog, _mask) {
+], function(cog, Node, _mask) {
 
     /**
      * Entity provides identity to all game objects.
      *
      * @class
      * @memberof cog
-     * @augments cog.Construct
+     * @augments cog.Node
      *
      * @param {EntityManager} manager - EntityManager that created the Entity
      * @param {number} id - Unique numeric Id assigned by the EntityManager
@@ -16,7 +17,7 @@ define([
      * @constructor
      */
 
-    var Entity = cog.Construct.extend('cog.Entity', {
+    var Entity = Node.extend('cog.Entity', {
 
         components: null,
         _manager: null,
@@ -72,32 +73,7 @@ define([
              * @type {boolean}
              */
 
-            valid: { get: function() { return (this._manager && this._id) ? true : false; } },
-
-            /**
-             * @member parent
-             * @summary Gets the the Entity's parent.
-             *
-             * @readonly
-             * @instance
-             * @memberof cog.Entity
-             *
-             * @type {Entity}
-             */
-
-            parent: { get: function() { return this._parent; } },
-
-            /**
-             * Gets an array of the Entity's children.
-             *
-             * @readonly
-             * @instance
-             * @memberof cog.Entity
-             *
-             * @type {Array}
-             */
-
-            children: { get: function() { return this._children.slice(0); } }
+            valid: { get: function() { return (this._manager && this._id) ? true : false; } }
         },
 
         /**
@@ -113,12 +89,11 @@ define([
          */
 
         init: function(manager, id, tag) {
+            this._super();
             this._manager = manager;
             this._id = id;
             this._tag = tag || null;
             this._components = {};
-            this._parent = null;
-            this._children = [];
 
             /**
              * @name components
@@ -140,6 +115,7 @@ define([
          */
 
         destroy: function(managed) {
+            this._super();
             if (this._manager && !managed) {
                 this._manager.remove(this);
                 return;
@@ -148,7 +124,6 @@ define([
             this._manager = undefined;
             this._id = undefined;
             this._tag = undefined;
-            this._children = undefined;
         },
 
         /**
@@ -178,72 +153,8 @@ define([
                 }
             }
             return clone;
-        },
-
-        /**
-         * Adds a child to the entity.
-         *
-         * @instance
-         * @method
-         * @memberof cog.Entity
-         *
-         * @param {entity} entity - The entity to be added
-         * @returns {this}
-         */
-
-        addChild: function(entity) {
-            if (entity.parent) {
-                entity.parent.removeChild(entity);
-            }
-
-            entity._parent = this;
-            this._children.push(entity);
-            this._manager.director.events.emit('entity addChild', this, entity);
-            return this;
-        },
-
-        /**
-         * Removes a child from the entity.
-         *
-         * @instance
-         * @method
-         * @memberof cog.Entity
-         *
-         * @param {entity} entity - The entity to be removed
-         * @returns {this}
-         */
-
-        removeChild: function(entity) {
-            var index;
-            if (entity.parent === this) {
-                entity._parent = null;
-                index = this._children.indexOf(entity);
-                if (index > -1) {
-                    this._children.splice(index, 1);
-                    this._manager.director.events.emit('entity removeChild', this, entity);
-                }
-            }
-            return this;
-        },
-
-        /**
-         * Removes all children.
-         *
-         * @instance
-         * @method
-         * @memberof cog.Entity
-         *
-         * @returns {this}
-         */
-
-        removeAllChildren: function() {
-            var children = this._children,
-                n = children.length - 1;
-            for (; n >= 0; --n) {
-                this.removeChild(children[n]);
-            }
-            return this;
         }
+
     });
 
     /**

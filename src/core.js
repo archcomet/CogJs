@@ -312,6 +312,8 @@ define([
     //noinspection JSValidateTypes
     var fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
 
+    var base = { _super: function(){} };
+
     function _inherit(target, base, source) {
         for (var key in source) {
             //noinspection JSUnfilteredForInLoop
@@ -425,6 +427,7 @@ define([
     cog.Construct.prototype.destroy = function() {};
 
     var constructs = {};
+
 
     /**
      * Extends the Constructor

@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>CogJs Source: system.js</title>
+	<title>CogJs Source: node.js</title>
 
 	<!--[if lt IE 9]>
 	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -144,70 +144,183 @@
 					
 
 
-		<h1 class="page-title">Source: system.js</h1>
+		<h1 class="page-title">Source: node.js</h1>
     
     <section>
         <article>
             <pre class="sunlight-highlight-javascript ">define([
     './core'
 ], function(cog) {
-
-    var systemCount = 0;
+    'use strict';
 
     /**
-     * A system for creating entities.
+     * Node
      *
      * @class
      * @memberof cog
-     * @augments cog.System
+     * @augments cog.Construct
      *
-     * @param {systemManager} manager - SystemManager that created the Entity
      * @constructor
      */
 
-    var System = cog.Construct.extend('cog.System', {
+    var Node = cog.Construct.extend('cog.Node', {
+
+        defaults: {
+
+            /**
+             * @member _parent
+             * @summary Private storage
+             *
+             * @private
+             * @instance
+             * @memberof cog.Node
+             *
+             * @type {cog.Node}
+             */
+
+            _parent: null,
+
+            /**
+             * @member _children
+             * @summary Private storage
+             *
+             * @private
+             * @instance
+             * @memberof cog.Node
+             *
+             * @type {cog.Node[]}
+             */
+
+            _children: null
+        },
 
         properties: {
-            systemId: { get: function() { return this._systemId; } },
-            count: { get: function() { return systemCount -1; } }
+
+            /**
+             * @member parent
+             * @summary Gets the the Node's parent.
+             *
+             * @readonly
+             * @instance
+             * @memberof cog.Node
+             *
+             * @type {cog.Node}
+             */
+
+            parent: { get: function() { return this._parent; } },
+
+            /**
+             * Gets an array of the Node's children.
+             *
+             * @readonly
+             * @instance
+             * @memberof cog.Node
+             *
+             * @type {cog.Node[]}
+             */
+
+            children: { get: function() { return this._children.slice(0); } }
+
         },
 
-        setup: function() {
-            this._systemId = (systemCount-1);
-            systemCount++;
-        }
+        /**
+         * Initializes the node
+         *
+         * @instance
+         * @method
+         * @memberof cog.Node
+         *
+         */
 
-    }, {
-
-        properties: {
-            manager: { get: function() { return this._manager; } }
+        init: function() {
+            this._parent = null;
+            this._children = [];
         },
 
-        init: function(manager) {
-            this._manager = manager;
+        /**
+         * Destroys the node node
+         *
+         * @instance
+         * @method
+         * @memberof cog.Node
+         *
+         */
+
+        destroy: function() {
+            //todo remove all
+            this._children = undefined;
         },
 
-        destroy: function(managed) {
-            if (this._manager && !managed) {
-                this._manager.remove(this);
-                return;
+        /**
+         * Adds a child to the node.
+         *
+         * @instance
+         * @method
+         * @memberof cog.Node
+         *
+         * @param {cog.Node} node - The node to be added
+         * @returns {this}
+         */
+
+        addChild: function(node) {
+            if (node.parent) {
+                node.parent.removeChild(node);
             }
-            this._manager = undefined;
+
+            node._parent = this;
+            this._children.push(node);
+            this._manager.director.events.emit('node addChild', this, node);
+            return this;
         },
 
-        configure: function(entityManager, eventManager, config) {},
+        /**
+         * Removes a child from the node.
+         *
+         * @instance
+         * @method
+         * @memberof cog.Node
+         *
+         * @param {cog.Node} node - The node to be removed
+         * @returns {this}
+         */
 
-        update: function(entityManager, eventManager, dt) {},
+        removeChild: function(node) {
+            var index;
+            if (node.parent === this) {
+                node._parent = null;
+                index = this._children.indexOf(node);
+                if (index > -1) {
+                    this._children.splice(index, 1);
+                    this._manager.director.events.emit('node removeChild', this, node);
+                }
+            }
+            return this;
+        },
 
-        render: function(entityManager) {}
+        /**
+         * Removes all children.
+         *
+         * @instance
+         * @method
+         * @memberof cog.Node
+         *
+         * @returns {this}
+         */
 
+        removeAllChildren: function() {
+            var children = this._children,
+                n = children.length - 1;
+            for (; n >= 0; --n) {
+                this.removeChild(children[n]);
+            }
+            return this;
+        }
     });
 
-    cog.extend({
-        System: System
-    });
+    cog.Node = Node;
 
-    return System;
+    return Node;
+
 });</pre>
         </article>
     </section>
