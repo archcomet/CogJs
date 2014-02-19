@@ -57,9 +57,10 @@ define([
          *
          */
 
-        init: function() {
+        init: function(eventManager) {
             this._parent = null;
             this._children = [];
+            this._eventManager = eventManager;
         },
 
         /**
@@ -97,7 +98,7 @@ define([
 
             node._parent = this;
             this._children.push(node);
-            this._manager.director.events.emit('node addChild', this, node);
+            this._eventManager.emit('node addChild', this, node);
             return this;
         },
 
@@ -119,7 +120,7 @@ define([
                 index = this._children.indexOf(node);
                 if (index > -1) {
                     this._children.splice(index, 1);
-                    this._manager.director.events.emit('node removeChild', this, node);
+                    this._eventManager.emit('node removeChild', this, node);
                 }
             }
             return this;

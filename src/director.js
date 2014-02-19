@@ -3,6 +3,7 @@ define([
     './eventManager',
     './entityManager',
     './systemManager',
+    './polyfill/bind',
     './polyfill/requestAnimationFrame'
 ], function(cog, EventManager, EntityManager, SystemManager) {
 

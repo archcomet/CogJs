@@ -1,4 +1,4 @@
-//      Cog.js - Entity Component System framework v0.3.2 2014-02-18T15:59:33.651Z
+//      Cog.js - Entity Component System framework v0.3.3 2014-02-19T18:57:24.078Z
 //      http://www.github.com/archcomet/cogjs
 //      (c) 2013-2014 Michael Good
 //      Cog.js may be freely distributed under the MIT license.
@@ -10,6 +10,32 @@
     var slice = Array.prototype.slice;
 
     var toString = Object.prototype.toString;
+
+
+    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind
+    if (!Function.prototype.bind) {
+        Function.prototype.bind = function (oThis) {
+            if (typeof this !== "function") {
+                // closest thing possible to the ECMAScript 5 internal IsCallable function
+                throw new TypeError("Function.prototype.bind - what is trying to be bound is not callable");
+            }
+
+            var aArgs = Array.prototype.slice.call(arguments, 1),
+                fToBind = this,
+                fNOP = function () {},
+                fBound = function () {
+                    return fToBind.apply(this instanceof fNOP && oThis
+                        ? this
+                        : oThis,
+                        aArgs.concat(Array.prototype.slice.call(arguments)));
+                };
+
+            fNOP.prototype = this.prototype;
+            fBound.prototype = new fNOP();
+
+            return fBound;
+        };
+    }
 
 
 
@@ -29,7 +55,7 @@
      * @const
      */
 
-    cog.VERSION = '0.3.2';
+    cog.VERSION = '0.3.3';
 
     // ------------------------------------------
     // Public Utilities
@@ -1046,34 +1072,9 @@
 
     var Node = cog.Construct.extend('cog.Node', {
 
-        defaults: {
+        _parent: null,
 
-            /**
-             * @member _parent
-             * @summary Private storage
-             *
-             * @private
-             * @instance
-             * @memberof cog.Node
-             *
-             * @type {cog.Node}
-             */
-
-            _parent: null,
-
-            /**
-             * @member _children
-             * @summary Private storage
-             *
-             * @private
-             * @instance
-             * @memberof cog.Node
-             *
-             * @type {cog.Node[]}
-             */
-
-            _children: null
-        },
+        _children: null,
 
         properties: {
 
@@ -1128,7 +1129,10 @@
          */
 
         destroy: function() {
-            //todo remove all
+            this.removeAllChildren();
+            if (this._parent) {
+                this._parent.removeChild(this);
+            }
             this._children = undefined;
         },
 
@@ -1329,11 +1333,11 @@
          */
 
         destroy: function(managed) {
-            this._super();
             if (this._manager && !managed) {
                 this._manager.remove(this);
                 return;
             }
+            this._super();
             this.components.removeAll();
             this._manager = undefined;
             this._id = undefined;

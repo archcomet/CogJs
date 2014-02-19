@@ -10,6 +10,7 @@
             'unit/componentTests.js',
             'unit/systemTests.js',
             'unit/eventTests.js',
+            'unit/nodeTests.js',
             'unit/factoryTests.js',
             'unit/utilityTests.js',
             'unit/randomTests.js',

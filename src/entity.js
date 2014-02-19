@@ -89,7 +89,7 @@ define([
          */
 
         init: function(manager, id, tag) {
-            this._super();
+            this._super(manager.director.events);
             this._manager = manager;
             this._id = id;
             this._tag = tag || null;
@@ -115,11 +115,11 @@ define([
          */
 
         destroy: function(managed) {
-            this._super();
             if (this._manager && !managed) {
                 this._manager.remove(this);
                 return;
             }
+            this._super();
             this.components.removeAll();
             this._manager = undefined;
             this._id = undefined;

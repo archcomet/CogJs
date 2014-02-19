@@ -1,7 +1,8 @@
 define([
     './var/hasOwn',
     './var/slice',
-    './var/toString'
+    './var/toString',
+    './polyfill/bind'
 ], function(hasOwn, slice, toString) {
 
     /**
