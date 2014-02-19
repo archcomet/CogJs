@@ -1,4 +1,4 @@
-//      Cog.js - Entity Component System framework v0.3.3 2014-02-19T18:57:24.078Z
+//      Cog.js - Entity Component System framework v0.3.3 2014-02-19T19:06:00.673Z
 //      http://www.github.com/archcomet/cogjs
 //      (c) 2013-2014 Michael Good
 //      Cog.js may be freely distributed under the MIT license.
@@ -1114,9 +1114,10 @@
          *
          */
 
-        init: function() {
+        init: function(eventManager) {
             this._parent = null;
             this._children = [];
+            this._eventManager = eventManager;
         },
 
         /**
@@ -1154,7 +1155,7 @@
 
             node._parent = this;
             this._children.push(node);
-            this._manager.director.events.emit('node addChild', this, node);
+            this._eventManager.emit('node addChild', this, node);
             return this;
         },
 
@@ -1176,7 +1177,7 @@
                 index = this._children.indexOf(node);
                 if (index > -1) {
                     this._children.splice(index, 1);
-                    this._manager.director.events.emit('node removeChild', this, node);
+                    this._eventManager.emit('node removeChild', this, node);
                 }
             }
             return this;
@@ -1307,7 +1308,7 @@
          */
 
         init: function(manager, id, tag) {
-            this._super();
+            this._super(manager.director.events);
             this._manager = manager;
             this._id = id;
             this._tag = tag || null;
