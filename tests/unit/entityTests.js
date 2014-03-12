@@ -268,6 +268,29 @@ define([
         strictEqual(entity.components.mask, 0, 'After Destroy: Has no Components');
     });
 
+    test('Destroy destroys all children entities', function() {
+
+        var listener = {
+            tags:{},
+            onDestroy: function(entity) {
+                this.tags[entity.tag] = true;
+            }
+        };
+
+        var dir = cog.createDirector(),
+            entities = dir.entities,
+            parent = entities.add('testParent'),
+            child = entities.add('testChild');
+
+        dir.events.register('entity destroyed', listener, listener.onDestroy);
+
+        parent.addChild(child);
+        parent.destroy();
+
+        strictEqual(listener.tags.testParent, true, 'fired destroyed event for parent');
+        strictEqual(listener.tags.testChild, true, 'fired destroyed event for child');
+    });
+
     test('Add/Remove Entity emits correct event', function() {
 
         var dir = cog.createDirector(),

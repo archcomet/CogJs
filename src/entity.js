@@ -115,13 +115,24 @@ define([
          */
 
         destroy: function(managed) {
+
+            var i = 0,
+                n = this._children.length;
+
+            for (; i < n; ++i) {
+                this._children[i].destroy();
+            }
+
             if (this._manager && !managed) {
                 this._manager.remove(this);
                 return;
             }
+            this._manager = undefined;
+
             this._super();
             this.components.removeAll();
-            this._manager = undefined;
+            this._eventManager.emit('entity destroyed', this);
+
             this._id = undefined;
             this._tag = undefined;
         },
