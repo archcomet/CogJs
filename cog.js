@@ -1,4 +1,4 @@
-//      Cog.js - Entity Component System framework v0.3.3 2014-03-12T16:17:35.114Z
+//      Cog.js - Entity Component System framework v0.3.4 2014-03-12T16:58:37.967Z
 //      http://www.github.com/archcomet/cogjs
 //      (c) 2013-2014 Michael Good
 //      Cog.js may be freely distributed under the MIT license.
@@ -54,7 +54,7 @@
      * @const
      */
 
-    cog.VERSION = '0.3.3';
+    cog.VERSION = '0.3.4';
 
     // ------------------------------------------
     // Public Utilities
@@ -1334,11 +1334,12 @@
 
         destroy: function(managed) {
 
-            var i = 0,
-                n = this._children.length;
+            var children = this._children.slice(0),
+                i = 0,
+                n = children.length;
 
             for (; i < n; ++i) {
-                this._children[i].destroy();
+                children[i].destroy();
             }
 
             if (this._manager && !managed) {

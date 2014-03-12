@@ -116,11 +116,12 @@ define([
 
         destroy: function(managed) {
 
-            var i = 0,
-                n = this._children.length;
+            var children = this._children.slice(0),
+                i = 0,
+                n = children.length;
 
             for (; i < n; ++i) {
-                this._children[i].destroy();
+                children[i].destroy();
             }
 
             if (this._manager && !managed) {

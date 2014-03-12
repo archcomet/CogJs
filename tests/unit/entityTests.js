@@ -280,15 +280,18 @@ define([
         var dir = cog.createDirector(),
             entities = dir.entities,
             parent = entities.add('testParent'),
-            child = entities.add('testChild');
+            child1 = entities.add('testChild1'),
+            child2 = entities.add('testChild2');
 
         dir.events.register('entity destroyed', listener, listener.onDestroy);
 
-        parent.addChild(child);
+        parent.addChild(child1);
+        parent.addChild(child2);
         parent.destroy();
 
         strictEqual(listener.tags.testParent, true, 'fired destroyed event for parent');
-        strictEqual(listener.tags.testChild, true, 'fired destroyed event for child');
+        strictEqual(listener.tags.testChild1, true, 'fired destroyed event for child');
+        strictEqual(listener.tags.testChild2, true, 'fired destroyed event for child');
     });
 
     test('Add/Remove Entity emits correct event', function() {
