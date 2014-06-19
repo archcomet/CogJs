@@ -1,7 +1,8 @@
 define([
     './core',
+    './category',
     './asserts/limit'
-], function(cog, assertLimit) {
+], function(cog, Category, assertLimit) {
 
     var componentCount = 0;
 
@@ -27,8 +28,10 @@ define([
         },
 
         setup: function() {
-            assertLimit(componentCount, 64, 'Exceeded 64 Component types.');
-            this._category= (componentCount === 0) ? 0 : 1 << (componentCount-1);
+            assertLimit(componentCount, Category.size,
+                'Exceeded 64 Component types. To increase cog.Category.size to increase the number of components'
+            );
+            this._category = (componentCount === 0) ? new Category() : new Category(componentCount-1);
             componentCount++;
         }
 

@@ -1,9 +1,10 @@
-//      Cog.js - Entity Component System framework v0.3.4 2014-03-12T16:58:37.967Z
+//      Cog.js - Entity Component System framework v0.3.5 2014-06-19T21:18:54.958Z
 //      http://www.github.com/archcomet/cogjs
 //      (c) 2013-2014 Michael Good
 //      Cog.js may be freely distributed under the MIT license.
 
 (function() {
+
     var hasOwn = Object.prototype.hasOwnProperty;
 
     var slice = Array.prototype.slice;
@@ -54,7 +55,7 @@
      * @const
      */
 
-    cog.VERSION = '0.3.4';
+    cog.VERSION = '0.3.5';
 
     // ------------------------------------------
     // Public Utilities
@@ -1059,6 +1060,63 @@
 
     
 
+    var Category = cog.Construct.extend('cog.Category', {
+        size: 64,
+
+        mask: function(categories) {
+
+            var category, mask = new Category(), i = 0, n = categories.length;
+            for(; i < n; ++i) {
+                category = categories[i];
+                if (!(category instanceof Category)) {
+                    category = category.category;
+                }
+                mask.addBits(category);
+            }
+            return mask;
+        }
+
+    },{
+        init: function(bit) {
+            this.bits = new Int32Array(Math.ceil(Category.size / 32));
+            if (cog.isNumber(bit)) {
+                this.bit = bit;
+                this.bits[Math.floor(bit / 32)] = 1 << (bit % 32);
+            }
+        },
+
+        addBits: function(category) {
+            var i = 0, n = this.bits.length;
+            for (; i < n; ++i) {
+                this.bits[i] |= category.bits[i];
+            }
+        },
+
+        removeBits: function(category) {
+            var i = 0, n = this.bits.length;
+            for (; i < n; ++i) {
+                this.bits[i] &= ~(category.bits[i]);
+            }
+        },
+
+        hasBits: function(category) {
+            var ret, i = 0, n = this.bits.length;
+            for (; i < n; ++i) {
+                ret = (this.bits[i] & category.bits[i]) === category.bits[i];
+                if (!ret) {
+                    break;
+                }
+            }
+            return ret;
+        }
+    });
+
+    cog.extend({
+        Category: Category
+    });
+
+    
+
     /**
      * Node
      *
@@ -1414,12 +1472,12 @@
                 return null;
             }
             var component, category = Component.category;
-            if ((category & this._componentMask) === category) {
-                component = this._components[category];
+            if (this._componentMask.hasBits(category)) {
+                component = this._components[category.bit];
                 component.set(options);
             } else {
-                component = this._components[category] = new Component(this._entity, options);
-                this._componentMask |= category;
+                component = this._components[category.bit] = new Component(this._entity, options);
+                this._componentMask.addBits(category);
                 this._eventManager.emit(Component.eventTarget + ' assigned', component, this._entity);
             }
             return component;
@@ -1435,10 +1493,10 @@
                 Component = Component.constructor;
             }
             var component, category = Component.category;
-            if ((category & this._componentMask) === category) {
-                component = this._components[category];
-                this._componentMask &= ~(category);
-                this._components[category] = undefined;
+            if (this._componentMask.hasBits(category)) {
+                component = this._components[category.bit];
+                this._componentMask.removeBits(category);
+                this._components[category.bit] = undefined;
                 this._eventManager.emit(Component.eventTarget + ' removed', component, this._entity);
                 component.destroy(true);
             }
@@ -1470,14 +1528,14 @@
          */
 
         has: function(Component) {
-            var inputMask = _mask.apply(_mask, arguments);
-            return inputMask !== 0 && (inputMask & this._componentMask) === inputMask;
+            var inputMask = Category.mask(arguments);
+            return arguments.length > 0 && this._componentMask.hasBits(inputMask);
         },
 
         /* initial mask value */
         _entity: null,
         _components: null,
-        _componentMask: 0,
+        _componentMask: null,
         _eventManager: null,
 
         /* Wrap storage in a componentAPI  */
@@ -1501,7 +1559,7 @@
                 var key, array, storage = components._components;
 
                 if (Component) {
-                    return Component.category ? storage[Component.category] : null;
+                    return Component.category && cog.isNumber(Component.category.bit) ? storage[Component.category.bit] : null;
                 }
 
                 // Get All Components
@@ -1514,7 +1572,7 @@
                 return array;
             }
 
-            components._componentMask = this._componentMask;
+            components._componentMask = new Category();
             components._components = entity._components;
             components._eventManager = entity.manager.director.events;
             components._entity = entity;
@@ -1580,8 +1638,10 @@
         },
 
         setup: function() {
-            assertLimit(componentCount, 64, 'Exceeded 64 Component types.');
-            this._category= (componentCount === 0) ? 0 : 1 << (componentCount-1);
+            assertLimit(componentCount, Category.size,
+                'Exceeded 64 Component types. To increase cog.Category.size to increase the number of components'
+            );
+            this._category = (componentCount === 0) ? new Category() : new Category(componentCount-1);
             componentCount++;
         }
 
@@ -1895,11 +1955,12 @@
 
         withComponents: function() {
             var entity,
-                inputMask = _mask.apply(_mask, arguments),
+                inputMask = Category.mask(arguments),
                 i = 0, n = this._entities.length, ret = [];
+
             for (; i < n; ++i) {
                 entity = this._entities[i];
-                if ((inputMask & entity.components._componentMask) === inputMask) {
+                if (entity.components._componentMask.hasBits(inputMask)) {
                     ret.push(entity);
                 }
             }
@@ -1940,10 +2001,11 @@
 
         removeWithComponents: function() {
             var entity, i = this._entities.length - 1,
-                inputMask = _mask.apply(_mask, arguments);
+                inputMask = Category.mask(arguments);
+
             for (; i > -1; --i) {
                 entity = this._entities[i];
-                if ((inputMask & entity.components._componentMask) === inputMask) {
+                if (entity.components._componentMask.hasBits(inputMask)) {
                     entity = this._entities.splice(i, 1)[0];
                     this._director.events.emit('entity removed', entity);
                     entity.destroy(true);
@@ -2597,6 +2659,5 @@
 
 
     this.cog = cog;
-
 
 }).call(this); // window

@@ -1,8 +1,9 @@
 define([
     './core',
+    './category',
     './node',
     './utils/_mask'
-], function(cog, Node, _mask) {
+], function(cog, Category, Node, _mask) {
 
     /**
      * Entity provides identity to all game objects.
@@ -196,12 +197,12 @@ define([
                 return null;
             }
             var component, category = Component.category;
-            if ((category & this._componentMask) === category) {
-                component = this._components[category];
+            if (this._componentMask.hasBits(category)) {
+                component = this._components[category.bit];
                 component.set(options);
             } else {
-                component = this._components[category] = new Component(this._entity, options);
-                this._componentMask |= category;
+                component = this._components[category.bit] = new Component(this._entity, options);
+                this._componentMask.addBits(category);
                 this._eventManager.emit(Component.eventTarget + ' assigned', component, this._entity);
             }
             return component;
@@ -217,10 +218,10 @@ define([
                 Component = Component.constructor;
             }
             var component, category = Component.category;
-            if ((category & this._componentMask) === category) {
-                component = this._components[category];
-                this._componentMask &= ~(category);
-                this._components[category] = undefined;
+            if (this._componentMask.hasBits(category)) {
+                component = this._components[category.bit];
+                this._componentMask.removeBits(category);
+                this._components[category.bit] = undefined;
                 this._eventManager.emit(Component.eventTarget + ' removed', component, this._entity);
                 component.destroy(true);
             }
@@ -252,14 +253,14 @@ define([
          */
 
         has: function(Component) {
-            var inputMask = _mask.apply(_mask, arguments);
-            return inputMask !== 0 && (inputMask & this._componentMask) === inputMask;
+            var inputMask = Category.mask(arguments);
+            return arguments.length > 0 && this._componentMask.hasBits(inputMask);
         },
 
         /* initial mask value */
         _entity: null,
         _components: null,
-        _componentMask: 0,
+        _componentMask: null,
         _eventManager: null,
 
         /* Wrap storage in a componentAPI  */
@@ -283,7 +284,7 @@ define([
                 var key, array, storage = components._components;
 
                 if (Component) {
-                    return Component.category ? storage[Component.category] : null;
+                    return Component.category && cog.isNumber(Component.category.bit) ? storage[Component.category.bit] : null;
                 }
 
                 // Get All Components
@@ -296,7 +297,7 @@ define([
                 return array;
             }
 
-            components._componentMask = this._componentMask;
+            components._componentMask = new Category();
             components._components = entity._components;
             components._eventManager = entity.manager.director.events;
             components._entity = entity;

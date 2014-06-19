@@ -214,27 +214,28 @@ define([
             sizeCat = Size.category;
 
         var position = entity.components.assign(Position);
-        strictEqual(entity.components.mask, posCat, 'After add 1: Mask correct');
+        strictEqual(entity.components.mask.hasBits(posCat), true, 'After add 1: Mask correct');
         strictEqual(position.entity, entity, 'After add 1: Entity correct');
 
         var movement = entity.components.assign(Movement);
-        strictEqual(entity.components.mask, posCat | moveCat, 'After add 2: Mask correct');
+        strictEqual(entity.components.mask.hasBits(posCat, moveCat), true, 'After add 2: Mask correct');
         strictEqual(movement.entity, entity, 'After add 2: Entity correct');
 
         var size = entity.components.assign(Size);
-        strictEqual(entity.components.mask, posCat | moveCat | sizeCat, 'After add 3: Mask correct');
+        strictEqual(entity.components.mask.hasBits(posCat, moveCat, sizeCat), true, 'After add 3: Mask correct');
         strictEqual(size.entity, entity, 'After add 3: Entity correct');
 
         entity.components.remove(Position);
-        strictEqual(entity.components.mask, moveCat | sizeCat, 'After remove 1: Mask correct');
+        strictEqual(entity.components.mask.hasBits(moveCat, sizeCat), true, 'After remove 1: Mask correct');
         strictEqual(position.entity, undefined, 'After remove 1: Entity undefined');
 
         entity.components.remove(Movement);
-        strictEqual(entity.components.mask, sizeCat, 'After remove 2: Mask correct');
+        strictEqual(entity.components.mask.hasBits(sizeCat), true, 'After remove 2: Mask correct');
         strictEqual(movement.entity, undefined, 'After remove 2: Entity undefined');
 
         entity.components.remove(Size);
-        strictEqual(entity.components.mask, 0, 'After remove 3: Mask correct');
+        strictEqual(entity.components.mask.bits[0], 0, 'After remove 3: Mask correct');
+        strictEqual(entity.components.mask.bits[1], 0, 'After remove 3: Mask correct');
         strictEqual(size.entity, undefined, 'After remove 3: Entity undefined');
     });
 
@@ -250,7 +251,8 @@ define([
         ok(entity.components.has(Position, Movement, Size), 'Before RemoveAll: Contains Components');
 
         entity.components.removeAll();
-        strictEqual(entity.components.mask, 0, 'After RemoveAll: Has no Components');
+        strictEqual(entity.components.mask.bits[0], 0, 'After RemoveAll: Has no Components');
+        strictEqual(entity.components.mask.bits[1], 0, 'After RemoveAll: Has no Components');
     });
 
     test('Destroy removes all Components', function() {
@@ -265,7 +267,8 @@ define([
         ok(entity.components.has(Position, Movement, Size), 'Before RemoveAll: Contains Components');
 
         entity.destroy();
-        strictEqual(entity.components.mask, 0, 'After Destroy: Has no Components');
+        strictEqual(entity.components.mask.bits[0], 0, 'After Destroy: Has no Components');
+        strictEqual(entity.components.mask.bits[1], 0, 'After Destroy: Has no Components');
     });
 
     test('Destroy destroys all children entities', function() {

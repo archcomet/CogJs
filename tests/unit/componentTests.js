@@ -46,14 +46,14 @@ define([
             TestComponent2 = Component.extend({}),
             TestComponent3 = Component.extend({});
 
-        strictEqual(Component.category, 0, 'Component has a category of 0');
-        strictEqual(Component.category, 0, 'Component has a category of 0 (2nd call)');
-        strictEqual(TestComponent1.category, 1 << (count + 0), 'TestComponent1 has a category of 1');
-        strictEqual(TestComponent1.category, 1 << (count + 0), 'TestComponent1 has a category of 1 (2nd call)');
-        strictEqual(TestComponent2.category, 1 << (count + 1), 'TestComponent2 has a category of 2');
-        strictEqual(TestComponent2.category, 1 << (count + 1), 'TestComponent2 has a category of 2 (2nd call)');
-        strictEqual(TestComponent3.category, 1 << (count + 2), 'TestComponent3 has a category of 4');
-        strictEqual(TestComponent3.category, 1 << (count + 2), 'TestComponent3 has a category of 4 (2nd call)');
+        strictEqual(Component.category.bit, undefined, 'Component has a category bit of undefined');
+        strictEqual(Component.category.bit, undefined, 'Component has a category of 0 (2nd call)');
+        strictEqual(TestComponent1.category.bit, count + 0, 'TestComponent1 has a category of 1');
+        strictEqual(TestComponent1.category.bit, count + 0, 'TestComponent1 has a category of 1 (2nd call)');
+        strictEqual(TestComponent2.category.bit, count + 1, 'TestComponent2 has a category of 2');
+        strictEqual(TestComponent2.category.bit, count + 1, 'TestComponent2 has a category of 2 (2nd call)');
+        strictEqual(TestComponent3.category.bit, count + 2, 'TestComponent3 has a category of 4');
+        strictEqual(TestComponent3.category.bit, count + 2, 'TestComponent3 has a category of 4 (2nd call)');
     });
 
     test('Create Component with defaults', function() {

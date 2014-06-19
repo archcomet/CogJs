@@ -3,6 +3,7 @@ define([
     './utils/debug',
     './utils/collections',
     './utils/random',
+    './category',
     './entity',
     './component',
     './system',

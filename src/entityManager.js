@@ -1,8 +1,8 @@
 define([
     './core',
-    './entity',
-    './utils/_mask'
-], function(cog, Entity, _mask) {
+    './category',
+    './entity'
+], function(cog, Category, Entity) {
 
     /**
      * A manager for entities.
@@ -63,11 +63,12 @@ define([
 
         withComponents: function() {
             var entity,
-                inputMask = _mask.apply(_mask, arguments),
+                inputMask = Category.mask(arguments),
                 i = 0, n = this._entities.length, ret = [];
+
             for (; i < n; ++i) {
                 entity = this._entities[i];
-                if ((inputMask & entity.components._componentMask) === inputMask) {
+                if (entity.components._componentMask.hasBits(inputMask)) {
                     ret.push(entity);
                 }
             }
@@ -108,10 +109,11 @@ define([
 
         removeWithComponents: function() {
             var entity, i = this._entities.length - 1,
-                inputMask = _mask.apply(_mask, arguments);
+                inputMask = Category.mask(arguments);
+
             for (; i > -1; --i) {
                 entity = this._entities[i];
-                if ((inputMask & entity.components._componentMask) === inputMask) {
+                if (entity.components._componentMask.hasBits(inputMask)) {
                     entity = this._entities.splice(i, 1)[0];
                     this._director.events.emit('entity removed', entity);
                     entity.destroy(true);

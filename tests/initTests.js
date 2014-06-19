@@ -3,6 +3,7 @@
     window.loadTests = function() {
         var tests = [
             'unit/coreTests.js',
+            'unit/categoryTests.js',
             'unit/constructTests.js',
             'unit/debugTests.js',
             'unit/directorTests.js',
