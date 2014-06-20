@@ -1,4 +1,4 @@
-//      Cog.js - Entity Component System framework v0.3.5 2014-06-19T23:57:30.820Z
+//      Cog.js - Entity Component System framework v0.3.5 2014-06-20T17:38:23.564Z
 //      http://www.github.com/archcomet/cogjs
 //      (c) 2013-2014 Michael Good
 //      Cog.js may be freely distributed under the MIT license.
@@ -1320,14 +1320,13 @@
              * @member tag
              * @summary Gets the entity tag
              *
-             * @readonly
              * @instance
              * @memberof cog.Entity
              *
              * @type {string}
              */
 
-            tag: { get: function() { return this._tag } },
+            tag: { get: function() { return this._tag; }, set: function(value) { this._tag = value; } },
 
             /**
              * @member valid

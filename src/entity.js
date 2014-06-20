@@ -53,14 +53,13 @@ define([
              * @member tag
              * @summary Gets the entity tag
              *
-             * @readonly
              * @instance
              * @memberof cog.Entity
              *
              * @type {string}
              */
 
-            tag: { get: function() { return this._tag } },
+            tag: { get: function() { return this._tag; }, set: function(value) { this._tag = value; } },
 
             /**
              * @member valid
