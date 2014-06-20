@@ -1,9 +1,8 @@
 define([
     './core',
     './category',
-    './node',
-    './utils/_mask'
-], function(cog, Category, Node, _mask) {
+    './node'
+], function(cog, Category, Node) {
 
     /**
      * Entity provides identity to all game objects.

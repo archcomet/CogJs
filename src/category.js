@@ -4,6 +4,8 @@ define([
 ], function(cog) {
     'use strict';
 
+    window.Int32Array = window.Int32Array || window.Array;
+
     var Category = cog.Construct.extend('cog.Category', {
         size: 64,
 
@@ -22,7 +24,13 @@ define([
 
     },{
         init: function(bit) {
+            var i, n;
             this.bits = new Int32Array(Math.ceil(Category.size / 32));
+            if (this.bits instanceof Array) {
+                for (i = 0, n = this.bits.length; i < n; ++i) {
+                    this.bits[i] = 0;
+                }
+            }
             if (cog.isNumber(bit)) {
                 this.bit = bit;
                 this.bits[Math.floor(bit / 32)] = 1 << (bit % 32);

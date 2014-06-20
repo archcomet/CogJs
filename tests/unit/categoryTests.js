@@ -48,6 +48,16 @@ define([
         ok(mask.hasBits(h), 'Mask has d');
     });
 
+    test('Initialize standard array', function() {
+
+        var bu_Int32Array = window.Int32Array;
+
+        window.Int32Array = window.Array;
+
+        _test(new Category(), 0, 0, 'InitDefault');
+
+        window.Int32Array = bu_Int32Array;
+    });
 
     function _test(category, expectedBitsSet0, expectedBitsSet1, name) {
         strictEqual(category.bits.length, 2, name + ': has expected set length');

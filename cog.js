@@ -1,4 +1,4 @@
-//      Cog.js - Entity Component System framework v0.3.5 2014-06-19T21:18:54.958Z
+//      Cog.js - Entity Component System framework v0.3.5 2014-06-19T23:57:30.820Z
 //      http://www.github.com/archcomet/cogjs
 //      (c) 2013-2014 Michael Good
 //      Cog.js may be freely distributed under the MIT license.
@@ -1060,6 +1060,8 @@
 
     
 
+    window.Int32Array = window.Int32Array || window.Array;
+
     var Category = cog.Construct.extend('cog.Category', {
         size: 64,
 
@@ -1078,7 +1080,13 @@
 
     },{
         init: function(bit) {
+            var i, n;
             this.bits = new Int32Array(Math.ceil(Category.size / 32));
+            if (this.bits instanceof Array) {
+                for (i = 0, n = this.bits.length; i < n; ++i) {
+                    this.bits[i] = 0;
+                }
+            }
             if (cog.isNumber(bit)) {
                 this.bit = bit;
                 this.bits[Math.floor(bit / 32)] = 1 << (bit % 32);
@@ -1261,23 +1269,6 @@
     });
 
     cog.Node = Node;
-
-    /**
-     * _mask
-     *  Creates a bit mask from the arguments array.
-     * @returns {number}
-     * @private
-     */
-
-    function _mask() {
-        var arg, ret = 0, i = 0, n = arguments.length;
-        for(; i < n; ++i) {
-            if ((arg = arguments[i]) && arg.category) {
-                ret |= arg.category;
-            }
-        }
-        return ret;
-    }
 
 
     /**
