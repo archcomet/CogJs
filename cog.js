@@ -1,4 +1,4 @@
-//      Cog.js - Entity Component System framework v0.3.5 2014-06-20T17:38:23.564Z
+//      Cog.js - Entity Component System framework v0.3.6 2014-06-20T17:39:16.957Z
 //      http://www.github.com/archcomet/cogjs
 //      (c) 2013-2014 Michael Good
 //      Cog.js may be freely distributed under the MIT license.
@@ -55,7 +55,7 @@
      * @const
      */
 
-    cog.VERSION = '0.3.5';
+    cog.VERSION = '0.3.6';
 
     // ------------------------------------------
     // Public Utilities
