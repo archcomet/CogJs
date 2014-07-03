@@ -1,4 +1,4 @@
-//      Cog.js - Entity Component System framework v0.3.6 2014-06-20T17:39:16.957Z
+//      Cog.js - Entity Component System framework v0.3.7 2014-07-03T19:20:41.564Z
 //      http://www.github.com/archcomet/cogjs
 //      (c) 2013-2014 Michael Good
 //      Cog.js may be freely distributed under the MIT license.
@@ -55,7 +55,7 @@
      * @const
      */
 
-    cog.VERSION = '0.3.6';
+    cog.VERSION = '0.3.7';
 
     // ------------------------------------------
     // Public Utilities
@@ -1854,13 +1854,14 @@
 
         spawn: function(options) {
             var key,
-                entity = this._entityManager.add(this.entityTag),
+                tag = (options && cog.isString(options.tag)) ? options.tag : this.entityTag,
+                entity = this._entityManager.add(tag),
                 components = this.components,
                 component,
                 componentOptions;
 
             for (key in components) {
-                if (components.hasOwnProperty(key)) {
+                if (key !== 'tag' && components.hasOwnProperty(key)) {
                     component = components[key];
                     componentOptions = (options && options[key]) ? options[key] : {};
                     cog.defaults(componentOptions, component.defaults);
@@ -1869,12 +1870,22 @@
             }
 
             this._entities.push(entity);
+
+            if (this._entityManager.rootEntity) {
+                this._entityManager.rootEntity.addChild(entity);
+            }
+
             return entity;
         },
 
         despawn: function(entity) {
             var index = this._entities.indexOf(entity);
             if (index > -1) {
+
+                if (this._entityManager.rootEntity) {
+                    this._entityManager.rootEntity.removeChild(entity);
+                }
+
                 this._entities.splice(index, 1);
                 entity.destroy();
             }
@@ -1901,13 +1912,18 @@
 
         properties: {
             director: { get: function() { return this._director; } },
-            valid: { get: function() { return (this._director !== undefined); } }
+            valid: { get: function() { return (this._director !== undefined); } },
+            rootEntity: {
+                get:function () { return this._root; },
+                set: function(value) { this._root = value; }
+            }
         },
 
         init: function(director) {
             this._director = director;
             this._entities = [];
             this._entityId = 1;
+            this._root = null;
         },
 
         destroy: function() {

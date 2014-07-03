@@ -39,13 +39,14 @@ define([
 
         spawn: function(options) {
             var key,
-                entity = this._entityManager.add(this.entityTag),
+                tag = (options && cog.isString(options.tag)) ? options.tag : this.entityTag,
+                entity = this._entityManager.add(tag),
                 components = this.components,
                 component,
                 componentOptions;
 
             for (key in components) {
-                if (components.hasOwnProperty(key)) {
+                if (key !== 'tag' && components.hasOwnProperty(key)) {
                     component = components[key];
                     componentOptions = (options && options[key]) ? options[key] : {};
                     cog.defaults(componentOptions, component.defaults);
@@ -54,12 +55,22 @@ define([
             }
 
             this._entities.push(entity);
+
+            if (this._entityManager.rootEntity) {
+                this._entityManager.rootEntity.addChild(entity);
+            }
+
             return entity;
         },
 
         despawn: function(entity) {
             var index = this._entities.indexOf(entity);
             if (index > -1) {
+
+                if (this._entityManager.rootEntity) {
+                    this._entityManager.rootEntity.removeChild(entity);
+                }
+
                 this._entities.splice(index, 1);
                 entity.destroy();
             }

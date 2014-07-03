@@ -676,8 +676,6 @@ define([
         strictEqual(parent1.children.length, 0, 'Parent1 has 0 child');
         strictEqual(parent2.children.length, 1, 'Parent2 has 1 child');
 
-
-
     });
 
 });
