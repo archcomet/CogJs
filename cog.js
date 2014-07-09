@@ -1,4 +1,4 @@
-//      Cog.js - Entity Component System framework v0.3.7 2014-07-03T19:20:41.564Z
+//      Cog.js - Entity Component System framework v0.3.8 2014-07-09T21:12:40.891Z
 //      http://www.github.com/archcomet/cogjs
 //      (c) 2013-2014 Michael Good
 //      Cog.js may be freely distributed under the MIT license.
@@ -55,7 +55,7 @@
      * @const
      */
 
-    cog.VERSION = '0.3.7';
+    cog.VERSION = '0.3.8';
 
     // ------------------------------------------
     // Public Utilities
@@ -183,12 +183,11 @@
     /**
      * Merges the contents of two or more objects into the first object. Target properties will not be overwritten.
      *
-     * Based on [underscore.defaults](http://underscorejs.org/#defaults)
-     *
-     * @see  http://underscorejs.org/#defaults
+     * Based on jquery extend, but modified to keep existing props instead.
      *
      * @memberof cog
      *
+     * @param {boolean} [deep] - Optional, when true, properties will be deep copied.
      * @param {object} target - An object that will receive properties if additional objects are passed in.
      * @param {object} [object1] - An object containing properties to be merged into the target.
      * @param {object} [objectN] - Additional objects containing properties to be merged into the target.
@@ -196,17 +195,63 @@
      */
 
     cog.defaults = function defaults(target, object1, objectN) {
-        slice.call(arguments, 1).forEach(function(source) {
-            if (source) {
-                for (var key in source) {
+
+        var options, key, src, copy, copyIsArray, clone,
+            target = arguments[0] || {},
+            i = 1,
+            n = arguments.length,
+            deep = false;
+
+        if (typeof target === 'boolean') {
+            deep = target;
+            target = arguments[i] || {};
+            i++;
+        }
+
+        if (typeof target !== 'object' && !cog.isFunction(target)) {
+            target = {};
+        }
+
+        for(; i < n; ++i) {
+            if ((options = arguments[i]) != null) {
+                for (key in options) {
                     //noinspection JSUnfilteredForInLoop
-                    if (target[key] === undefined) {
+                    src = target[key];
+
+                    //noinspection JSUnfilteredForInLoop
+                    copy = options[key];
+
+                    if (target === copy) {
+                        continue;
+                    }
+
+                    if (deep && copy && (cog.isPlainObject(copy) || (copyIsArray = cog.isArray(copy)) )) {
+
+                        if (src === undefined) {
+                            if (copyIsArray) {
+                                copyIsArray = false;
+                                clone = src && cog.isArray(src) ? src : [];
+                            } else {
+                                clone = src && cog.isPlainObject(src) ? src : {};
+                            }
+
+                            //noinspection JSUnfilteredForInLoop
+                            target[key] = cog.defaults(deep, clone, copy);
+
+                        } else {
+                            cog.defaults(deep, src, copy);
+
+                        }
+
+                    } else if (src == undefined && copy !== undefined) {
+
                         //noinspection JSUnfilteredForInLoop
-                        target[key] = source[key];
+                        target[key] = copy;
                     }
                 }
             }
-        });
+        }
+
         return target;
     };
 
@@ -1834,6 +1879,8 @@
 
         entityTag: null,
 
+        parentEntity: null,
+
         components: {},
 
         init: function(manager) {
@@ -1871,8 +1918,8 @@
 
             this._entities.push(entity);
 
-            if (this._entityManager.rootEntity) {
-                this._entityManager.rootEntity.addChild(entity);
+            if (this.parentEntity) {
+                this.parentEntity.addChild(entity);
             }
 
             return entity;
@@ -1882,8 +1929,8 @@
             var index = this._entities.indexOf(entity);
             if (index > -1) {
 
-                if (this._entityManager.rootEntity) {
-                    this._entityManager.rootEntity.removeChild(entity);
+                if (this.parentEntity) {
+                    this.parentEntity.removeChild(entity);
                 }
 
                 this._entities.splice(index, 1);
@@ -1912,18 +1959,13 @@
 
         properties: {
             director: { get: function() { return this._director; } },
-            valid: { get: function() { return (this._director !== undefined); } },
-            rootEntity: {
-                get:function () { return this._root; },
-                set: function(value) { this._root = value; }
-            }
+            valid: { get: function() { return (this._director !== undefined); } }
         },
 
         init: function(director) {
             this._director = director;
             this._entities = [];
             this._entityId = 1;
-            this._root = null;
         },
 
         destroy: function() {

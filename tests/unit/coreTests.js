@@ -102,4 +102,99 @@ define([
         strictEqual(target.bar, 2, 'Bar was copied from source1');
         strictEqual(target.obj, source2.obj, 'Obj was copied from source2');
     });
+
+    test('Defaults - merge objects deep copy', function() {
+
+        var target = {
+            foo: {
+                red: 42,
+                yellow: 5,
+                blue: undefined
+            },
+            vector: [2,3],
+            rotation: undefined
+        };
+
+        var defaults1 = {
+            foo: {
+                red: 0,
+                yellow: 0,
+                blue: 0,
+                alpha: 1
+            },
+            bar: {
+                hello: 'world'
+            },
+            vector: [0, 0],
+            rotation: [3, 2]
+        };
+
+        var defaults2 = {
+            foo: {},
+            bar: {
+                oneMoreThing: null
+            },
+            rotation: [5, 6, 1]
+        };
+
+        var fooRef = target.foo;
+        var barRef1 = defaults1.bar;
+        var barRef2 = defaults2.bar;
+        var vectorRef = target.vector;
+        var rotationRef = defaults1.rotation;
+
+        var result = cog.defaults(true, target, defaults1, defaults2);
+
+        strictEqual(result, target, 'Returns target object');
+
+        strictEqual(result.foo, fooRef, 'Retained foo reference');
+        strictEqual(result.foo.red, 42, 'has original value');
+        strictEqual(result.foo.yellow, 5,'has original value');
+        strictEqual(result.foo.blue, 0, 'has original value');
+        strictEqual(result.foo.alpha, 1, 'has copied value');
+
+        notStrictEqual(result.bar, barRef1, 'not ref from defaults1');
+        notStrictEqual(result.bar, barRef2, 'not ref from defaults2');
+        ok(cog.isPlainObject(result.bar), 'created a copy');
+        strictEqual(result.bar.hello, 'world', 'copied value');
+        strictEqual(result.bar.oneMoreThing, null, 'copied null value');
+
+        strictEqual(result.vector, vectorRef, 'Retained vector ref');
+        strictEqual(result.vector[0], 2, 'Retained vector value');
+        strictEqual(result.vector[1], 3, 'Retained vector value');
+
+        notStrictEqual(result.rotation, rotationRef, 'Did not ref defaults rotation');
+        ok(cog.isArray(result.rotation), 'created new array');
+        strictEqual(result.rotation[0], 3, 'copied rotation value 0');
+        strictEqual(result.rotation[1], 2, 'copied rotation value 1');
+        strictEqual(result.rotation[2], 1, 'copied rotation value 2');
+    });
+
+    test('Defaults - target is undefined', function() {
+
+        var source = {
+            hello: {
+                world: true
+            }
+        };
+
+        var result = cog.defaults(22, source);
+
+        ok(cog.isPlainObject(result));
+        notStrictEqual(result, source);
+        strictEqual(result.hello, source.hello);
+    });
+
+    test('Defaults - prevents recursive copy', function() {
+
+        var target = {};
+
+        var source = {
+            target: target
+        };
+
+        var result = cog.defaults(target, source);
+
+        strictEqual(result.target, undefined);
+    });
 });

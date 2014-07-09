@@ -19,18 +19,13 @@ define([
 
         properties: {
             director: { get: function() { return this._director; } },
-            valid: { get: function() { return (this._director !== undefined); } },
-            rootEntity: {
-                get:function () { return this._root; },
-                set: function(value) { this._root = value; }
-            }
+            valid: { get: function() { return (this._director !== undefined); } }
         },
 
         init: function(director) {
             this._director = director;
             this._entities = [];
             this._entityId = 1;
-            this._root = null;
         },
 
         destroy: function() {

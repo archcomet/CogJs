@@ -19,6 +19,8 @@ define([
 
         entityTag: null,
 
+        parentEntity: null,
+
         components: {},
 
         init: function(manager) {
@@ -56,8 +58,8 @@ define([
 
             this._entities.push(entity);
 
-            if (this._entityManager.rootEntity) {
-                this._entityManager.rootEntity.addChild(entity);
+            if (this.parentEntity) {
+                this.parentEntity.addChild(entity);
             }
 
             return entity;
@@ -67,8 +69,8 @@ define([
             var index = this._entities.indexOf(entity);
             if (index > -1) {
 
-                if (this._entityManager.rootEntity) {
-                    this._entityManager.rootEntity.removeChild(entity);
+                if (this.parentEntity) {
+                    this.parentEntity.removeChild(entity);
                 }
 
                 this._entities.splice(index, 1);

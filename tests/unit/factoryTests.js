@@ -131,14 +131,14 @@ define([
         strictEqual(entity.valid, false, 'Entity no longer valid');
     });
 
-    test('Add/Remove on spawn when a root entity is set', function() {
+    test('Add/Remove on spawn when a parent entity is set', function() {
 
         var dir = cog.createDirector(),
             events = dir.events,
             entities = dir.entities;
 
-        dir.entities.rootEntity = dir.entities.add('root');
-        dir.systems.add(TestFactory);
+        var factory = dir.systems.add(TestFactory);
+        factory.parentEntity = dir.entities.add('root');
 
         events.emit('spawn TestObj', {
             tag: 'testTag',
@@ -150,14 +150,14 @@ define([
             }
         });
 
-        var childrenAfterSpawn = dir.entities.rootEntity.children;
+        var childrenAfterSpawn = factory.parentEntity.children;
         var entity = entities.withTag('testTag')[0];
 
         ok(childrenAfterSpawn.indexOf(entity) > -1, 'Spawned entity added to root entity');
 
         events.emit('despawn TestObj', entity);
 
-        var childrenAfterDeSpawn = dir.entities.rootEntity.children;
+        var childrenAfterDeSpawn = factory.parentEntity.children;
         ok(childrenAfterDeSpawn.indexOf(entity) === -1, 'Spawned entity removed from root entity');
 
         strictEqual(entity.valid, false, 'Entity no longer valid', '');

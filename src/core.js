@@ -149,12 +149,11 @@ define([
     /**
      * Merges the contents of two or more objects into the first object. Target properties will not be overwritten.
      *
-     * Based on [underscore.defaults](http://underscorejs.org/#defaults)
-     *
-     * @see  http://underscorejs.org/#defaults
+     * Based on jquery extend, but modified to keep existing props instead.
      *
      * @memberof cog
      *
+     * @param {boolean} [deep] - Optional, when true, properties will be deep copied.
      * @param {object} target - An object that will receive properties if additional objects are passed in.
      * @param {object} [object1] - An object containing properties to be merged into the target.
      * @param {object} [objectN] - Additional objects containing properties to be merged into the target.
@@ -162,17 +161,63 @@ define([
      */
 
     cog.defaults = function defaults(target, object1, objectN) {
-        slice.call(arguments, 1).forEach(function(source) {
-            if (source) {
-                for (var key in source) {
+
+        var options, key, src, copy, copyIsArray, clone,
+            target = arguments[0] || {},
+            i = 1,
+            n = arguments.length,
+            deep = false;
+
+        if (typeof target === 'boolean') {
+            deep = target;
+            target = arguments[i] || {};
+            i++;
+        }
+
+        if (typeof target !== 'object' && !cog.isFunction(target)) {
+            target = {};
+        }
+
+        for(; i < n; ++i) {
+            if ((options = arguments[i]) != null) {
+                for (key in options) {
                     //noinspection JSUnfilteredForInLoop
-                    if (target[key] === undefined) {
+                    src = target[key];
+
+                    //noinspection JSUnfilteredForInLoop
+                    copy = options[key];
+
+                    if (target === copy) {
+                        continue;
+                    }
+
+                    if (deep && copy && (cog.isPlainObject(copy) || (copyIsArray = cog.isArray(copy)) )) {
+
+                        if (src === undefined) {
+                            if (copyIsArray) {
+                                copyIsArray = false;
+                                clone = src && cog.isArray(src) ? src : [];
+                            } else {
+                                clone = src && cog.isPlainObject(src) ? src : {};
+                            }
+
+                            //noinspection JSUnfilteredForInLoop
+                            target[key] = cog.defaults(deep, clone, copy);
+
+                        } else {
+                            cog.defaults(deep, src, copy);
+
+                        }
+
+                    } else if (src == undefined && copy !== undefined) {
+
                         //noinspection JSUnfilteredForInLoop
-                        target[key] = source[key];
+                        target[key] = copy;
                     }
                 }
             }
-        });
+        }
+
         return target;
     };
 
