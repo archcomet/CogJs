@@ -151,6 +151,8 @@ define([
      *
      * Based on jquery extend, but modified to keep existing props instead.
      *
+     * Note: Source arraies will only be copied if the target's property is undefined.
+     *
      * @memberof cog
      *
      * @param {boolean} [deep] - Optional, when true, properties will be deep copied.
@@ -196,17 +198,16 @@ define([
                         if (src === undefined) {
                             if (copyIsArray) {
                                 copyIsArray = false;
-                                clone = src && cog.isArray(src) ? src : [];
+                                clone = [];
                             } else {
-                                clone = src && cog.isPlainObject(src) ? src : {};
+                                clone = {};
                             }
 
                             //noinspection JSUnfilteredForInLoop
                             target[key] = cog.defaults(deep, clone, copy);
 
-                        } else {
+                        } else if (!cog.isArray(copy)) {
                             cog.defaults(deep, src, copy);
-
                         }
 
                     } else if (src == undefined && copy !== undefined) {
@@ -356,7 +357,7 @@ define([
 
     //if function de-compilation is supported match '_super', otherwise match anything
     //noinspection JSValidateTypes
-    var fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
+    var fnTest = /xyz/.test(function(){xyz=true;}) ? /\b_super\b/ : /.*/;
 
     var base = { _super: function(){} };
 

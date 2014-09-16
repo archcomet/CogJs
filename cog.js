@@ -1,4 +1,4 @@
-//      Cog.js - Entity Component System framework v0.3.8 2014-07-09T21:12:40.891Z
+//      Cog.js - Entity Component System framework v0.3.9 2014-09-16T22:43:03.192Z
 //      http://www.github.com/archcomet/cogjs
 //      (c) 2013-2014 Michael Good
 //      Cog.js may be freely distributed under the MIT license.
@@ -55,7 +55,7 @@
      * @const
      */
 
-    cog.VERSION = '0.3.8';
+    cog.VERSION = '0.3.9';
 
     // ------------------------------------------
     // Public Utilities
@@ -185,6 +185,8 @@
      *
      * Based on jquery extend, but modified to keep existing props instead.
      *
+     * Note: Source arraies will only be copied if the target's property is undefined.
+     *
      * @memberof cog
      *
      * @param {boolean} [deep] - Optional, when true, properties will be deep copied.
@@ -230,17 +232,16 @@
                         if (src === undefined) {
                             if (copyIsArray) {
                                 copyIsArray = false;
-                                clone = src && cog.isArray(src) ? src : [];
+                                clone = [];
                             } else {
-                                clone = src && cog.isPlainObject(src) ? src : {};
+                                clone = {};
                             }
 
                             //noinspection JSUnfilteredForInLoop
                             target[key] = cog.defaults(deep, clone, copy);
 
-                        } else {
+                        } else if (!cog.isArray(copy)) {
                             cog.defaults(deep, src, copy);
-
                         }
 
                     } else if (src == undefined && copy !== undefined) {
@@ -390,7 +391,7 @@
 
     //if function de-compilation is supported match '_super', otherwise match anything
     //noinspection JSValidateTypes
-    var fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
+    var fnTest = /xyz/.test(function(){xyz=true;}) ? /\b_super\b/ : /.*/;
 
     var base = { _super: function(){} };
 

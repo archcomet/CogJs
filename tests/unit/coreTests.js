@@ -167,7 +167,6 @@ define([
         ok(cog.isArray(result.rotation), 'created new array');
         strictEqual(result.rotation[0], 3, 'copied rotation value 0');
         strictEqual(result.rotation[1], 2, 'copied rotation value 1');
-        strictEqual(result.rotation[2], 1, 'copied rotation value 2');
     });
 
     test('Defaults - target is undefined', function() {
