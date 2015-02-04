@@ -96,6 +96,7 @@ define([
 
         var TestSystem1 = System.extend({
                 update: function(entities, events, dt) {
+                    console.log(arguments);
                     testArgs1 = arguments;
                 }
             }),

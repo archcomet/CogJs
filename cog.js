@@ -1,4 +1,4 @@
-//      Cog.js - Entity Component System framework v0.3.9 2014-09-16T22:43:03.192Z
+//      Cog.js - Entity Component System framework v0.4.0 2015-02-04T00:52:09.490Z
 //      http://www.github.com/archcomet/cogjs
 //      (c) 2013-2014 Michael Good
 //      Cog.js may be freely distributed under the MIT license.
@@ -55,7 +55,7 @@
      * @const
      */
 
-    cog.VERSION = '0.3.9';
+    cog.VERSION = '0.4.0';
 
     // ------------------------------------------
     // Public Utilities
@@ -240,7 +240,7 @@
                             //noinspection JSUnfilteredForInLoop
                             target[key] = cog.defaults(deep, clone, copy);
 
-                        } else if (!cog.isArray(copy)) {
+                        } else if (!cog.isArray(src)) {
                             cog.defaults(deep, src, copy);
                         }
 
@@ -427,10 +427,17 @@
             },
             set: function(value) {
                 var oldValue = this[privateKey];
-                this[privateKey] = value;
-                this.dirty = true;
-                if (cog.isFunction(this.trigger)) {
-                    this.trigger(key, value, oldValue);
+                if (oldValue !== value) {
+
+                    /**ExcludeStart**/
+                    cog.debug.log('Dirty property changed', key, oldValue, value);
+                    /**ExcludeEnd**/
+
+                    this[privateKey] = value;
+                    this.dirty = true;
+                    if (cog.isFunction(this.trigger)) {
+                        this.trigger(key, value, oldValue);
+                    }
                 }
             },
             enumerable: true,
@@ -555,6 +562,7 @@
 
         Constructor.prototype = prototype;
         Constructor.prototype.constructor = Constructor;
+        Constructor.super = this;
 
         _inherit(Constructor, {}, superPrototype.constructor);
         _inherit(Constructor, superPrototype.constructor, staticProps);
@@ -614,6 +622,10 @@
 
     var debug = {
 
+        _enabled: false,
+
+        _filter: null,
+
         /**
          * enable debug
          * @memberof cog.debug
@@ -633,6 +645,15 @@
         },
 
         /**
+         * setFilter
+         * @param filterString
+         */
+
+        setFilter: function(filterString) {
+            this._filter = filterString ? new RegExp(filterString) : null;
+        },
+
+        /**
          * log debug messages
          * @memberof cog.debug
          * @param {string} msg
@@ -640,8 +661,16 @@
 
         log: function(msg) {
             if (this._enabled) {
-                console.log(msg);
+                var args = Array.prototype.slice.call(arguments, 0);
+                if (this._checkFilter(args)) {
+                    window.console.log.apply(window.console, args);
+                }
             }
+        },
+
+        _checkFilter: function(args) {
+            var msg = args.join('');
+            return this._filter ? !!msg.match(this._filter) : true;
         }
     };
 
@@ -1853,9 +1882,13 @@
 
         configure: function(entityManager, eventManager, config) {},
 
-        update: function(entityManager, eventManager, dt) {},
+        update: function(entityManager, eventManager, dt, mode) {},
 
-        render: function(entityManager) {}
+        render: function(entityManager) {},
+
+        start: function(entityManager, eventManager, mode) {},
+
+        stop: function(entityManager, eventManager, mode) {}
 
     });
 
@@ -2296,9 +2329,12 @@
                 n = this._systemOrder.length,
                 systems = this._systemOrder,
                 entities = this._director.entities,
-                events = this._director.events;
+                events = this._director.events,
+                mode = this._director.mode;
             for (; i < n; ++i) {
-                systems[i].update(entities, events, dt);
+                if (this._director._running) {
+                    systems[i].update(entities, events, dt, mode);
+                }
             }
             return this;
         },
@@ -2312,11 +2348,79 @@
                 systems[i].render(entities);
             }
             return this;
+        },
+
+        start: function() {
+            var i = 0,
+                n = this._systemOrder.length,
+                systems = this._systemOrder,
+                entities = this._director.entities,
+                events = this._director.events,
+                mode = this._director.mode;
+            for (; i < n; ++i) {
+                systems[i].start(entities, events, mode);
+            }
+            return this;
+        },
+
+        stop: function() {
+            var i = 0,
+                n = this._systemOrder.length,
+                systems = this._systemOrder,
+                entities = this._director.entities,
+                events = this._director.events,
+                mode = this._director.mode;
+            for (; i < n; ++i) {
+                systems[i].stop(entities, events, mode);
+            }
+            return this;
         }
     });
 
     cog.extend({
         SystemManager: SystemManager
+    });
+
+
+    /**
+     *
+     * @class
+     * @memberof cog
+     * @augments cog.Construct
+     *
+     * @constructor
+     */
+
+    var Mode = cog.Construct.extend('cog.Mode', {
+
+        properties: {
+
+            director: { get: function() { return this._director; } },
+
+            state: {
+                enumerable: false,
+                configurable: false,
+                writable: true,
+                value: null
+            }
+        },
+
+        init: function(director) {
+            this._director = director;
+            this.state = {};
+        },
+
+        configure: function(entityManager, eventManager, config) {},
+
+        start: function(entityManager, eventManager) {},
+
+        update: function(entityManager, eventManager, dt) {},
+
+        stop: function(entityManager, eventManager) {}
+    });
+
+    cog.extend({
+        Mode: Mode
     });
 
 
@@ -2384,6 +2488,8 @@
         _eventManager: null,
         _systemManager: null,
         _animationFrame: null,
+        _currentMode: null,
+        _running: false,
 
         defaults: {
             _targetDt: 1000 / 60,
@@ -2442,6 +2548,32 @@
              */
 
             systems: { get: function() { return this._systemManager; } },
+
+            /**
+             * @member mode
+             * @summary Gets the current Mode.
+             *
+             * @readonly
+             * @instance
+             * @memberof cog.Director
+             *
+             * @type {Mode}
+             */
+
+            mode: { get: function() { return this._currentMode; } },
+
+            /**
+             * @member running
+             * @summary Returns true if the director is running updates
+             *
+             * @readonly
+             * @instance
+             * @memberof cog.Director
+             *
+             * @type {Boolean}
+             */
+
+            running: { get: function() { return this._running; } },
 
             /**
              * @member valid
@@ -2507,24 +2639,49 @@
 
         /**
          * @name start
-         * @desc Starts the Director's timer.
+         * @desc Starts the Director with a specified Mode.
          * Schedules the step function via requestAnimationFrame
          *
          * @instance
          * @method
          * @memberof cog.Director
+         *
+         * @param [CurrentMode] {Mode} Constructor for the mode to started. If undefined, starts the default Mode.
+         * @param [withUpdate] {Boolean} Indicates if updates should be scheduled. Defaults true.
          */
 
-        start:function() {
-            if (!this._animationFrame) {
+        start:function(CurrentMode, withUpdate) {
+
+            this._running = false;
+
+            if (this._currentMode) {
+                this.stop();
+            }
+
+            if (cog.isBoolean(CurrentMode)) {
+                withUpdate = CurrentMode;
+                CurrentMode = Mode;
+
+            } else {
+                CurrentMode = CurrentMode || Mode;
+                withUpdate = cog.isBoolean(withUpdate) ? withUpdate : true;
+            }
+
+            this._currentMode = new CurrentMode(this);
+            this._currentMode.configure(this.entities, this.events, this.config);
+            this._currentMode.start(this.entities, this.events);
+            this._systemManager.start();
+
+            if (withUpdate && !this._animationFrame) {
                 this._lastFrame = 0;
+                this._accumulator = 0;
                 this._animationFrame = requestAnimationFrame(this.step.bind(this));
             }
         },
 
         /**
          * @name stop
-         * @desc Stops the Director's timer.
+         * @desc Stops the Director's timer, and clears the mode.
          * Un-schedules the step function via cancelAnimationFrame
          *
          * @instance
@@ -2533,6 +2690,16 @@
          */
 
         stop: function() {
+
+            this._running = false;
+
+            if (this._currentMode) {
+                this._currentMode.stop(this.entities, this.events);
+                this._systemManager.stop();
+                this._currentMode.destroy();
+                this._currentMode = null;
+            }
+
             if (this._animationFrame) {
                 cancelAnimationFrame(this._animationFrame);
                 this._animationFrame = null;
@@ -2567,7 +2734,8 @@
 
             if (this._fixedDt) {
                 accumulator += dt;
-                while (accumulator > targetDt) {
+                this._running = true;
+                while (accumulator > targetDt && this._running) {
                     this.update(targetDt);
                     accumulator -= targetDt;
                 }
@@ -2603,9 +2771,20 @@
                 this._beginUpdateCallback();
             }
 
+            this._running = true;
+
             
 
-            this._systemManager.update(dt);
+            if (this._running) {
+                if (this._currentMode) {
+                    this._currentMode.update(this.entities, this.events, dt);
+                }
+
+                if (this._systemManager) {
+                    this._systemManager.update(dt);
+                }
+            }
+
             if (this._endUpdateCallback) {
                 this._endUpdateCallback();
             }
@@ -2623,8 +2802,9 @@
         render: function() {
             
 
-            this._systemManager.render();
-
+            if (this._systemManager) {
+                this._systemManager.render();
+            }
             
         },
 

@@ -206,7 +206,7 @@ define([
                             //noinspection JSUnfilteredForInLoop
                             target[key] = cog.defaults(deep, clone, copy);
 
-                        } else if (!cog.isArray(copy)) {
+                        } else if (!cog.isArray(src)) {
                             cog.defaults(deep, src, copy);
                         }
 
@@ -393,10 +393,17 @@ define([
             },
             set: function(value) {
                 var oldValue = this[privateKey];
-                this[privateKey] = value;
-                this.dirty = true;
-                if (cog.isFunction(this.trigger)) {
-                    this.trigger(key, value, oldValue);
+                if (oldValue !== value) {
+
+                    /**ExcludeStart**/
+                    cog.debug.log('Dirty property changed', key, oldValue, value);
+                    /**ExcludeEnd**/
+
+                    this[privateKey] = value;
+                    this.dirty = true;
+                    if (cog.isFunction(this.trigger)) {
+                        this.trigger(key, value, oldValue);
+                    }
                 }
             },
             enumerable: true,
@@ -521,6 +528,7 @@ define([
 
         Constructor.prototype = prototype;
         Constructor.prototype.constructor = Constructor;
+        Constructor.super = this;
 
         _inherit(Constructor, {}, superPrototype.constructor);
         _inherit(Constructor, superPrototype.constructor, staticProps);

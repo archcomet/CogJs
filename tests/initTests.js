@@ -11,12 +11,14 @@
             'unit/componentTests.js',
             'unit/systemTests.js',
             'unit/eventTests.js',
+            'unit/modeTests.js',
             'unit/nodeTests.js',
             'unit/factoryTests.js',
             'unit/utilityTests.js',
             'unit/randomTests.js',
             'unit/arrayWrapperTests.js',
-            'unit/setWrapperTests.js'
+            'unit/setWrapperTests.js',
+            'unit/sequencingTests.js'
         ];
 
         requirejs.config({

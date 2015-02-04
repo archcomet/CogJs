@@ -156,6 +156,8 @@ define([
         cog.debug.enable();
         dir.systems.add(TestSystem);
         dir.start();
+
+        ok((dir.mode instanceof cog.Mode));
     });
 
 });

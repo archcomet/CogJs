@@ -47,9 +47,13 @@ define([
 
         configure: function(entityManager, eventManager, config) {},
 
-        update: function(entityManager, eventManager, dt) {},
+        update: function(entityManager, eventManager, dt, mode) {},
 
-        render: function(entityManager) {}
+        render: function(entityManager) {},
+
+        start: function(entityManager, eventManager, mode) {},
+
+        stop: function(entityManager, eventManager, mode) {}
 
     });
 

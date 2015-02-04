@@ -1,11 +1,12 @@
 define([
     './core',
+    './mode',
     './eventManager',
     './entityManager',
     './systemManager',
     './polyfill/bind',
     './polyfill/requestAnimationFrame'
-], function(cog, EventManager, EntityManager, SystemManager) {
+], function(cog, Mode, EventManager, EntityManager, SystemManager) {
 
     /**
      * The Director represents an instance of cog.
@@ -29,6 +30,8 @@ define([
         _eventManager: null,
         _systemManager: null,
         _animationFrame: null,
+        _currentMode: null,
+        _running: false,
 
         defaults: {
             _targetDt: 1000 / 60,
@@ -87,6 +90,32 @@ define([
              */
 
             systems: { get: function() { return this._systemManager; } },
+
+            /**
+             * @member mode
+             * @summary Gets the current Mode.
+             *
+             * @readonly
+             * @instance
+             * @memberof cog.Director
+             *
+             * @type {Mode}
+             */
+
+            mode: { get: function() { return this._currentMode; } },
+
+            /**
+             * @member running
+             * @summary Returns true if the director is running updates
+             *
+             * @readonly
+             * @instance
+             * @memberof cog.Director
+             *
+             * @type {Boolean}
+             */
+
+            running: { get: function() { return this._running; } },
 
             /**
              * @member valid
@@ -152,24 +181,49 @@ define([
 
         /**
          * @name start
-         * @desc Starts the Director's timer.
+         * @desc Starts the Director with a specified Mode.
          * Schedules the step function via requestAnimationFrame
          *
          * @instance
          * @method
          * @memberof cog.Director
+         *
+         * @param [CurrentMode] {Mode} Constructor for the mode to started. If undefined, starts the default Mode.
+         * @param [withUpdate] {Boolean} Indicates if updates should be scheduled. Defaults true.
          */
 
-        start:function() {
-            if (!this._animationFrame) {
+        start:function(CurrentMode, withUpdate) {
+
+            this._running = false;
+
+            if (this._currentMode) {
+                this.stop();
+            }
+
+            if (cog.isBoolean(CurrentMode)) {
+                withUpdate = CurrentMode;
+                CurrentMode = Mode;
+
+            } else {
+                CurrentMode = CurrentMode || Mode;
+                withUpdate = cog.isBoolean(withUpdate) ? withUpdate : true;
+            }
+
+            this._currentMode = new CurrentMode(this);
+            this._currentMode.configure(this.entities, this.events, this.config);
+            this._currentMode.start(this.entities, this.events);
+            this._systemManager.start();
+
+            if (withUpdate && !this._animationFrame) {
                 this._lastFrame = 0;
+                this._accumulator = 0;
                 this._animationFrame = requestAnimationFrame(this.step.bind(this));
             }
         },
 
         /**
          * @name stop
-         * @desc Stops the Director's timer.
+         * @desc Stops the Director's timer, and clears the mode.
          * Un-schedules the step function via cancelAnimationFrame
          *
          * @instance
@@ -178,6 +232,16 @@ define([
          */
 
         stop: function() {
+
+            this._running = false;
+
+            if (this._currentMode) {
+                this._currentMode.stop(this.entities, this.events);
+                this._systemManager.stop();
+                this._currentMode.destroy();
+                this._currentMode = null;
+            }
+
             if (this._animationFrame) {
                 cancelAnimationFrame(this._animationFrame);
                 this._animationFrame = null;
@@ -214,7 +278,8 @@ define([
 
             if (this._fixedDt) {
                 accumulator += dt;
-                while (accumulator > targetDt) {
+                this._running = true;
+                while (accumulator > targetDt && this._running) {
                     this.update(targetDt);
                     accumulator -= targetDt;
                 }
@@ -250,11 +315,22 @@ define([
                 this._beginUpdateCallback();
             }
 
+            this._running = true;
+
             /* ExcludeStart */
             cog.debug.log('update dt: ' + dt);
             /* ExcludeEnd */
 
-            this._systemManager.update(dt);
+            if (this._running) {
+                if (this._currentMode) {
+                    this._currentMode.update(this.entities, this.events, dt);
+                }
+
+                if (this._systemManager) {
+                    this._systemManager.update(dt);
+                }
+            }
+
             if (this._endUpdateCallback) {
                 this._endUpdateCallback();
             }
@@ -274,8 +350,9 @@ define([
             var start = performance.now();
             /* ExcludeEnd */
 
-            this._systemManager.render();
-
+            if (this._systemManager) {
+                this._systemManager.render();
+            }
             /* ExcludeStart */
             var end = performance.now();
             cog.debug.log('render dt: ' + (end-start));

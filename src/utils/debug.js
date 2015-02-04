@@ -9,6 +9,10 @@ define([
 
     var debug = {
 
+        _enabled: false,
+
+        _filter: null,
+
         /**
          * enable debug
          * @memberof cog.debug
@@ -28,6 +32,15 @@ define([
         },
 
         /**
+         * setFilter
+         * @param filterString
+         */
+
+        setFilter: function(filterString) {
+            this._filter = filterString ? new RegExp(filterString) : null;
+        },
+
+        /**
          * log debug messages
          * @memberof cog.debug
          * @param {string} msg
@@ -35,8 +48,16 @@ define([
 
         log: function(msg) {
             if (this._enabled) {
-                console.log(msg);
+                var args = Array.prototype.slice.call(arguments, 0);
+                if (this._checkFilter(args)) {
+                    window.console.log.apply(window.console, args);
+                }
             }
+        },
+
+        _checkFilter: function(args) {
+            var msg = args.join('');
+            return this._filter ? !!msg.match(this._filter) : true;
         }
     };
 

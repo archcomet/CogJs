@@ -109,9 +109,12 @@ define([
                 n = this._systemOrder.length,
                 systems = this._systemOrder,
                 entities = this._director.entities,
-                events = this._director.events;
+                events = this._director.events,
+                mode = this._director.mode;
             for (; i < n; ++i) {
-                systems[i].update(entities, events, dt);
+                if (this._director._running) {
+                    systems[i].update(entities, events, dt, mode);
+                }
             }
             return this;
         },
@@ -123,6 +126,32 @@ define([
                 entities = this._director.entities;
             for (; i < n; ++i) {
                 systems[i].render(entities);
+            }
+            return this;
+        },
+
+        start: function() {
+            var i = 0,
+                n = this._systemOrder.length,
+                systems = this._systemOrder,
+                entities = this._director.entities,
+                events = this._director.events,
+                mode = this._director.mode;
+            for (; i < n; ++i) {
+                systems[i].start(entities, events, mode);
+            }
+            return this;
+        },
+
+        stop: function() {
+            var i = 0,
+                n = this._systemOrder.length,
+                systems = this._systemOrder,
+                entities = this._director.entities,
+                events = this._director.events,
+                mode = this._director.mode;
+            for (; i < n; ++i) {
+                systems[i].stop(entities, events, mode);
             }
             return this;
         }
