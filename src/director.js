@@ -210,6 +210,7 @@ define([
             }
 
             this._currentMode = new CurrentMode(this);
+            this._eventManager.registerContext(this._currentMode);
             this._currentMode.configure(this.entities, this.events, this.config);
             this._currentMode.start(this.entities, this.events);
             this._systemManager.start();
@@ -238,6 +239,7 @@ define([
             if (this._currentMode) {
                 this._currentMode.stop(this.entities, this.events);
                 this._systemManager.stop();
+                this._eventManager.unregisterContext(this._currentMode);
                 this._currentMode.destroy();
                 this._currentMode = null;
             }

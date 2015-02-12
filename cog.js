@@ -1,4 +1,4 @@
-//      Cog.js - Entity Component System framework v0.4.0 2015-02-04T00:52:09.490Z
+//      Cog.js - Entity Component System framework v0.4.0 2015-02-12T19:06:58.451Z
 //      http://www.github.com/archcomet/cogjs
 //      (c) 2013-2014 Michael Good
 //      Cog.js may be freely distributed under the MIT license.
@@ -2668,6 +2668,7 @@
             }
 
             this._currentMode = new CurrentMode(this);
+            this._eventManager.registerContext(this._currentMode);
             this._currentMode.configure(this.entities, this.events, this.config);
             this._currentMode.start(this.entities, this.events);
             this._systemManager.start();
@@ -2696,6 +2697,7 @@
             if (this._currentMode) {
                 this._currentMode.stop(this.entities, this.events);
                 this._systemManager.stop();
+                this._eventManager.unregisterContext(this._currentMode);
                 this._currentMode.destroy();
                 this._currentMode = null;
             }
