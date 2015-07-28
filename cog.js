@@ -1,4 +1,4 @@
-//      Cog.js - Entity Component System framework v0.4.0 2015-07-28T04:21:52.330Z
+//      Cog.js - Entity Component System framework v0.4.0 2015-07-28T05:22:36.918Z
 //      http://www.github.com/archcomet/cogjs
 //      (c) 2013-2014 Michael Good
 //      Cog.js may be freely distributed under the MIT license.
@@ -2432,28 +2432,6 @@
 
     (function() {
         var startTime = Date.now();
-        var lastTime = 0;
-        var vendors = ['webkit', 'moz'];
-        for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
-            window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
-            window.cancelAnimationFrame =
-                window[vendors[x]+'CancelAnimationFrame'] || window[vendors[x]+'CancelRequestAnimationFrame'];
-        }
-
-        if (!window.requestAnimationFrame)
-            window.requestAnimationFrame = function(callback, element) {
-                var currTime = new Date().getTime();
-                var timeToCall = Math.max(0, 16 - (currTime - lastTime));
-                var id = window.setTimeout(function() { callback(currTime + timeToCall); },
-                    timeToCall);
-                lastTime = currTime + timeToCall;
-                return id;
-            };
-
-        if (!window.cancelAnimationFrame)
-            window.cancelAnimationFrame = function(id) {
-                clearTimeout(id);
-        };
 
         if (!window.performance) {
             window.performance = {};
@@ -2464,6 +2442,31 @@
                 return Date.now() - startTime;
             };
         }
+
+        var lastTime = 0;
+        var vendors = ['webkit', 'moz'];
+        for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+            window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+            window.cancelAnimationFrame =
+                window[vendors[x]+'CancelAnimationFrame'] || window[vendors[x]+'CancelRequestAnimationFrame'];
+        }
+
+        if (!window.requestAnimationFrame) {
+            window.requestAnimationFrame = function (callback, element) {
+                var currTime = window.performance.now();
+                var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+                var id = window.setTimeout(function() { callback(currTime + timeToCall); },
+                    timeToCall);
+                lastTime = currTime + timeToCall;
+                return id;
+            };
+        }
+
+        if (!window.cancelAnimationFrame)
+            window.cancelAnimationFrame = function(id) {
+                clearTimeout(id);
+        };
+
     }());
 
 
