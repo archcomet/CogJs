@@ -8,6 +8,7 @@ define(function() {
     // MIT license
 
     (function() {
+        var startTime = Date.now();
         var lastTime = 0;
         var vendors = ['webkit', 'moz'];
         for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
@@ -32,11 +33,13 @@ define(function() {
         };
 
         if (!window.performance) {
-            window.performance = {
-                now: function() {
-                    return Date.now();
-                }
-            }
+            window.performance = {};
+        }
+
+        if (!window.performance.now) {
+            window.performance.now = function () {
+                return Date.now() - startTime;
+            };
         }
     }());
 });
