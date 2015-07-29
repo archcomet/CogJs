@@ -1,9 +1,11 @@
-//      Cog.js - Entity Component System framework v0.4.0 2015-07-28T05:22:36.918Z
+//      Cog.js - Entity Component System framework v0.4.0 2015-07-29T18:52:31.485Z
 //      http://www.github.com/archcomet/cogjs
 //      (c) 2013-2014 Michael Good
 //      Cog.js may be freely distributed under the MIT license.
 
 (function() {
+    
+
     var hasOwn = Object.prototype.hasOwnProperty;
 
     var slice = Array.prototype.slice;
@@ -1132,7 +1134,7 @@
         rand: rand
     });
 
-    'use strict';
+    
 
     window.Int32Array = window.Int32Array || window.Array;
 
@@ -1197,7 +1199,7 @@
         Category: Category
     });
 
-    'use strict';
+    
 
     /**
      * Node
@@ -2895,6 +2897,5 @@
 
 
     this.cog = cog;
-
 
 }).call(this); // window
