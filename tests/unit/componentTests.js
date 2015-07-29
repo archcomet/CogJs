@@ -71,8 +71,19 @@ define([
 
         strictEqual(comp.number, 42, 'Number copied');
         strictEqual(comp.string, 'hello', 'String copied');
-        strictEqual(comp.object, def.object, 'object is a ref');
-        strictEqual(comp.arr, def.arr, 'arr is a ref');
+
+        notStrictEqual(comp.object, def.object, 'object is not a ref');
+        strictEqual(comp.object.x, def.object.x);
+        strictEqual(comp.object.y, def.object.y);
+        notStrictEqual(comp.object.z, def.object.z);
+        strictEqual(comp.object.z[0], def.object.z[0]);
+
+        notStrictEqual(comp.arr, def.arr, 'arr is not a ref');
+        strictEqual(comp.arr[0], def.arr[0]);
+        strictEqual(comp.arr[1], def.arr[1]);
+        notStrictEqual(comp.arr[2], def.arr[2]);
+        strictEqual(comp.arr[2].foo, def.arr[2].foo);
+
     });
 
     test('Serialize Component', function() {

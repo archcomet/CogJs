@@ -522,6 +522,21 @@ define([
                 throw 'Constructor called without new keyword';
             }
             if (!initializing) {
+                var key, prop;
+                for (key in Constructor.prototype) {
+                    if (key !== 'defaults' && key !== 'properties') {
+                        //noinspection JSUnfilteredForInLoop
+                        prop = Constructor.prototype[key];
+                        if (cog.isPlainObject(prop)) {
+                            //noinspection JSUnfilteredForInLoop
+                            this[key] = cog.extend(true, {}, prop);
+                        }
+                        else if (cog.isArray(prop)) {
+                            //noinspection JSUnfilteredForInLoop
+                            this[key] = cog.extend(true, [], prop);
+                        }
+                    }
+                }
                 this.init.apply(this, arguments);
             }
         }
